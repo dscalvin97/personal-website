@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import {
-  IndexItem,
   LinkLine,
   PageHeader,
   Section,
@@ -10,7 +9,7 @@ import {
 export const metadata: Metadata = {
   title: "Developer",
   description:
-    "How Calvin Dsouza builds software — fullstack, performance-first, no theater.",
+    "Calvin Dsouza — fullstack developer. Web apps, APIs, CMS, performance.",
 };
 
 const cases = [
@@ -18,25 +17,25 @@ const cases = [
     n: "01",
     title: "100,000+ training images",
     meta: "Fynd · Python · Blender",
-    body: "Automated image pipelines that turned 3D scenes into captioned datasets for ML models. Blender in the loop, JavaScript on the edges, Python holding it together.",
+    body: "Automated pipelines that turned 3D scenes into captioned datasets for ML models.",
   },
   {
     n: "02",
     title: "Eight products, one engineer",
     meta: "Fynd · Next.js · Node",
-    body: "Fullstack features across Pixelbin, Erase.bg, Upscale.media and friends — frontend and backend owned end to end, without a committee.",
+    body: "Fullstack features across Pixelbin, Erase.bg, Upscale.media and others — frontend and backend.",
   },
   {
     n: "03",
     title: "Localization without a dev ticket",
     meta: "Fynd · Strapi",
-    body: "Custom CMS for 20+ languages with live shared UI updates. Content teams ship copy; engineers stop being the bottleneck.",
+    body: "CMS for 20+ languages with live shared UI updates. Content teams ship without waiting on engineering.",
   },
   {
     n: "04",
     title: "GCash delivery",
     meta: "Snapwork · Team lead",
-    body: "Led two developers on client-facing fullstack work. Reusable components and API patterns that cut delivery cycles roughly tenfold.",
+    body: "Led two developers on client-facing fullstack work. Reusable components and API patterns.",
   },
 ] as const;
 
@@ -46,13 +45,8 @@ export default function DeveloperPage() {
       <PageHeader
         index="02"
         eyebrow="Developer"
-        title={
-          <>
-            Software that behaves on a{" "}
-            <span className="italic text-brass">Tuesday</span>.
-          </>
-        }
-        lede="I build fullstack product work with a bias toward clarity: readable defaults, honest performance, and deployments that don’t need a prayer."
+        title="Software that works on a Tuesday."
+        lede="Fullstack product work with readable defaults, honest performance, and deployments that don’t need a prayer."
       />
 
       <Section label="How I work">
@@ -60,17 +54,13 @@ export default function DeveloperPage() {
           <p>
             Own the feature from the data shape to the reverse proxy. Prefer
             boring reliability over clever demos. If it loads slow, that’s a
-            bug — not a personality quirk.
+            bug.
           </p>
           <p>
-            At Fynd that meant shipping across eight products and pipelines
-            that generated six figures of training data. At Snapwork, leading
-            delivery for GCash. At Kolors, software that has to coexist with
-            firmware and home automation instead of pretending hardware doesn’t
-            exist.
-          </p>
-          <p className="meta mt-6 text-copper">
-            Warm hands, cold checks. Yarn tension and LCP are the same skill.
+            At Fynd I shipped across eight products and built pipelines that
+            generated six figures of training data. At Snapwork I led delivery
+            for GCash. At Kolors, software that has to coexist with firmware
+            and home automation.
           </p>
         </div>
       </Section>
@@ -78,9 +68,7 @@ export default function DeveloperPage() {
       <Section label="Case files">
         <div>
           {cases.map((c) => (
-            <IndexItem key={c.n} n={c.n} title={c.title} meta={c.meta}>
-              {c.body}
-            </IndexItem>
+            <IndexItemLite key={c.n} {...c} />
           ))}
         </div>
       </Section>
@@ -106,7 +94,7 @@ export default function DeveloperPage() {
             },
             {
               k: "Also",
-              v: "REST APIs, multilingual CMS, AI image pipelines, performance budgets",
+              v: "REST APIs, multilingual CMS, AI image pipelines",
             },
           ]}
         />
@@ -115,18 +103,45 @@ export default function DeveloperPage() {
       <Section label="Further">
         <div className="measure">
           <p>
-            Roles and education live in the{" "}
-            <LinkLine href="/work/">work archive</LinkLine>
-            . 3D pipeline thinking is on the{" "}
+            Roles and education on the{" "}
+            <LinkLine href="/work/">work page</LinkLine>
+            . 3D work on the{" "}
             <LinkLine href="/studio/">studio page</LinkLine>
-            . Reach me on{" "}
+            . LinkedIn:{" "}
             <LinkLine href="https://www.linkedin.com/in/dscalvin" external>
-              LinkedIn
+              dscalvin
             </LinkLine>
             .
           </p>
         </div>
       </Section>
     </main>
+  );
+}
+
+function IndexItemLite({
+  n,
+  title,
+  meta,
+  body,
+}: {
+  n: string;
+  title: string;
+  meta: string;
+  body: string;
+}) {
+  return (
+    <div className="index-row reveal">
+      <span className="meta text-copper">{n}</span>
+      <div>
+        <h3 className="font-display text-2xl leading-tight text-paper sm:text-[1.75rem]">
+          {title}
+        </h3>
+        <div className="measure mt-2 text-sm leading-relaxed text-muted">
+          {body}
+        </div>
+      </div>
+      <span className="index-meta meta text-muted sm:text-right">{meta}</span>
+    </div>
   );
 }

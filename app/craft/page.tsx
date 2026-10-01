@@ -8,8 +8,7 @@ import {
 
 export const metadata: Metadata = {
   title: "Craft",
-  description:
-    "Calvin Dsouza — crochet and handmade work. Tension, loops, gauge.",
+  description: "Calvin Dsouza — crochet and handmade work.",
 };
 
 export default function CraftPage() {
@@ -18,27 +17,23 @@ export default function CraftPage() {
       <PageHeader
         index="04"
         eyebrow="Craft"
-        title={
-          <>
-            Same hands,{" "}
-            <span className="italic text-brass">slower problem</span>.
-          </>
-        }
-        lede="Crochet is how I remember that not everything needs a deploy. Tension control, gauge swatches, frogging when the row is wrong — process vocabulary that transfers."
+        title="Crochet."
+        lede="Hooks, yarn, and slow making. Same curiosity as the 3D work — tension, topology, how a curve sits in space."
       />
 
-      <Section label="Why it stays">
+      <Section label="What I make">
         <div className="measure">
           <p>
-            Screen work rewards speed. Craft punishes it. A skein and a hook
-            reset the part of my brain that wants every problem to be a
-            sprint ticket.
+            Amigurumi, homeware, and whatever keeps my hands busy. Patterns
+            and finished pieces show up on{" "}
+            <LinkLine href="https://dscalvin.gumroad.com/" external>
+              Gumroad
+            </LinkLine>{" "}
+            as they land.
           </p>
           <p>
             Stitch patterns are algorithms. Increases are topology. A bad join
-            looks exactly like a bad mesh edge. The 3D work got sharper after I
-            started crocheting — and crochet got sharper when I stopped
-            treating every project like it had to ship on a deadline.
+            looks like a bad mesh edge.
           </p>
         </div>
       </Section>
@@ -48,42 +43,32 @@ export default function CraftPage() {
           items={[
             {
               k: "Front-load",
-              v: "Skill level, yarn weight, hook, finished size — not buried on page nine",
+              v: "Skill level, yarn weight, hook, finished size — up front",
             },
-            {
-              k: "Terms",
-              v: "US terms by default; UK called out when I use it",
-            },
+            { k: "Terms", v: "US terms by default; UK called out when used" },
             {
               k: "Voice",
               v: "Short steps. No filler. If a line doesn’t help, it isn’t in the PDF",
             },
-            {
-              k: "Where",
-              v: "Digital patterns on Gumroad as they land",
-            },
+            { k: "Where", v: "Digital patterns on Gumroad" },
           ]}
         />
       </Section>
 
-      <Section label="Tension notes">
+      <Section label="Contact">
         <div className="measure">
           <p>
-            Digital goods live on{" "}
-            <LinkLine href="https://dscalvin.gumroad.com/" external>
-              Gumroad
-            </LinkLine>
-            . Patterns, materials, or a commission —{" "}
+            Patterns, materials, commissions —{" "}
             <LinkLine href="https://www.linkedin.com/in/dscalvin" external>
               LinkedIn
             </LinkLine>
+            . Shop:{" "}
+            <LinkLine href="https://dscalvin.gumroad.com/" external>
+              Gumroad
+            </LinkLine>
+            . 3D side:{" "}
+            <LinkLine href="/studio/">studio</LinkLine>
             .
-          </p>
-          <p>
-            The copper loop on the{" "}
-            <LinkLine href="/studio/">studio page</LinkLine> is this
-            practice as geometry. Web software and yarn share one habit:
-            finish the edge cleanly.
           </p>
         </div>
       </Section>

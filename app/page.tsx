@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { IndexItem } from "@/components/page-parts";
-import { ResumeDownload } from "@/components/resume-download";
 
 const index = [
   {
@@ -10,31 +9,28 @@ const index = [
     title: "Work",
     meta: "Archive",
     blurb:
-      "Kolors, Snapwork, Fynd, HERE — fullstack, firmware-adjacent product work, and 3D pipelines. Listed like a ledger, not a pitch deck.",
+      "Kolors, Snapwork, Fynd, HERE — fullstack, firmware-adjacent product work, and 3D pipelines.",
   },
   {
     href: "/developer/",
     n: "02",
     title: "Developer",
     meta: "Practice",
-    blurb:
-      "How I build: APIs, apps, CMS, performance as a default rather than a phase. Proof lives in the work index.",
+    blurb: "APIs, apps, CMS, and the infrastructure underneath.",
   },
   {
     href: "/studio/",
     n: "03",
     title: "3D",
     meta: "Practice",
-    blurb:
-      "Blender years, automated image pipelines, live WebGL on this site. Form, light, and material under a frame budget.",
+    blurb: "Blender, Unity, automated image pipelines.",
   },
   {
     href: "/craft/",
     n: "04",
     title: "Craft",
     meta: "Practice",
-    blurb:
-      "Crochet — tension, loops, gauge. Same hands that ship firmware also finish a row before dinner.",
+    blurb: "Crochet — tension, loops, gauge, finished objects.",
   },
 ] as const;
 
@@ -60,21 +56,13 @@ export default function HomePage() {
             className="measure mt-8 text-lg leading-relaxed text-paper/85 sm:text-xl"
             style={{ "--i": 2 } as CSSProperties}
           >
-            I build software that has to work on a Tuesday morning, model
-            things until the light sits right, and crochet when my hands need
-            a slower problem.
-          </p>
-          <p
-            className="measure mt-4 text-base leading-relaxed text-muted"
-            style={{ "--i": 3 } as CSSProperties}
-          >
-            Senior fullstack developer at Kolors India — web, firmware, home
-            automation. Before that: 3D + fullstack at Fynd, delivery lead at
-            Snapwork, Blender and Unity at HERE.
+            Senior fullstack developer at Kolors India. Before that: 3D and
+            fullstack at Fynd, delivery lead at Snapwork, Blender and Unity at
+            HERE. I also crochet.
           </p>
           <div
             className="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.72rem] tracking-[0.14em] text-muted uppercase"
-            style={{ "--i": 4 } as CSSProperties}
+            style={{ "--i": 3 } as CSSProperties}
           >
             <a
               href="https://www.linkedin.com/in/dscalvin"
@@ -101,7 +89,7 @@ export default function HomePage() {
               Gumroad
             </a>
             <Link href="/work/" className="transition-colors hover:text-brass">
-              Work index →
+              Work →
             </Link>
             <a
               href="/calvin-dsouza-resume.pdf"
@@ -114,7 +102,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-t border-line py-12 sm:py-16" aria-label="Index">
+      <section
+        className="border-t border-line py-12 sm:py-16"
+        aria-label="Index"
+      >
         <div className="mx-auto w-full max-w-4xl px-5">
           <div className="flex items-baseline justify-between gap-4">
             <h2 className="meta text-brass">Index</h2>
@@ -138,68 +129,32 @@ export default function HomePage() {
 
       <section className="border-t border-line py-12 sm:py-16">
         <div className="mx-auto w-full max-w-4xl px-5">
-          <div className="grid gap-10 md:grid-cols-[1.2fr_1fr]">
-            <div className="measure">
-              <h2 className="font-display text-3xl leading-tight text-paper sm:text-4xl">
-                Currently
-              </h2>
-              <p className="mt-5">
-                Senior fullstack developer at{" "}
-                <a
-                  href="https://www.kolorsworld.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper"
-                >
-                  Kolors India
-                </a>
-                . Connected electrical products: the app, the API, and the
-                firmware-adjacent bits that make a switch feel inevitable.
-              </p>
-              <p>
-                Based in Mumbai. Open to interesting work. If you want the
-                full timeline, the{" "}
-                <Link
-                  href="/work/"
-                  className="text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper"
-                >
-                  work archive
-                </Link>{" "}
-                is the short version.
-              </p>
-            </div>
-            <aside className="border-t border-line pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
-              <p className="meta text-copper">Elsewhere</p>
-              <ul className="mt-4 space-y-3">
-                <li>
-                  <a
-                    href="/calvin-dsouza-resume.pdf"
-                    download="Calvin-Dsouza-Resume.pdf"
-                    className="font-mono text-[0.72rem] tracking-[0.14em] text-brass uppercase transition-colors hover:text-copper"
-                  >
-                    Resume ↓
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://dscalvin.gumroad.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-mono text-[0.72rem] tracking-[0.14em] text-brass uppercase transition-colors hover:text-copper"
-                  >
-                    Gumroad · crochet patterns ↗
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/studio/"
-                    className="font-mono text-[0.72rem] tracking-[0.14em] text-brass uppercase transition-colors hover:text-copper"
-                  >
-                    Live 3D material study →
-                  </a>
-                </li>
-              </ul>
-            </aside>
+          <div className="measure">
+            <h2 className="font-display text-3xl leading-tight text-paper sm:text-4xl">
+              Currently
+            </h2>
+            <p className="mt-5">
+              Senior fullstack developer at{" "}
+              <a
+                href="https://www.kolorsworld.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper"
+              >
+                Kolors India
+              </a>
+              . Web products, firmware-adjacent work, and home automation.
+            </p>
+            <p>
+              Based in Mumbai. Open to interesting work. Full timeline on the{" "}
+              <Link
+                href="/work/"
+                className="text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper"
+              >
+                work page
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </section>

@@ -13,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "Work",
   description:
-    "Calvin Dsouza — work archive. Kolors, Snapwork, Fynd, HERE. Fullstack, 3D pipelines, firmware-adjacent product.",
+    "Calvin Dsouza — work history. Kolors, Snapwork, Fynd, HERE.",
 };
 
 export default function WorkPage() {
@@ -22,13 +22,8 @@ export default function WorkPage() {
       <PageHeader
         index="01"
         eyebrow="Work"
-        title={
-          <>
-            An archive, not a{" "}
-            <span className="italic text-brass">highlight reel</span>.
-          </>
-        }
-        lede="Five years of shipping across fintech, AI platforms, and connected products. Read it like a ledger — role, place, what actually happened."
+        title="Work history."
+        lede="Roles, places, and what I actually shipped. Updated from the CMS content file."
       >
         <div className="mt-6 flex flex-wrap items-center gap-4">
           <ResumeDownload />
@@ -89,14 +84,16 @@ export default function WorkPage() {
               </ul>
 
               {role.tech?.length ? (
-                <p className="meta mt-4 text-muted">{role.tech.join("  ·  ")}</p>
+                <p className="meta mt-4 text-muted">
+                  {role.tech.join("  ·  ")}
+                </p>
               ) : null}
             </div>
           ))}
         </div>
       </Section>
 
-      <Section label="Evidence">
+      <Section label="Highlights">
         <ul className="space-y-4">
           {achievements.map((item) => (
             <li
@@ -129,15 +126,11 @@ export default function WorkPage() {
         </div>
       </Section>
 
-      <Section label="Tools in rotation">
+      <Section label="Tools">
         <div className="measure">
           <p>
             {skills.languages}. {skills.web}. {skills.data}. {skills.cloud}.{" "}
             {skills.creative}.
-          </p>
-          <p className="meta mt-4 text-muted">
-            Not a skill bar. Things I have actually shipped with. Full
-            timeline in the PDF.
           </p>
           <div className="mt-6">
             <ResumeDownload label="Download resume PDF" />
