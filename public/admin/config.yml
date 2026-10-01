@@ -5,57 +5,127 @@ backend:
   base_url: https://calvin.makes.fyi
   auth_endpoint: admin/oauth/authorize
 
-media_folder: "public/uploads"
-public_folder: "/uploads"
+site_url: https://calvin.makes.fyi/
+display_url: https://calvin.makes.fyi
+media_folder: public/uploads
+public_folder: /uploads
 
 collections:
-  - name: "work"
-    label: "Work & Resume"
-    description: "Roles, education, skills, achievements shown on the site and resume summary."
+  - name: profile
+    label: Profile
+    description: Name, bio, contact, and links used across the site.
     files:
-      - file: "content/work.json"
-        name: "work"
-        label: "Work content"
+      - file: content/profile.json
+        name: profile
+        label: Identity
         fields:
-          - { label: "Profile Name", name: "profile.name", widget: "string" }
-          - { label: "Headline", name: "profile.headline", widget: "text" }
-          - { label: "Summary", name: "profile.summary", widget: "text" }
-          - { label: "Email", name: "profile.email", widget: "string" }
-          - { label: "LinkedIn URL", name: "profile.links.linkedin", widget: "string" }
-          - { label: "GitHub URL", name: "profile.links.github", widget: "string" }
-          - { label: "Gumroad URL", name: "profile.links.gumroad", widget: "string" }
-          - { label: "Resume PDF path", name: "profile.resumePdf", widget: "string", hint: "File in public/, e.g. /calvin-dsouza-resume.pdf" }
-          - label: "Roles"
-            name: "roles"
-            widget: "list"
-            summary: "{{fields.company}} — {{fields.title}}"
+          - { label: Full name, name: name, widget: string, required: true }
+          - { label: Location, name: location, widget: string, hint: "e.g. Mumbai, India" }
+          - { label: Email, name: email, widget: string, required: true }
+          - { label: Phone, name: phone, widget: string, required: false }
+          - { label: Headline, name: headline, widget: text }
+          - { label: Summary, name: summary, widget: text }
+          - label: Links
+            name: links
+            widget: object
+            collapsed: false
             fields:
-              - { label: "ID", name: "id", widget: "string" }
-              - { label: "Company", name: "company", widget: "string" }
-              - { label: "Company URL", name: "href", widget: "string", required: false }
-              - { label: "Title", name: "title", widget: "string" }
-              - { label: "Period", name: "period", widget: "string" }
-              - { label: "Location", name: "location", widget: "string" }
-              - { label: "Summary", name: "summary", widget: "text" }
-              - { label: "Highlights", name: "highlights", widget: "list", field: { label: "Highlight", name: "item", widget: "text" } }
-              - { label: "Tech", name: "tech", widget: "list", field: { label: "Tech", name: "item", widget: "string" } }
-              - { label: "Tags", name: "tags", widget: "list", field: { label: "Tag", name: "item", widget: "string" } }
-          - label: "Education"
-            name: "education"
-            widget: "list"
-            fields:
-              - { label: "Credential", name: "credential", widget: "string" }
-              - { label: "School", name: "school", widget: "string" }
-              - { label: "Year", name: "year", widget: "string" }
-          - { label: "Achievements", name: "achievements", widget: "list", field: { label: "Achievement", name: "item", widget: "text" } }
-          - label: "Skills"
-            name: "skills"
-            widget: "object"
-            fields:
-              - { label: "Languages", name: "languages", widget: "text" }
-              - { label: "Web", name: "web", widget: "text" }
-              - { label: "Data & CMS", name: "data", widget: "text" }
-              - { label: "Cloud", name: "cloud", widget: "text" }
-              - { label: "Creative / 3D", name: "creative", widget: "text" }
-              - { label: "Also", name: "also", widget: "text" }
-          - { label: "Updated at", name: "updatedAt", widget: "string", hint: "YYYY-MM-DD" }
+              - { label: LinkedIn, name: linkedin, widget: string }
+              - { label: GitHub, name: github, widget: string }
+              - { label: Gumroad, name: gumroad, widget: string }
+              - { label: Website, name: website, widget: string }
+          - { label: Resume PDF path, name: resumePdf, widget: string, required: true, hint: "File in public/, e.g. /calvin-dsouza-resume.pdf" }
+
+  - name: skills
+    label: Skills
+    files:
+      - file: content/skills.json
+        name: skills
+        label: Skills
+        fields:
+          - { label: Languages, name: languages, widget: text }
+          - { label: Web, name: web, widget: text }
+          - { label: Data & CMS, name: data, widget: text }
+          - { label: Cloud, name: cloud, widget: text }
+          - { label: Creative / 3D, name: creative, widget: text }
+          - { label: Also, name: also, widget: text, required: false }
+
+  - name: achievements
+    label: Achievements
+    files:
+      - file: content/achievements.json
+        name: achievements
+        label: Highlights
+        fields:
+          - label: Highlights
+            name: items
+            widget: list
+            summary: "{{fields.text}}"
+            field: { label: Text, name: text, widget: text, required: true }
+
+  - name: roles
+    label: Roles
+    label_singular: Role
+    description: One file per job. Order 1 appears first on the work page.
+    folder: content/roles
+    create: true
+    delete: true
+    extension: json
+    format: json
+    slug: "{{fields.slug}}"
+    summary: "{{fields.company}} · order {{fields.order}}"
+    sortable_fields: ["order", "company", "period"]
+    fields:
+      - { label: Slug, name: slug, widget: string, required: true, hint: "Used for the filename (lowercase, hyphens). Example: kolors" }
+      - { label: Order, name: order, widget: number, value_type: int, required: true, hint: "1 = first listed. Use gaps (10, 20, 30) if you want room to insert." }
+      - { label: Company, name: company, widget: string, required: true }
+      - { label: Company URL, name: href, widget: string, required: false }
+      - { label: Job title, name: title, widget: string, required: true }
+      - { label: Period, name: period, widget: string, hint: "Present  or  Jun 2025 – 2026" }
+      - { label: Location, name: location, widget: string }
+      - { label: Summary, name: summary, widget: text }
+      - label: Highlights
+        name: highlights
+        widget: list
+        summary: "{{fields.item}}"
+        field: { label: Highlight, name: item, widget: text, required: true }
+      - label: Tech
+        name: tech
+        widget: list
+        required: false
+        summary: "{{fields.item}}"
+        field: { label: Tech, name: item, widget: string }
+      - label: Tags
+        name: tags
+        widget: list
+        required: false
+        summary: "{{fields.item}}"
+        field: { label: Tag, name: item, widget: string }
+
+  - name: education
+    label: Education
+    label_singular: Entry
+    folder: content/education
+    create: true
+    delete: true
+    extension: json
+    format: json
+    slug: "{{fields.slug}}"
+    summary: "{{fields.credential}} · order {{fields.order}}"
+    sortable_fields: ["order", "year"]
+    fields:
+      - { label: Slug, name: slug, widget: string, required: true, hint: "Filename key, e.g. bsc-computer-science" }
+      - { label: Order, name: order, widget: number, value_type: int, required: true }
+      - { label: Credential, name: credential, widget: string, required: true }
+      - { label: School, name: school, widget: string, required: true }
+      - { label: Year, name: year, widget: string }
+
+  - name: site
+    label: Site meta
+    files:
+      - file: content/site.json
+        name: site
+        label: Site
+        fields:
+          - { label: Updated at, name: updatedAt, widget: string, hint: "YYYY-MM-DD — bump when you publish" }
+          - { label: Work page title, name: title, widget: string, required: false }

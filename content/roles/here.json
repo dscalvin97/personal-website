@@ -1,0 +1,24 @@
+{
+  "id": "here",
+  "company": "HERE Technologies",
+  "title": "Map Modeler",
+  "period": "Sep 2018 – Jun 2020",
+  "location": "Mumbai, India",
+  "summary": "Unity indoor-navigation POC and internal Blender training for employee cohorts.",
+  "highlights": [
+    "Unity-based POC mobile app for indoor office navigation",
+    "Trained two employee cohorts in Blender to build internal 3D asset capability"
+  ],
+  "tech": [
+    "Unity",
+    "Blender"
+  ],
+  "tags": [
+    "3D",
+    "Unity",
+    "Training"
+  ],
+  "href": "https://www.here.com/",
+  "order": 4,
+  "slug": "here"
+}

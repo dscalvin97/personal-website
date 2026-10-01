@@ -1,0 +1,21 @@
+{
+  "id": "powerweave",
+  "company": "Powerweave Studio",
+  "title": "3D Artist (Contract)",
+  "period": "May 2018 – Aug 2018",
+  "location": "Mumbai, India",
+  "summary": "Browser-based 3D product visualization via the Sketchfab Viewer API.",
+  "highlights": [
+    "POC 3D model viewer web app using Sketchfab Viewer API for client product review"
+  ],
+  "tech": [
+    "Sketchfab API"
+  ],
+  "tags": [
+    "3D",
+    "Contract"
+  ],
+  "href": "https://www.powerweavestudio.com/",
+  "order": 5,
+  "slug": "powerweave"
+}

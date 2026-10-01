@@ -35,7 +35,7 @@ export default function WorkPage() {
         <div>
           {roles.map((role, i) => (
             <div
-              key={role.id}
+              key={role.slug ?? role.id ?? role.company}
               className="reveal border-t border-line py-8 first:border-t-0 first:pt-0"
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">

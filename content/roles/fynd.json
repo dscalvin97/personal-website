@@ -1,0 +1,30 @@
+{
+  "id": "fynd",
+  "company": "Fynd (Shopsense Retail Technologies)",
+  "title": "3D Game Artist & Full-Stack Developer",
+  "period": "Dec 2022 – Apr 2025",
+  "location": "Mumbai, India",
+  "summary": "Bridged 3D content pipelines and full-stack product work across Fynd's product lines — Pixelbin.io, Erase.bg, Upscale.media, and generative AI launches.",
+  "highlights": [
+    "Automated image pipelines (Python, Blender, JS) generating 100,000+ captioned AI training images",
+    "Full-stack features across 8 products including Pixelbin.io, Erase.bg, Upscale.media",
+    "Custom Strapi CMS for multilingual delivery across 20+ languages with real-time shared UI updates",
+    "Launched AiHeadshotGenerator.media in under a week; built BharatDiffusion.ai from the ground up"
+  ],
+  "tech": [
+    "Python",
+    "Blender",
+    "Next.js",
+    "Strapi",
+    "TypeScript"
+  ],
+  "tags": [
+    "Fullstack",
+    "3D",
+    "AI pipelines",
+    "CMS"
+  ],
+  "href": "https://www.fynd.com/",
+  "order": 3,
+  "slug": "fynd"
+}

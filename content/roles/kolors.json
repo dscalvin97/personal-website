@@ -1,0 +1,29 @@
+{
+  "id": "kolors",
+  "company": "Kolors India Private Limited",
+  "href": "https://www.kolorsworld.com/",
+  "title": "Senior Fullstack Developer",
+  "period": "Present",
+  "location": "Mumbai, India",
+  "summary": "Senior fullstack developer owning web, firmware, and home-automation work on connected electrical products — from device protocols to the apps people open.",
+  "highlights": [
+    "Fullstack features across web products and internal tools",
+    "Firmware and home-automation development on connected hardware",
+    "Bridging product, hardware, and software — bugs can live in a PCB or a UI state"
+  ],
+  "tech": [
+    "TypeScript",
+    "Node",
+    "Firmware",
+    "Home automation"
+  ],
+  "tags": [
+    "Fullstack",
+    "Firmware",
+    "Home automation",
+    "Embedded",
+    "Product"
+  ],
+  "order": 1,
+  "slug": "kolors"
+}

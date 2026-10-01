@@ -1,0 +1,29 @@
+{
+  "id": "snapwork",
+  "company": "Snapwork Technologies",
+  "title": "Senior Full-Stack Developer",
+  "period": "Jun 2025 – 2026",
+  "location": "Mumbai, India",
+  "summary": "Led a 2-developer team delivering full-stack services to GCash, plus rapid event-site delivery and internal POCs.",
+  "highlights": [
+    "Owned end-to-end development of an internal MediCard POC, documentation, and handover to delivery",
+    "Shipped production-ready event sites within 3 days of requirements via a reusable deployment strategy",
+    "Led a 2-developer team for GCash — task delegation, code quality, feature delivery",
+    "Integrated REST APIs and PostgreSQL schemas across client engagements",
+    "Cut client delivery cycles ~10x with reusable component libraries and standardized API patterns"
+  ],
+  "tech": [
+    "React",
+    "Node.js",
+    "PostgreSQL",
+    "REST"
+  ],
+  "tags": [
+    "Fullstack",
+    "Team lead",
+    "Client delivery"
+  ],
+  "href": "https://snapwork.com/",
+  "order": 2,
+  "slug": "snapwork"
+}
