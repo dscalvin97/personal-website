@@ -1,12 +1,12 @@
 # CMS notes (Decap) + content model
 
-## Content is CMS-backed
+## Content source of truth
 Work page, skills, education, achievements, and profile/resume metadata read from:
 
 - `content/work.json`
 
 Edit via:
-1. **Decap admin** at https://calvin.makes.fyi/admin/ (needs GitHub OAuth — see below)
+1. **Decap admin** at https://calvin.makes.fyi/admin/ (GitHub OAuth is wired)
 2. Or directly in GitHub → `content/work.json`
 3. Then rebuild/redeploy (static export)
 
@@ -16,16 +16,19 @@ Resume PDF is a separate binary file:
 
 To update the PDF: replace the file in `public/`, redeploy.
 
-## Decap CMS one-time GitHub OAuth
-1. GitHub → Settings → Developer settings → **OAuth Apps** → New OAuth App
-2. Application name: `calvin.makes.fyi CMS`
-3. Homepage URL: `https://calvin.makes.fyi`
-4. Authorization callback URL: `https://calvin.makes.fyi/admin/api/v1/authorize`
-5. After creating, set `backend.base_url` in `public/admin/config.yml` if needed, then redeploy
-6. Open `/admin/` → Login with GitHub → Edit Work content → Commit
+## GitHub OAuth (Decap)
+- OAuth app client ID is in `public/admin/config.yml` (`backend.base_url` + public client usage)
+- **Client secret lives only on the server** in `/etc/decap-proxy.env` (mode 600). Never commit it.
+- Proxy service: `decap-oauth-proxy` (systemd) on `127.0.0.1:8787`
+- Nginx routes `https://calvin.makes.fyi/admin/api/*` → proxy
+- **GitHub OAuth App callback URL must be:**
+  `https://calvin.makes.fyi/admin/api/v1/authorize`
+- Open https://calvin.makes.fyi/admin/ → Login with GitHub → Edit Work content → Commit to `main`
+
+After CMS commits to `main`, the static site does **not** auto-update until rebuild/deploy from this server (or a future GitHub Action).
 
 ## Umami analytics
 - Dashboard: https://calvin.makes.fyi/umami/
+- Login: see `/home/calvin/.config/umami-bootstrap.txt`
 - Script injected at build via `.env.production.local`
-- Website id: see `.env.production.local`
 - Change the default admin password on first login
