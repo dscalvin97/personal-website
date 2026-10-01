@@ -1,37 +1,53 @@
 import type { Metadata } from "next";
-import { Fraunces, Geist } from "next/font/google";
+import { Instrument_Serif, Schibsted_Grotesk, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const instrument = Instrument_Serif({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
   display: "swap",
 });
 
-const geist = Geist({
-  variable: "--font-geist",
+const schibsted = Schibsted_Grotesk({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const mono = Geist_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Calvin Dsouza — developer, 3D, craft",
+    default: "Calvin Dsouza",
     template: "%s · Calvin Dsouza",
   },
   description:
-    "Calvin Dsouza builds software, renders in 3D, and makes things with yarn. Based in Mumbai. Open to interesting work.",
+    "Calvin Dsouza — fullstack developer, 3D artist, crocheter. Mumbai. Software, firmware-adjacent product work, and things made by hand.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${geist.variable} dark`}
+      className={`${instrument.variable} ${schibsted.variable} ${mono.variable}`}
     >
-      <body className="min-h-screen bg-ink text-bone">
+      <body className="min-h-screen bg-ink text-paper">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-copper focus:px-3 focus:py-2 focus:text-ink"
+        >
+          Skip to content
+        </a>
         <SiteNav />
         {children}
         <SiteFooter />

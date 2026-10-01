@@ -1,156 +1,128 @@
 import type { Metadata } from "next";
-import { MetaList, PageHeader, ProjectCard, Section } from "@/components/page-parts";
-import { personality } from "@/lib/personality";
+import {
+  IndexItem,
+  LinkLine,
+  PageHeader,
+  Section,
+  SpecList,
+} from "@/components/page-parts";
 
 export const metadata: Metadata = {
   title: "Developer",
   description:
-    "Calvin Dsouza — software development: fullstack web, AI image pipelines, CMS, APIs. Kolors, Snapwork, Fynd.",
+    "How Calvin Dsouza builds software — fullstack, performance-first, no theater.",
 };
 
-const stack = [
-  { k: "Languages", v: "TypeScript, JavaScript, Python, C#, PHP, SQL" },
+const cases = [
   {
-    k: "Frameworks",
-    v: "React, Next.js, Node.js, Express, FastAPI, Django, Angular, Svelte",
+    n: "01",
+    title: "100,000+ training images",
+    meta: "Fynd · Python · Blender",
+    body: "Automated image pipelines that turned 3D scenes into captioned datasets for ML models. Blender in the loop, JavaScript on the edges, Python holding it together.",
   },
   {
-    k: "Data & CMS",
-    v: "PostgreSQL, Redis, Strapi, Contentful, Drizzle, Objection",
-  },
-  { k: "Cloud", v: "GCP, AWS (S3, CloudFront, EC2, Lambda), Docker" },
-  { k: "Also", v: "REST APIs, multilingual CMS, AI image pipelines" },
-];
-
-const projects = [
-  {
-    name: "AI training image pipelines",
-    blurb:
-      "At Fynd: Python + Blender + JS automation that generated 100,000+ captioned training images for ML models.",
-    meta: "Python · Blender",
+    n: "02",
+    title: "Eight products, one engineer",
+    meta: "Fynd · Next.js · Node",
+    body: "Fullstack features across Pixelbin, Erase.bg, Upscale.media and friends — frontend and backend owned end to end, without a committee.",
   },
   {
-    name: "Pixelbin · Erase.bg · Upscale.media",
-    blurb:
-      "Full-stack feature work across 8 Fynd products — frontend UI and backend services owned end to end.",
-    meta: "Next.js · Node",
+    n: "03",
+    title: "Localization without a dev ticket",
+    meta: "Fynd · Strapi",
+    body: "Custom CMS for 20+ languages with live shared UI updates. Content teams ship copy; engineers stop being the bottleneck.",
   },
   {
-    name: "Multilingual Strapi CMS",
-    blurb:
-      "Custom CMS backend for 20+ languages with real-time shared UI updates — content teams ship without developers.",
-    meta: "Strapi",
+    n: "04",
+    title: "GCash delivery",
+    meta: "Snapwork · Team lead",
+    body: "Led two developers on client-facing fullstack work. Reusable components and API patterns that cut delivery cycles roughly tenfold.",
   },
-  {
-    name: "GCash delivery at Snapwork",
-    blurb:
-      "Led a 2-developer team on client-facing full-stack work — APIs, PostgreSQL schemas, reusable component libraries.",
-    meta: "React · Node",
-  },
-  {
-    name: "MediCard POC",
-    blurb:
-      "Internal proof-of-concept owned end to end: implementation, technical docs, and handover to delivery.",
-    meta: "Fullstack",
-  },
-  {
-    name: "This site",
-    blurb:
-      "Next.js 16 static export, custom three.js hero, nginx on Hetzner. Performance choices are part of the portfolio.",
-    meta: "TypeScript",
-    href: "https://github.com/dscalvin97/personal-website",
-  },
-];
+] as const;
 
 export default function DeveloperPage() {
   return (
-    <main>
+    <main id="main">
       <PageHeader
-        eyebrow="02 — Developer"
-        title="Software that has to work on a Tuesday morning."
-        lede="5+ years of fullstack product work — fintech, AI platforms, CMS, and the unglamorous infrastructure underneath. Currently at Kolors India; previously Fynd and Snapwork."
+        index="02"
+        eyebrow="Developer"
+        title={
+          <>
+            Software that behaves on a{" "}
+            <span className="italic text-brass">Tuesday</span>.
+          </>
+        }
+        lede="I build fullstack product work with a bias toward clarity: readable defaults, honest performance, and deployments that don’t need a prayer."
       />
 
-      <Section title="How I work" accent="studio">
-        <div className="prose-page">
+      <Section label="How I work">
+        <div className="measure">
           <p>
-            I care about interfaces a stranger can read, defaults that are hard
-            to get wrong, and deployments that don't need a prayer. Comfortable
-            owning a feature end to end — from the data shape to the nginx
-            config that puts it on the internet.
+            Own the feature from the data shape to the reverse proxy. Prefer
+            boring reliability over clever demos. If it loads slow, that’s a
+            bug — not a personality quirk.
           </p>
           <p>
-            Working style, if you want the short version: go deep before going
-            wide, argue with the problem until the structure is obvious, and
-            leave the code kinder than I found it. Analyst brain, maker hands.
+            At Fynd that meant shipping across eight products and pipelines
+            that generated six figures of training data. At Snapwork, leading
+            delivery for GCash. At Kolors, software that has to coexist with
+            firmware and home automation instead of pretending hardware doesn’t
+            exist.
           </p>
-          <p>
-            At Fynd that meant shipping across eight products and building
-            pipelines that generated six figures of training data. At Snapwork
-            it meant leading delivery for GCash. At Kolors it means software
-            that has to coexist with firmware and home automation.
+          <p className="meta mt-6 text-copper">
+            Warm hands, cold checks. Yarn tension and LCP are the same skill.
           </p>
         </div>
       </Section>
 
-      <Section title="Selected work" accent="studio">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {projects.map((project) => (
-            <ProjectCard key={project.name} {...project} />
+      <Section label="Case files">
+        <div>
+          {cases.map((c) => (
+            <IndexItem key={c.n} n={c.n} title={c.title} meta={c.meta}>
+              {c.body}
+            </IndexItem>
           ))}
         </div>
       </Section>
 
-      <Section title="Operating system" accent="studio">
-        <p className="prose-page text-sm text-muted">
-          16personalities INTP-T — not a horoscope, just a mirror I check
-          against when deciding how to work. {personality.motto}.
-        </p>
-        <dl className="mt-6 space-y-4">
-          {personality.traits.map((trait) => (
-            <div key={trait.label}>
-              <div className="flex items-baseline justify-between font-mono text-[0.7rem] tracking-wide">
-                <span className="text-bone/80">
-                  {trait.label} {trait.value}%
-                </span>
-                <span className="text-muted">
-                  {trait.oppositeValue}% {trait.opposite}
-                </span>
-              </div>
-              <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-line">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-yarn to-coral"
-                  style={{ width: `${trait.value}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </dl>
+      <Section label="Stack">
+        <SpecList
+          items={[
+            {
+              k: "Languages",
+              v: "TypeScript, JavaScript, Python, C#, PHP, SQL",
+            },
+            {
+              k: "Web",
+              v: "React, Next.js, Node.js, Express, FastAPI, Django, Angular, Svelte",
+            },
+            {
+              k: "Data & CMS",
+              v: "PostgreSQL, Redis, Strapi, Contentful, Drizzle, Objection",
+            },
+            {
+              k: "Cloud",
+              v: "GCP, AWS (S3, CloudFront, EC2, Lambda), Docker",
+            },
+            {
+              k: "Also",
+              v: "REST APIs, multilingual CMS, AI image pipelines, performance budgets",
+            },
+          ]}
+        />
       </Section>
 
-      <Section title="Stack" accent="studio">
-        <MetaList items={stack} />
-      </Section>
-
-      <Section title="Full history" accent="studio">
-        <div className="prose-page">
+      <Section label="Further">
+        <div className="measure">
           <p>
-            Roles, education, and achievements live on the{" "}
-            <a
-              className="text-yarn underline-offset-4 hover:underline"
-              href="/work/"
-            >
-              work page
-            </a>
+            Roles and education live in the{" "}
+            <LinkLine href="/work/">work archive</LinkLine>
+            . 3D pipeline thinking is on the{" "}
+            <LinkLine href="/studio/">studio page</LinkLine>
             . Reach me on{" "}
-            <a
-              className="text-yarn underline-offset-4 hover:underline"
-              href="https://www.linkedin.com/in/dscalvin"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <LinkLine href="https://www.linkedin.com/in/dscalvin" external>
               LinkedIn
-            </a>
+            </LinkLine>
             .
           </p>
         </div>

@@ -1,97 +1,104 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MetaList, PageHeader, Section } from "@/components/page-parts";
+import { MaterialSceneClient } from "@/components/material-scene-client";
+import {
+  IndexItem,
+  LinkLine,
+  PageHeader,
+  Section,
+  SpecList,
+} from "@/components/page-parts";
 
 export const metadata: Metadata = {
   title: "3D",
   description:
-    "Calvin Dsouza — 3D artist: Blender, Unity, live WebGL, AI image pipelines. Form, light, materials.",
+    "Calvin Dsouza — 3D practice. Blender, Unity, automated pipelines, live WebGL under a frame budget.",
 };
-
-const practice = [
-  { k: "Tools", v: "Blender, Unity, Substance, three.js, ComfyUI" },
-  {
-    k: "Professional",
-    v: "3D Game Artist at Fynd; Map Modeler at HERE; contract 3D at Powerweave",
-  },
-  { k: "Output", v: "Stills, motion studies, live scenes, training imagery" },
-  {
-    k: "Interest",
-    v: "Tactile digital objects — topology you can feel, not glossy emptiness",
-  },
-];
 
 export default function StudioPage() {
   return (
-    <main>
+    <main id="main">
       <PageHeader
-        eyebrow="03 — 3D"
-        title="How a curve sits in space."
-        lede="Years of Blender and Unity before the web work — including 100K+ AI training images built from 3D pipelines at Fynd. I treat 3D like crochet: topology, tension, and where light actually lands."
+        index="03"
+        eyebrow="3D"
+        title={
+          <>
+            Form, light, and{" "}
+            <span className="italic text-brass">where it fails</span>.
+          </>
+        }
+        lede="Years of Blender and Unity before the web work — including six-figure AI training image pipelines at Fynd. 3D here is measured, not ornamental."
       />
 
-      <Section title="Why 3D" accent="coral">
-        <div className="prose-page">
-          <p>
-            Code is invisible until it fails. 3D is the opposite — every bad
-            edge, every flat material, every light that doesn't quite sit is
-            right there. That feedback loop is addictive, and it made me a
-            better fullstack engineer.
-          </p>
-          <p>
-            At HERE I trained teams in Blender. At Fynd I ran automated image
-            pipelines. On this site, the hero is live geometry — not a video.
-          </p>
+      <Section label="Material study">
+        <div className="border border-line bg-ink-2">
+          <MaterialSceneClient />
+          <div className="border-t border-line px-4 py-3">
+            <p className="meta text-muted">
+              Copper loop · brass ring · moss gauge — local lights only, no HDRI
+              download · demand-rendered
+            </p>
+          </div>
         </div>
+        <p className="measure mt-6">
+          This is not a demo reel. It’s a small object with honest materials.
+          If a scene needs a CDN to look finished, it isn’t finished.
+        </p>
       </Section>
 
-      <Section title="Live on this site" accent="coral">
-        <div className="prose-page">
-          <p>
-            The home hero is three.js + React Three Fiber — mesh geometry,
-            materials, and lights only. No remote HDRI downloads, no surprise
-            network lag. If a scene needs a CDN to look good, it isn't finished.
-          </p>
-        </div>
-        <div className="mt-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2.5 text-sm text-bone transition-colors hover:border-coral/50 hover:bg-bone/5"
+      <Section label="Practice">
+        <SpecList
+          items={[
+            {
+              k: "Professional",
+              v: "3D Game Artist at Fynd · Map Modeler at HERE · contract 3D at Powerweave",
+            },
+            { k: "Tools", v: "Blender, Unity, Substance Painter/Designer, ComfyUI, three.js" },
+            {
+              k: "Output",
+              v: "Training imagery, product visualization POCs, live material studies",
+            },
+            {
+              k: "Rule",
+              v: "Cap DPR, pause off-screen, no surprise network assets",
+            },
+          ]}
+        />
+      </Section>
+
+      <Section label="Selected threads">
+        <div>
+          <IndexItem
+            n="01"
+            title="Automated training imagery"
+            meta="Fynd"
+            href="https://www.linkedin.com/in/dscalvin"
           >
-            Back to the hero scene
-            <span aria-hidden="true">↑</span>
-          </Link>
+            Python + Blender + JavaScript pipelines that produced 100,000+
+            captioned images for ML models.
+          </IndexItem>
+          <IndexItem n="02" title="Indoor navigation POC" meta="HERE">
+            Unity prototype for office wayfinding, plus Blender training for
+            internal cohorts.
+          </IndexItem>
+          <IndexItem n="03" title="Browser model viewer" meta="Powerweave">
+            Sketchfab Viewer API prototype for client product review — 3D that
+            lived in a tab, not a download.
+          </IndexItem>
         </div>
       </Section>
 
-      <Section title="Practice" accent="coral">
-        <MetaList items={practice} />
-      </Section>
-
-      <Section title="What I'm building toward" accent="coral">
-        <div className="prose-page">
+      <Section label="Further">
+        <div className="measure">
           <p>
-            Short motion pieces with real lighting setups. Product-adjacent 3D
-            that doesn't look like a default PBR template. Occasional
-            experiments where crochet topology and mesh topology rhyme.
-          </p>
-          <p>
-            Timeline and roles:{" "}
-            <a
-              className="text-yarn underline-offset-4 hover:underline"
-              href="/work/"
-            >
-              work page
-            </a>
-            . Contact:{" "}
-            <a
-              className="text-yarn underline-offset-4 hover:underline"
-              href="https://www.linkedin.com/in/dscalvin"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              LinkedIn
-            </a>
+            Full timeline on the{" "}
+            <LinkLine href="/work/">work archive</LinkLine>
+            . Fiber side on the{" "}
+            <LinkLine href="/craft/">craft page</LinkLine>
+            . Home is type-first on purpose — see{" "}
+            <Link href="/" className="text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper">
+              the index
+            </Link>
             .
           </p>
         </div>
