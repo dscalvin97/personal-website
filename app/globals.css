@@ -12,6 +12,8 @@
   --color-yarn: #e8a87c;
   --color-studio: #6ec8ff;
   --color-coral: #ff6b4a;
+  --color-amber: #e8b84a;
+  --color-sage: #7fb3a3;
   --font-display: var(--font-fraunces), Georgia, serif;
   --font-body: var(--font-geist), system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", monospace;
@@ -32,12 +34,73 @@ body {
   background: var(--color-ink);
   color: var(--color-bone);
   font-family: var(--font-body), system-ui, sans-serif;
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
   background: #ff6b4a;
   color: #0f0e0c;
+}
+
+/* —— motion system —— */
+.reveal {
+  animation: reveal-up 0.55s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-timeline: view();
+  animation-range: entry 5% cover 28%;
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  .reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.enter > * {
+  animation: enter-up 0.45s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.stitch-rule {
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-line) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .enter > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 @theme inline {

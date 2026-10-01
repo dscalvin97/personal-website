@@ -4,44 +4,62 @@ import { MetaList, PageHeader, ProjectCard, Section } from "@/components/page-pa
 export const metadata: Metadata = {
   title: "Developer",
   description:
-    "Calvin Dsouza — software development: web apps, APIs, Python tooling, and C# experiments.",
+    "Calvin Dsouza — software development: fullstack web, AI image pipelines, CMS, APIs. Kolors, Snapwork, Fynd.",
 };
 
 const stack = [
-  { k: "Languages", v: "TypeScript, Python, C#" },
-  { k: "Web", v: "Next.js, React, Node, nginx" },
-  { k: "Also", v: "Excel automation, report tooling, APIs" },
-  { k: "Ops", v: "Linux, Docker, systemd, CI basics" },
+  { k: "Languages", v: "TypeScript, JavaScript, Python, C#, PHP, SQL" },
+  {
+    k: "Frameworks",
+    v: "React, Next.js, Node.js, Express, FastAPI, Django, Angular, Svelte",
+  },
+  {
+    k: "Data & CMS",
+    v: "PostgreSQL, Redis, Strapi, Contentful, Drizzle, Objection",
+  },
+  { k: "Cloud", v: "GCP, AWS (S3, CloudFront, EC2, Lambda), Docker" },
+  { k: "Also", v: "REST APIs, multilingual CMS, AI image pipelines" },
 ];
 
 const projects = [
   {
+    name: "AI training image pipelines",
+    blurb:
+      "At Fynd: Python + Blender + JS automation that generated 100,000+ captioned training images for ML models.",
+    meta: "Python · Blender",
+  },
+  {
+    name: "Pixelbin · Erase.bg · Upscale.media",
+    blurb:
+      "Full-stack feature work across 8 Fynd products — frontend UI and backend services owned end to end.",
+    meta: "Next.js · Node",
+  },
+  {
+    name: "Multilingual Strapi CMS",
+    blurb:
+      "Custom CMS backend for 20+ languages with real-time shared UI updates — content teams ship without developers.",
+    meta: "Strapi",
+  },
+  {
     name: "ReportGen",
     blurb:
-      "Python app that takes a specially formatted Excel sheet and turns it into structured reports. Built for people who live in spreadsheets and need output that doesn't.",
+      "Public Python tool: structured Excel in, per-student PDF reports out.",
     meta: "Python",
     href: "https://github.com/dscalvin97/ReportGen",
   },
   {
     name: "ProjectORB",
     blurb:
-      "C# project — exploring structured application design outside the usual web stack. A reminder that the runtime matters less than the shape of the problem.",
+      "C# project exploring application structure outside the usual web stack.",
     meta: "C#",
     href: "https://github.com/dscalvin97/ProjectORB",
   },
   {
-    name: "user-activity-test",
-    blurb:
-      "Small Python utility for exercising user-activity flows. Useful when you need a repeatable signal instead of clicking through a UI by hand.",
-    meta: "Python",
-    href: "https://github.com/dscalvin97/user-activity-test",
-  },
-  {
     name: "This site",
     blurb:
-      "Next.js 16, static export, custom three.js hero, shadcn UI. Served from nginx on a Hetzner box. The performance choices are part of the portfolio.",
+      "Next.js 16 static export, custom three.js hero, nginx on Hetzner. Performance choices are part of the portfolio.",
     meta: "TypeScript",
-    href: "https://github.com/dscalvin97",
+    href: "https://github.com/dscalvin97/personal-website",
   },
 ];
 
@@ -49,27 +67,29 @@ export default function DeveloperPage() {
   return (
     <main>
       <PageHeader
-        eyebrow="01 — Developer"
+        eyebrow="02 — Developer"
         title="Software that has to work on a Tuesday morning."
-        lede="I build web apps and the quiet infrastructure underneath them: APIs, reverse proxies, automation, and the boring glue that stops demos from becoming outages."
+        lede="5+ years of fullstack product work — fintech, AI platforms, CMS, and the unglamorous infrastructure underneath. Currently at Kolors India; previously Fynd and Snapwork."
       />
 
-      <Section title="How I work">
+      <Section title="How I work" accent="studio">
         <div className="prose-page">
           <p>
             I care about interfaces a stranger can read, defaults that are hard
-            to get wrong, and deployments that don't need a prayer. Most of my
-            learning happens in public repos and half-finished side projects
-            that eventually ship something useful.
+            to get wrong, and deployments that don't need a prayer. Comfortable
+            owning a feature end to end — from the data shape to the nginx
+            config that puts it on the internet.
           </p>
           <p>
-            Comfortable owning a feature end to end — from the data shape to the
-            nginx config that puts it on the internet.
+            At Fynd that meant shipping across eight products and building
+            pipelines that generated six figures of training data. At Snapwork
+            it meant leading delivery for GCash. At Kolors it means software
+            that has to coexist with firmware and home automation.
           </p>
         </div>
       </Section>
 
-      <Section title="Selected work">
+      <Section title="Selected work" accent="studio">
         <div className="grid gap-4 sm:grid-cols-2">
           {projects.map((project) => (
             <ProjectCard key={project.name} {...project} />
@@ -77,23 +97,21 @@ export default function DeveloperPage() {
         </div>
       </Section>
 
-      <Section title="Stack">
+      <Section title="Stack" accent="studio">
         <MetaList items={stack} />
       </Section>
 
-      <Section title="Find the code">
+      <Section title="Full history" accent="studio">
         <div className="prose-page">
           <p>
-            Most of what I can share lives on{" "}
+            Roles, education, and achievements live on the{" "}
             <a
               className="text-yarn underline-offset-4 hover:underline"
-              href="https://github.com/dscalvin97"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/work/"
             >
-              GitHub
+              work page
             </a>
-            . For roles, collabs, or “can you look at this?” —{" "}
+            . Reach me on{" "}
             <a
               className="text-yarn underline-offset-4 hover:underline"
               href="https://www.linkedin.com/in/dscalvin"
@@ -102,7 +120,16 @@ export default function DeveloperPage() {
             >
               LinkedIn
             </a>{" "}
-            is the fastest way to reach me.
+            or{" "}
+            <a
+              className="text-yarn underline-offset-4 hover:underline"
+              href="https://github.com/dscalvin97"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            .
           </p>
         </div>
       </Section>

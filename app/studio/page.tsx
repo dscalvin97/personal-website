@@ -5,54 +5,52 @@ import { MetaList, PageHeader, Section } from "@/components/page-parts";
 export const metadata: Metadata = {
   title: "3D",
   description:
-    "Calvin Dsouza — 3D artist: form, light, materials, live WebGL geometry, and motion thinking.",
+    "Calvin Dsouza — 3D artist: Blender, Unity, live WebGL, AI image pipelines. Form, light, materials.",
 };
 
 const practice = [
-  { k: "Focus", v: "Form, light, material response" },
-  { k: "Tools", v: "three.js, Blender, WebGL" },
-  { k: "Output", v: "Stills, motion studies, live scenes" },
-  { k: "Interest", v: "Tactile digital objects, not glossy emptiness" },
+  { k: "Tools", v: "Blender, Unity, Substance, three.js, ComfyUI" },
+  {
+    k: "Professional",
+    v: "3D Game Artist at Fynd; Map Modeler at HERE; contract 3D at Powerweave",
+  },
+  { k: "Output", v: "Stills, motion studies, live scenes, training imagery" },
+  {
+    k: "Interest",
+    v: "Tactile digital objects — topology you can feel, not glossy emptiness",
+  },
 ];
 
 export default function StudioPage() {
   return (
     <main>
       <PageHeader
-        eyebrow="02 — 3D"
+        eyebrow="03 — 3D"
         title="How a curve sits in space."
-        lede="I treat 3D the way I treat crochet: topology, tension, and how light lands on a surface. Sometimes that's a render. Sometimes it's a scene that runs in your browser."
+        lede="Years of Blender and Unity before the web work — including 100K+ AI training images built from 3D pipelines at Fynd. I treat 3D like crochet: topology, tension, and where light actually lands."
       />
 
-      <Section title="Why 3D">
+      <Section title="Why 3D" accent="coral">
         <div className="prose-page">
           <p>
             Code is invisible until it fails. 3D is the opposite — every bad
             edge, every flat material, every light that doesn't quite sit is
-            right there. That feedback loop is addictive.
+            right there. That feedback loop is addictive, and it made me a
+            better fullstack engineer.
           </p>
           <p>
-            I'm most interested in objects that feel handled: soft yarn-like
-            tubes, rings with weight, scenes that rotate slowly enough that you
-            notice the topology instead of the spin.
+            At HERE I trained teams in Blender. At Fynd I ran automated image
+            pipelines. On this site, the hero is live geometry — not a video.
           </p>
         </div>
       </Section>
 
-      <Section title="Live on this site">
+      <Section title="Live on this site" accent="coral">
         <div className="prose-page">
           <p>
-            The home page hero is not a video. It's three torus rings and a
-            crochet-chain tube built with{" "}
-            <code className="rounded bg-bone/10 px-1.5 py-0.5 font-mono text-sm text-bone">
-              three.js
-            </code>{" "}
-            and React Three Fiber — mesh geometry, materials, and lights only.
-            No remote HDRI downloads, no surprise network lag.
-          </p>
-          <p>
-            That constraint is part of the work: if the scene needs a CDN to
-            look good, it isn't finished.
+            The home hero is three.js + React Three Fiber — mesh geometry,
+            materials, and lights only. No remote HDRI downloads, no surprise
+            network lag. If a scene needs a CDN to look good, it isn't finished.
           </p>
         </div>
         <div className="mt-6">
@@ -66,19 +64,26 @@ export default function StudioPage() {
         </div>
       </Section>
 
-      <Section title="Practice">
+      <Section title="Practice" accent="coral">
         <MetaList items={practice} />
       </Section>
 
-      <Section title="What I'm building toward">
+      <Section title="What I'm building toward" accent="coral">
         <div className="prose-page">
           <p>
-            Short motion pieces with real lighting setups. Product-adjacent
-            3D that doesn't look like a default PBR template. Occasional
+            Short motion pieces with real lighting setups. Product-adjacent 3D
+            that doesn't look like a default PBR template. Occasional
             experiments where crochet topology and mesh topology rhyme.
           </p>
           <p>
-            If you need 3D that feels considered — not stock — talk to me on{" "}
+            Timeline and roles:{" "}
+            <a
+              className="text-yarn underline-offset-4 hover:underline"
+              href="/work/"
+            >
+              work page
+            </a>
+            . Contact:{" "}
             <a
               className="text-yarn underline-offset-4 hover:underline"
               href="https://www.linkedin.com/in/dscalvin"

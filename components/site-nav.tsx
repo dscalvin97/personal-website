@@ -2,9 +2,10 @@ import Link from "next/link";
 
 const nav = [
   { href: "/", label: "Home" },
-  { href: "/developer", label: "Developer" },
-  { href: "/studio", label: "3D" },
-  { href: "/craft", label: "Craft" },
+  { href: "/work/", label: "Work" },
+  { href: "/developer/", label: "Developer" },
+  { href: "/studio/", label: "3D" },
+  { href: "/craft/", label: "Craft" },
 ] as const;
 
 export function SiteNav() {
@@ -18,12 +19,12 @@ export function SiteNav() {
           Calvin Dsouza
         </Link>
         <nav aria-label="Primary">
-          <ul className="flex items-center gap-1 sm:gap-2">
+          <ul className="flex items-center gap-0.5 sm:gap-1">
             {nav.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="rounded-md px-2.5 py-1.5 text-sm text-muted transition-colors hover:bg-bone/5 hover:text-bone"
+                  className="rounded-md px-2 py-1.5 text-[0.8rem] text-muted transition-colors hover:bg-bone/5 hover:text-bone sm:px-2.5 sm:text-sm"
                 >
                   {item.label}
                 </Link>
