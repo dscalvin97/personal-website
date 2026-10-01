@@ -28,8 +28,19 @@
         "Firmware and home-automation development on connected hardware",
         "Bridging product, hardware, and software — bugs can live in a PCB or a UI state"
       ],
-      "tech": ["TypeScript", "Node", "Firmware", "Home automation"],
-      "tags": ["Fullstack", "Firmware", "Home automation", "Embedded", "Product"]
+      "tech": [
+        "TypeScript",
+        "Node",
+        "Firmware",
+        "Home automation"
+      ],
+      "tags": [
+        "Fullstack",
+        "Firmware",
+        "Home automation",
+        "Embedded",
+        "Product"
+      ]
     },
     {
       "id": "snapwork",
@@ -45,8 +56,18 @@
         "Integrated REST APIs and PostgreSQL schemas across client engagements",
         "Cut client delivery cycles ~10x with reusable component libraries and standardized API patterns"
       ],
-      "tech": ["React", "Node.js", "PostgreSQL", "REST"],
-      "tags": ["Fullstack", "Team lead", "Client delivery"]
+      "tech": [
+        "React",
+        "Node.js",
+        "PostgreSQL",
+        "REST"
+      ],
+      "tags": [
+        "Fullstack",
+        "Team lead",
+        "Client delivery"
+      ],
+      "href": "https://snapwork.com/"
     },
     {
       "id": "fynd",
@@ -61,8 +82,20 @@
         "Custom Strapi CMS for multilingual delivery across 20+ languages with real-time shared UI updates",
         "Launched AiHeadshotGenerator.media in under a week; built BharatDiffusion.ai from the ground up"
       ],
-      "tech": ["Python", "Blender", "Next.js", "Strapi", "TypeScript"],
-      "tags": ["Fullstack", "3D", "AI pipelines", "CMS"]
+      "tech": [
+        "Python",
+        "Blender",
+        "Next.js",
+        "Strapi",
+        "TypeScript"
+      ],
+      "tags": [
+        "Fullstack",
+        "3D",
+        "AI pipelines",
+        "CMS"
+      ],
+      "href": "https://www.fynd.com/"
     },
     {
       "id": "here",
@@ -75,8 +108,16 @@
         "Unity-based POC mobile app for indoor office navigation",
         "Trained two employee cohorts in Blender to build internal 3D asset capability"
       ],
-      "tech": ["Unity", "Blender"],
-      "tags": ["3D", "Unity", "Training"]
+      "tech": [
+        "Unity",
+        "Blender"
+      ],
+      "tags": [
+        "3D",
+        "Unity",
+        "Training"
+      ],
+      "href": "https://www.here.com/"
     },
     {
       "id": "powerweave",
@@ -88,8 +129,14 @@
       "highlights": [
         "POC 3D model viewer web app using Sketchfab Viewer API for client product review"
       ],
-      "tech": ["Sketchfab API"],
-      "tags": ["3D", "Contract"]
+      "tech": [
+        "Sketchfab API"
+      ],
+      "tags": [
+        "3D",
+        "Contract"
+      ],
+      "href": "https://www.powerweavestudio.com/"
     }
   ],
   "education": [
