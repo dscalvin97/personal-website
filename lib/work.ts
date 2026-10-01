@@ -117,34 +117,3 @@ export const achievements = [
   "Full-stack features across 8 high-traffic products as a sole contributor",
   "Trained non-technical staff to build 3D models and pipelines",
 ];
-
-export const sideWork = [
-  {
-    name: "ReportGen",
-    href: "https://github.com/dscalvin97/ReportGen",
-    blurb:
-      "Python tool that turns a structured Excel sheet into per-student PDF reports.",
-    meta: "Python",
-  },
-  {
-    name: "ProjectORB",
-    href: "https://github.com/dscalvin97/ProjectORB",
-    blurb:
-      "C# exploration of application structure outside the usual web stack.",
-    meta: "C#",
-  },
-  {
-    name: "user-activity-test",
-    href: "https://github.com/dscalvin97/user-activity-test",
-    blurb:
-      "Python utility for exercising user-activity flows without UI clicking.",
-    meta: "Python",
-  },
-  {
-    name: "Personal site",
-    href: "https://github.com/dscalvin97/personal-website",
-    blurb:
-      "This site — Next.js static export, custom three.js hero, performance-first nginx.",
-    meta: "TypeScript",
-  },
-] as const;

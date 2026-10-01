@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader, Section } from "@/components/page-parts";
-import { achievements, education, roles, sideWork } from "@/lib/work";
+import { achievements, education, roles } from "@/lib/work";
 
 export const metadata: Metadata = {
   title: "Work",
@@ -117,30 +117,6 @@ export default function WorkPage() {
             </li>
           ))}
         </ul>
-      </Section>
-
-      <Section title="Selected side work">
-        <div className="grid gap-4 sm:grid-cols-2">
-          {sideWork.map((item) => (
-            <a
-              key={item.name}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group rounded-xl border border-line bg-ink/40 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-yarn/40 hover:bg-bone/[0.03]"
-            >
-              <div className="flex items-baseline justify-between gap-4">
-                <h3 className="font-display text-xl text-bone">{item.name}</h3>
-                <span className="font-mono text-[0.7rem] text-muted">
-                  {item.meta}
-                </span>
-              </div>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                {item.blurb}
-              </p>
-            </a>
-          ))}
-        </div>
       </Section>
 
       <Section title="Skills snapshot">

@@ -41,18 +41,16 @@ const projects = [
     meta: "Strapi",
   },
   {
-    name: "ReportGen",
+    name: "GCash delivery at Snapwork",
     blurb:
-      "Public Python tool: structured Excel in, per-student PDF reports out.",
-    meta: "Python",
-    href: "https://github.com/dscalvin97/ReportGen",
+      "Led a 2-developer team on client-facing full-stack work — APIs, PostgreSQL schemas, reusable component libraries.",
+    meta: "React · Node",
   },
   {
-    name: "ProjectORB",
+    name: "MediCard POC",
     blurb:
-      "C# project exploring application structure outside the usual web stack.",
-    meta: "C#",
-    href: "https://github.com/dscalvin97/ProjectORB",
+      "Internal proof-of-concept owned end to end: implementation, technical docs, and handover to delivery.",
+    meta: "Fullstack",
   },
   {
     name: "This site",
@@ -119,15 +117,6 @@ export default function DeveloperPage() {
               rel="noopener noreferrer"
             >
               LinkedIn
-            </a>{" "}
-            or{" "}
-            <a
-              className="text-yarn underline-offset-4 hover:underline"
-              href="https://github.com/dscalvin97"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
             </a>
             .
           </p>
