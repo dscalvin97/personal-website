@@ -6,29 +6,39 @@ Work page, skills, education, achievements, and profile/resume metadata read fro
 - `content/work.json`
 
 Edit via:
-1. **Decap admin** at https://calvin.makes.fyi/admin/ (GitHub OAuth is wired)
-2. Or directly in GitHub → `content/work.json`
+1. **Decap admin** at https://calvin.makes.fyi/admin/
+2. Or GitHub → `content/work.json`
 3. Then rebuild/redeploy (static export)
 
-Resume PDF is a separate binary file:
+Resume PDF:
 - `public/calvin-dsouza-resume.pdf`
-- Linked from home, work, and footer (`download` attribute)
+- Linked from home, work, and footer
 
-To update the PDF: replace the file in `public/`, redeploy.
+## GitHub OAuth (Decap Netlify popup protocol)
+Decap’s GitHub backend opens a **popup** and expects `postMessage`:
+`authorization:github:success:{"token":"..."}`
 
-## GitHub OAuth (Decap)
-- OAuth app client ID is in `public/admin/config.yml` (`backend.base_url` + public client usage)
-- **Client secret lives only on the server** in `/etc/decap-proxy.env` (mode 600). Never commit it.
-- Proxy service: `decap-oauth-proxy` (systemd) on `127.0.0.1:8787`
-- Nginx routes `https://calvin.makes.fyi/admin/api/*` → proxy
-- **GitHub OAuth App callback URL must be:**
-  `https://calvin.makes.fyi/admin/api/v1/authorize`
-- Open https://calvin.makes.fyi/admin/ → Login with GitHub → Edit Work content → Commit to `main`
+| Piece | Value |
+| ----- | ----- |
+| OAuth app client ID | in `public/admin/config.yml` |
+| Client secret | `/etc/decap-proxy.env` (mode 600, never commit) |
+| Proxy | systemd `decap-oauth-proxy` → `127.0.0.1:8787` |
+| Nginx | `/admin/oauth/` → proxy |
+| **GitHub callback URL (must match exactly)** | `https://calvin.makes.fyi/admin/oauth/callback` |
+| CMS popup entry | `https://calvin.makes.fyi/admin/oauth/authorize` |
 
-After CMS commits to `main`, the static site does **not** auto-update until rebuild/deploy from this server (or a future GitHub Action).
+Flow:
+1. Login at `/admin/` → popup opens `/admin/oauth/authorize`
+2. Popup handshakes with CMS via `postMessage`
+3. Redirects to GitHub → callback on `/admin/oauth/callback`
+4. Proxy exchanges code (secret stays server-side) → posts token back to CMS
+
+If login fails:
+- Confirm GitHub OAuth app callback URL is exactly the table value
+- Allow popups for calvin.makes.fyi
+- Check `journalctl -u decap-oauth-proxy`
 
 ## Umami analytics
-- Dashboard: https://calvin.makes.fyi/umami/
-- Login: see `/home/calvin/.config/umami-bootstrap.txt`
-- Script injected at build via `.env.production.local`
+- Dashboard: https://umami.makes.fyi/
+- Credentials: `/home/calvin/.config/umami-bootstrap.txt`
 - Change the default admin password on first login
