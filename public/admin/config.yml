@@ -1,0 +1,60 @@
+backend:
+  name: github
+  repo: dscalvin97/personal-website
+  branch: main
+  base_url: https://calvin.makes.fyi
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: "work"
+    label: "Work & Resume"
+    description: "Roles, education, skills, achievements shown on the site and resume summary."
+    files:
+      - file: "content/work.json"
+        name: "work"
+        label: "Work content"
+        fields:
+          - { label: "Profile Name", name: "profile.name", widget: "string" }
+          - { label: "Headline", name: "profile.headline", widget: "text" }
+          - { label: "Summary", name: "profile.summary", widget: "text" }
+          - { label: "Email", name: "profile.email", widget: "string" }
+          - { label: "LinkedIn URL", name: "profile.links.linkedin", widget: "string" }
+          - { label: "GitHub URL", name: "profile.links.github", widget: "string" }
+          - { label: "Gumroad URL", name: "profile.links.gumroad", widget: "string" }
+          - { label: "Resume PDF path", name: "profile.resumePdf", widget: "string", hint: "Must be a file in public/, e.g. /calvin-dsouza-resume.pdf" }
+          - label: "Roles"
+            name: "roles"
+            widget: "list"
+            summary: "{{fields.company}} — {{fields.title}}"
+            fields:
+              - { label: "ID", name: "id", widget: "string" }
+              - { label: "Company", name: "company", widget: "string" }
+              - { label: "Company URL", name: "href", widget: "string", required: false }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Period", name: "period", widget: "string" }
+              - { label: "Location", name: "location", widget: "string" }
+              - { label: "Summary", name: "summary", widget: "text" }
+              - { label: "Highlights", name: "highlights", widget: "list", field: { label: "Highlight", name: "item", widget: "text" } }
+              - { label: "Tech (comma-separated)", name: "tech", widget: "list", field: { label: "Tech", name: "item", widget: "string" } }
+              - { label: "Tags", name: "tags", widget: "list", field: { label: "Tag", name: "item", widget: "string" } }
+          - label: "Education"
+            name: "education"
+            widget: "list"
+            fields:
+              - { label: "Credential", name: "credential", widget: "string" }
+              - { label: "School", name: "school", widget: "string" }
+              - { label: "Year", name: "year", widget: "string" }
+          - { label: "Achievements", name: "achievements", widget: "list", field: { label: "Achievement", name: "item", widget: "text" } }
+          - label: "Skills"
+            name: "skills"
+            widget: "object"
+            fields:
+              - { label: "Languages", name: "languages", widget: "text" }
+              - { label: "Web", name: "web", widget: "text" }
+              - { label: "Data & CMS", name: "data", widget: "text" }
+              - { label: "Cloud", name: "cloud", widget: "text" }
+              - { label: "Creative / 3D", name: "creative", widget: "text" }
+              - { label: "Also", name: "also", widget: "text" }
+          - { label: "Updated at", name: "updatedAt", widget: "string", hint: "YYYY-MM-DD" }

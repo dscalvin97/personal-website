@@ -1,8 +1,19 @@
-const links = [
+type FooterLink = {
+  label: string;
+  href: string;
+  download?: string;
+};
+
+const links: FooterLink[] = [
+  {
+    label: "Resume",
+    href: "/calvin-dsouza-resume.pdf",
+    download: "Calvin-Dsouza-Resume.pdf",
+  },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/dscalvin" },
   { label: "GitHub", href: "https://github.com/dscalvin97" },
   { label: "Gumroad", href: "https://dscalvin.gumroad.com/" },
-] as const;
+];
 
 export function SiteFooter() {
   return (
@@ -19,9 +30,11 @@ export function SiteFooter() {
             <li key={link.href}>
               <a
                 href={link.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                download={link.download}
                 className="font-mono text-[0.72rem] tracking-[0.12em] text-muted uppercase transition-colors hover:text-brass"
+                {...(link.href.startsWith("http")
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
               >
                 {link.label}
               </a>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Serif, Schibsted_Grotesk, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@/components/analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${instrument.variable} ${schibsted.variable} ${mono.variable}`}
     >
       <body className="min-h-screen bg-ink text-paper">
+        <Analytics />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-copper focus:px-3 focus:py-2 focus:text-ink"

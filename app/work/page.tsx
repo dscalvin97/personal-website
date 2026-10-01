@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import { IndexItem, PageHeader, Section } from "@/components/page-parts";
-import { achievements, education, roles } from "@/lib/work";
+import { ResumeDownload } from "@/components/resume-download";
+import {
+  achievements,
+  education,
+  profile,
+  roles,
+  skills,
+  updatedAt,
+} from "@/lib/work";
 
 export const metadata: Metadata = {
   title: "Work",
@@ -21,13 +29,18 @@ export default function WorkPage() {
           </>
         }
         lede="Five years of shipping across fintech, AI platforms, and connected products. Read it like a ledger — role, place, what actually happened."
-      />
+      >
+        <div className="mt-6 flex flex-wrap items-center gap-4">
+          <ResumeDownload />
+          <p className="meta text-muted">Updated {updatedAt}</p>
+        </div>
+      </PageHeader>
 
       <Section label="Experience">
         <div>
           {roles.map((role, i) => (
             <div
-              key={role.company + role.period}
+              key={role.id}
               className="reveal border-t border-line py-8 first:border-t-0 first:pt-0"
             >
               <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-8">
@@ -51,7 +64,7 @@ export default function WorkPage() {
                         rel="noopener noreferrer"
                         className="text-muted transition-colors hover:text-brass"
                       >
-                        kolorsworld.com ↗
+                        site ↗
                       </a>
                     </>
                   ) : null}
@@ -75,7 +88,7 @@ export default function WorkPage() {
                 ))}
               </ul>
 
-              {role.tech ? (
+              {role.tech?.length ? (
                 <p className="meta mt-4 text-muted">{role.tech.join("  ·  ")}</p>
               ) : null}
             </div>
@@ -119,13 +132,25 @@ export default function WorkPage() {
       <Section label="Tools in rotation">
         <div className="measure">
           <p>
-            TypeScript, JavaScript, Python, C#, PHP, SQL. React, Next.js,
-            Node, Express, FastAPI, Django. PostgreSQL, Redis, Strapi,
-            Contentful. GCP, AWS, Docker. Blender, Unity, Substance, ComfyUI.
+            {skills.languages}. {skills.web}. {skills.data}. {skills.cloud}.{" "}
+            {skills.creative}.
           </p>
           <p className="meta mt-4 text-muted">
-            Not a skill bar. Things I have actually shipped with.
+            Not a skill bar. Things I have actually shipped with. Full
+            timeline in the PDF.
           </p>
+          <div className="mt-6">
+            <ResumeDownload label="Download resume PDF" />
+          </div>
+        </div>
+      </Section>
+
+      <Section label="Contact">
+        <div className="measure">
+          <p>
+            {profile.name} · {profile.location}
+          </p>
+          <p className="meta mt-2 text-muted">{profile.email}</p>
         </div>
       </Section>
     </main>

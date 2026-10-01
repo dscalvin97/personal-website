@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { IndexItem } from "@/components/page-parts";
+import { ResumeDownload } from "@/components/resume-download";
 
 const index = [
   {
@@ -102,6 +103,13 @@ export default function HomePage() {
             <Link href="/work/" className="transition-colors hover:text-brass">
               Work index →
             </Link>
+            <a
+              href="/calvin-dsouza-resume.pdf"
+              download="Calvin-Dsouza-Resume.pdf"
+              className="transition-colors hover:text-brass"
+            >
+              Resume ↓
+            </a>
           </div>
         </div>
       </section>
@@ -161,16 +169,34 @@ export default function HomePage() {
               </p>
             </div>
             <aside className="border-t border-line pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
-              <p className="meta text-copper">Bench notes</p>
-              <ul className="mt-4 space-y-3 text-sm leading-relaxed text-muted">
-                <li>Static export. No Node in the request path.</li>
+              <p className="meta text-copper">Elsewhere</p>
+              <ul className="mt-4 space-y-3">
                 <li>
-                  Three.js only where it earns its keep — and only after first
-                  paint.
+                  <a
+                    href="/calvin-dsouza-resume.pdf"
+                    download="Calvin-Dsouza-Resume.pdf"
+                    className="font-mono text-[0.72rem] tracking-[0.14em] text-brass uppercase transition-colors hover:text-copper"
+                  >
+                    Resume ↓
+                  </a>
                 </li>
                 <li>
-                  Patterns on Gumroad are written the way I wish code reviews
-                  were: short, specific, no theater.
+                  <a
+                    href="https://dscalvin.gumroad.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-[0.72rem] tracking-[0.14em] text-brass uppercase transition-colors hover:text-copper"
+                  >
+                    Gumroad · crochet patterns ↗
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/studio/"
+                    className="font-mono text-[0.72rem] tracking-[0.14em] text-brass uppercase transition-colors hover:text-copper"
+                  >
+                    Live 3D material study →
+                  </a>
                 </li>
               </ul>
             </aside>
