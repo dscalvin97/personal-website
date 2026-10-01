@@ -15,7 +15,12 @@ export default function WorkPage() {
         eyebrow="01 — Work"
         title="Web, 3D, firmware — same stack, different surfaces."
         lede="5+ years shipping products across fintech and AI-driven platforms. Currently senior fullstack developer at Kolors India — fullstack, firmware, and home automation."
-      />
+      >
+        <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-line px-3 py-1 font-mono text-[0.65rem] tracking-[0.16em] text-muted uppercase">
+          <span className="h-1 w-1 rounded-full bg-sage" aria-hidden="true" />
+          INTP-T · Logician · Analyst
+        </p>
+      </PageHeader>
 
       <Section title="Experience">
         <ol className="space-y-0">

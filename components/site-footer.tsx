@@ -9,7 +9,7 @@ export function SiteFooter() {
     <footer className="border-t border-line/80">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-5 py-10 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted">
-          Calvin Dsouza · Mumbai · open to interesting work
+          Calvin Dsouza · Mumbai · constant improvement
         </p>
         <ul className="flex flex-wrap gap-4">
           {links.map((link) => (

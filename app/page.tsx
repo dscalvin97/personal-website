@@ -44,7 +44,7 @@ export default function HomePage() {
               className="font-mono text-xs tracking-[0.18em] text-muted uppercase"
               style={{ "--i": 0 } as CSSProperties}
             >
-              Mumbai · fullstack · 3D · craft
+              Mumbai · INTP-T · fullstack · 3D · craft
             </p>
             <h1
               className="mt-4 font-display text-5xl leading-[0.95] tracking-tight text-bone sm:text-6xl md:text-7xl"
@@ -68,6 +68,12 @@ export default function HomePage() {
               I build software that has to work on a Tuesday morning, render
               scenes that feel like they have weight, and crochet when I need
               my hands to move slower than my brain.
+            </p>
+            <p
+              className="mt-5 font-mono text-[0.7rem] tracking-[0.2em] text-yarn uppercase"
+              style={{ "--i": 4 } as CSSProperties}
+            >
+              Constant improvement
             </p>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MetaList, PageHeader, ProjectCard, Section } from "@/components/page-parts";
+import { personality } from "@/lib/personality";
 
 export const metadata: Metadata = {
   title: "Developer",
@@ -79,6 +80,11 @@ export default function DeveloperPage() {
             config that puts it on the internet.
           </p>
           <p>
+            Working style, if you want the short version: go deep before going
+            wide, argue with the problem until the structure is obvious, and
+            leave the code kinder than I found it. Analyst brain, maker hands.
+          </p>
+          <p>
             At Fynd that meant shipping across eight products and building
             pipelines that generated six figures of training data. At Snapwork
             it meant leading delivery for GCash. At Kolors it means software
@@ -93,6 +99,33 @@ export default function DeveloperPage() {
             <ProjectCard key={project.name} {...project} />
           ))}
         </div>
+      </Section>
+
+      <Section title="Operating system" accent="studio">
+        <p className="prose-page text-sm text-muted">
+          16personalities INTP-T — not a horoscope, just a mirror I check
+          against when deciding how to work. {personality.motto}.
+        </p>
+        <dl className="mt-6 space-y-4">
+          {personality.traits.map((trait) => (
+            <div key={trait.label}>
+              <div className="flex items-baseline justify-between font-mono text-[0.7rem] tracking-wide">
+                <span className="text-bone/80">
+                  {trait.label} {trait.value}%
+                </span>
+                <span className="text-muted">
+                  {trait.oppositeValue}% {trait.opposite}
+                </span>
+              </div>
+              <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-line">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-yarn to-coral"
+                  style={{ width: `${trait.value}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </dl>
       </Section>
 
       <Section title="Stack" accent="studio">

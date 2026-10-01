@@ -33,7 +33,8 @@ export default function CraftPage() {
           <p>
             Stitch patterns are algorithms, increases are topology, and a bad
             join looks exactly like a bad mesh edge. The 3D work got sharper
-            after I started crocheting.
+            after I started crocheting — and crochet got sharper when I stopped
+            treating every project like it had to ship on a sprint.
           </p>
         </div>
       </Section>
