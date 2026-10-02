@@ -27,24 +27,84 @@
     }
   }
 
-  // No hooks: Decap renders with its bundled React; UMD hooks blow up.
-  // Re-render on entry change is enough — site polls localStorage.
+  function fillPreviewShell() {
+    var styleId = "site-preview-fill-css";
+    if (!document.getElementById(styleId)) {
+      var s = document.createElement("style");
+      s.id = styleId;
+      s.textContent =
+        "#preview-pane,#preview-pane iframe{width:100%;height:100%;border:0;display:block}" +
+        "iframe[src*='/work/#preview=']{width:100%!important;height:100%!important;min-height:100%!important;border:0;display:block}";
+      document.head.appendChild(s);
+    }
+
+    var frames = document.querySelectorAll("iframe");
+    for (var i = 0; i < frames.length; i++) {
+      var frame = frames[i];
+      var src = frame.getAttribute("src") || "";
+      if (src.indexOf("/work/#preview=") === -1 && frame.id !== "preview-pane") {
+        continue;
+      }
+      try {
+        var doc = frame.contentDocument;
+        if (!doc || !doc.documentElement) continue;
+        if (doc.getElementById("site-preview-fill")) continue;
+        var st = doc.createElement("style");
+        st.id = "site-preview-fill";
+        st.textContent =
+          "html,body{height:100%;margin:0;background:#12100e}" +
+          "body>div,body>#root{height:100%}" +
+          ".site-preview-root,.site-preview-root iframe{width:100%;height:100%;border:0;display:block}";
+        (doc.head || doc.documentElement).appendChild(st);
+        var root = doc.querySelector(".site-preview-root");
+        if (root) {
+          root.style.height = "100%";
+          root.style.width = "100%";
+        }
+        var inner = doc.querySelector(".site-preview-root iframe");
+        if (inner) {
+          inner.style.height = "100%";
+          inner.style.width = "100%";
+        }
+      } catch (err) {
+        /* cross-origin or not ready */
+      }
+    }
+  }
+
+  if (!window.__sitePreviewFillTimer) {
+    window.__sitePreviewFillTimer = window.setInterval(fillPreviewShell, 400);
+    fillPreviewShell();
+  }
+
+  // No hooks: Decap renders with its bundled React.
   function PreviewFrame(props) {
     writeDraft(props.collection, props.entry);
+    window.setTimeout(fillPreviewShell, 0);
     return e(
       "div",
       {
+        className: "site-preview-root",
         style: {
-          height: "100%",
           width: "100%",
+          height: "100%",
+          minHeight: "100vh",
           border: "0",
           background: "#12100e",
+          overflow: "hidden",
         },
       },
       e("iframe", {
+        className: "site-preview-iframe",
         title: "Site preview",
         src: iframeSrc(),
-        style: { height: "100%", width: "100%", border: "0" },
+        style: {
+          width: "100%",
+          height: "100%",
+          minHeight: "100vh",
+          border: "0",
+          display: "block",
+        },
       })
     );
   }
