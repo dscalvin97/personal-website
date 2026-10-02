@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   isPreviewMode,
   mergeEducationDraft,
@@ -33,11 +33,14 @@ export function useCmsPreview() {
     payload: null,
     nonce: 0,
   });
+  const lastTs = useRef(0);
 
   useEffect(() => {
     if (!isPreviewMode()) return;
 
     const apply = (payload: PreviewPayload | null) => {
+      if (payload && payload.ts && payload.ts <= lastTs.current) return;
+      if (payload?.ts) lastTs.current = payload.ts;
       setState((prev) => ({
         mode: true,
         payload,
@@ -52,15 +55,19 @@ export function useCmsPreview() {
         apply(fromDraft);
         return;
       }
-      apply(readPreviewDraft());
     };
 
-    const onStorage = () => apply(readPreviewDraft());
+    const onStorage = (event: StorageEvent) => {
+      if (event.key && event.key !== "decap-preview-draft") return;
+      apply(readPreviewDraft());
+    };
 
     apply(readPreviewDraft());
     window.addEventListener("message", onMessage);
     window.addEventListener("storage", onStorage);
-    const interval = window.setInterval(() => apply(readPreviewDraft()), 400);
+
+    // Light backup only — primary path is postMessage while typing
+    const interval = window.setInterval(() => apply(readPreviewDraft()), 1000);
 
     return () => {
       window.removeEventListener("message", onMessage);
@@ -107,7 +114,6 @@ export function applyPreviewToContent<
     ...content.profile,
     ...((entry.profile as Record<string, unknown>) || {}),
   };
-  // Some Decap builds flatten file fields to the entry root
   if (typeof entry.name === "string") profile.name = entry.name;
   if (typeof entry.email === "string") profile.email = entry.email;
   if (typeof entry.location === "string") profile.location = entry.location;

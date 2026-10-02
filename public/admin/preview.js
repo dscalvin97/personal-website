@@ -8,9 +8,9 @@
   var PREVIEW_TOKEN = "151751fa39cc93a351f798602e87ecaa9cc7e7c73e64b41c";
   var e = React.createElement;
 
+  // Stable URL — do NOT cache-bust. Reloads kill live preview.
   function iframeSrc() {
-    // cache-bust so the work page re-reads draft state on entry changes if needed
-    return SITE + "/work/?preview=" + Date.now() + "#preview=" + PREVIEW_TOKEN;
+    return SITE + "/work/#preview=" + PREVIEW_TOKEN;
   }
 
   function sendToSiteFrames(payload) {
@@ -40,7 +40,7 @@
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch (err) {
-      console.warn("preview draft write failed", err);
+      /* ignore */
     }
     sendToSiteFrames(payload);
   }
@@ -89,15 +89,13 @@
   }
 
   if (!window.__sitePreviewFillTimer) {
-    window.__sitePreviewFillTimer = window.setInterval(fillPreviewShell, 400);
+    window.__sitePreviewFillTimer = window.setInterval(fillPreviewShell, 500);
     fillPreviewShell();
   }
 
-  // No hooks: Decap renders with its bundled React.
-  // Publish on every render (Decap re-renders preview as you type).
+  // No hooks. Stable iframe src. Draft updates via postMessage only.
   function PreviewFrame(props) {
-    var entry = props.entry;
-    publishDraft(props.collection, entry);
+    publishDraft(props.collection, props.entry);
     window.setTimeout(fillPreviewShell, 0);
     return e(
       "div",
