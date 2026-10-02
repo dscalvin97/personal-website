@@ -25,6 +25,7 @@ export type Role = {
 };
 
 export type Education = {
+  slug?: string;
   credential: string;
   school: string;
   year: string;
