@@ -11,57 +11,66 @@ media_folder: public/uploads
 public_folder: /uploads
 
 collections:
-  - name: profile
-    label: Profile
-    description: Name, bio, contact, and links used across the site.
+  - name: content
+    label: Site content
+    description: Profile, skills, highlights, and site meta — one form, no extra clicks.
     files:
-      - file: content/profile.json
-        name: profile
-        label: Identity
+      - file: content/site-content.json
+        name: content
+        label: Profile, skills & highlights
         fields:
-          - { label: Full name, name: name, widget: string, required: true }
-          - { label: Location, name: location, widget: string, hint: "e.g. Mumbai, India" }
-          - { label: Email, name: email, widget: string, required: true }
-          - { label: Phone, name: phone, widget: string, required: false }
-          - { label: Headline, name: headline, widget: text }
-          - { label: Summary, name: summary, widget: text }
-          - label: Links
-            name: links
+          - label: Profile
+            name: profile
             widget: object
             collapsed: false
             fields:
-              - { label: LinkedIn, name: linkedin, widget: string }
-              - { label: GitHub, name: github, widget: string }
-              - { label: Gumroad, name: gumroad, widget: string }
-              - { label: Website, name: website, widget: string }
-          - { label: Resume PDF path, name: resumePdf, widget: string, required: true, hint: "File in public/, e.g. /calvin-dsouza-resume.pdf" }
+              - { label: Full name, name: name, widget: string, required: true }
+              - { label: Location, name: location, widget: string }
+              - { label: Email, name: email, widget: string, required: true }
+              - { label: Phone, name: phone, widget: string, required: false }
+              - { label: Headline, name: headline, widget: text }
+              - { label: Summary, name: summary, widget: text }
+              - label: Links
+                name: links
+                widget: object
+                collapsed: false
+                fields:
+                  - { label: LinkedIn, name: linkedin, widget: string }
+                  - { label: GitHub, name: github, widget: string }
+                  - { label: Gumroad, name: gumroad, widget: string }
+                  - { label: Website, name: website, widget: string }
+              - { label: Resume PDF path, name: resumePdf, widget: string, required: true, hint: "File in public/, e.g. /calvin-dsouza-resume.pdf" }
 
-  - name: skills
-    label: Skills
-    files:
-      - file: content/skills.json
-        name: skills
-        label: Skills
-        fields:
-          - { label: Languages, name: languages, widget: text }
-          - { label: Web, name: web, widget: text }
-          - { label: Data & CMS, name: data, widget: text }
-          - { label: Cloud, name: cloud, widget: text }
-          - { label: Creative / 3D, name: creative, widget: text }
-          - { label: Also, name: also, widget: text, required: false }
+          - label: Skills
+            name: skills
+            widget: object
+            collapsed: false
+            fields:
+              - { label: Languages, name: languages, widget: text }
+              - { label: Web, name: web, widget: text }
+              - { label: Data & CMS, name: data, widget: text }
+              - { label: Cloud, name: cloud, widget: text }
+              - { label: Creative / 3D, name: creative, widget: text }
+              - { label: Also, name: also, widget: text, required: false }
 
-  - name: achievements
-    label: Achievements
-    files:
-      - file: content/achievements.json
-        name: achievements
-        label: Highlights
-        fields:
-          - label: Highlights
-            name: items
-            widget: list
-            summary: "{{fields.text}}"
-            field: { label: Text, name: text, widget: text, required: true }
+          - label: Achievements
+            name: achievements
+            widget: object
+            collapsed: false
+            fields:
+              - label: Highlights
+                name: items
+                widget: list
+                summary: "{{fields.text}}"
+                field: { label: Text, name: text, widget: text, required: true }
+
+          - label: Site
+            name: site
+            widget: object
+            collapsed: true
+            fields:
+              - { label: Updated at, name: updatedAt, widget: string, hint: "YYYY-MM-DD — bump when you publish" }
+              - { label: Work page title, name: title, widget: string, required: false }
 
   - name: roles
     label: Roles
@@ -76,8 +85,8 @@ collections:
     summary: "{{fields.company}} · order {{fields.order}}"
     sortable_fields: ["order", "company", "period"]
     fields:
-      - { label: Slug, name: slug, widget: string, required: true, hint: "Used for the filename (lowercase, hyphens). Example: kolors" }
-      - { label: Order, name: order, widget: number, value_type: int, required: true, hint: "1 = first listed. Use gaps (10, 20, 30) if you want room to insert." }
+      - { label: Slug, name: slug, widget: string, required: true, hint: "Filename (lowercase, hyphens). Example: kolors" }
+      - { label: Order, name: order, widget: number, value_type: int, required: true, hint: "1 = first listed. Gaps (10, 20, 30) leave room to insert." }
       - { label: Company, name: company, widget: string, required: true }
       - { label: Company URL, name: href, widget: string, required: false }
       - { label: Job title, name: title, widget: string, required: true }
@@ -114,18 +123,8 @@ collections:
     summary: "{{fields.credential}} · order {{fields.order}}"
     sortable_fields: ["order", "year"]
     fields:
-      - { label: Slug, name: slug, widget: string, required: true, hint: "Filename key, e.g. bsc-computer-science" }
+      - { label: Slug, name: slug, widget: string, required: true }
       - { label: Order, name: order, widget: number, value_type: int, required: true }
       - { label: Credential, name: credential, widget: string, required: true }
       - { label: School, name: school, widget: string, required: true }
       - { label: Year, name: year, widget: string }
-
-  - name: site
-    label: Site meta
-    files:
-      - file: content/site.json
-        name: site
-        label: Site
-        fields:
-          - { label: Updated at, name: updatedAt, widget: string, hint: "YYYY-MM-DD — bump when you publish" }
-          - { label: Work page title, name: title, widget: string, required: false }

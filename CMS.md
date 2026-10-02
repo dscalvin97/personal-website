@@ -2,14 +2,9 @@
 
 ## Content layout
 
-Everything the work page renders lives under `content/`:
-
 ```
 content/
-  profile.json          # name, contact, links, resume path
-  skills.json           # languages / web / cloud / creative lines
-  achievements.json     # { "items": [{ "text": "..." }, ...] }
-  site.json             # updatedAt stamp
+  site-content.json     # profile + skills + achievements + site meta (ONE form)
   roles/                # one JSON file per job
     kolors.json
     snapwork.json
@@ -19,42 +14,48 @@ content/
     ...
 ```
 
-- **Roles & education** are folder collections — create/edit/delete entries independently in Decap.
-- **Order field** controls display order (1 = first). Use gaps (10, 20, 30) if you want room to insert.
-- **Slug** becomes the filename (Decap `slug: {{fields.slug}}`).
-- After edits, rebuild/redeploy from this server (static export). CMS commits to `main` do not auto-publish.
+### Why one file for profile/skills/achievements
+Decap `files` collections always show a file list before the form. To avoid the extra click, all singleton data lives in **one file** → **one collection** → **one scrollable form** (Profile, Skills, Achievements list, Site).
+
+Roles and Education are **folder** collections — separate entries you can add, reorder, and delete.
+
+### Ordering
+- Roles/Education: `order` field (1 = first). Gaps like 10/20/30 leave room to insert.
+- Slug = filename via Decap `slug: {{fields.slug}}`.
+
+After CMS edits, **rebuild/redeploy** from this server. Commits to `main` do not auto-publish.
 
 ## Admin UI
 
-- https://calvin.makes.fyi/admin/
-- Sidebar: Profile · Skills · Achievements · Roles · Education · Site meta
+https://calvin.makes.fyi/admin/
+
+1. **Site content** → one entry: *Profile, skills & highlights* → all singleton fields on one form  
+2. **Roles** → list of jobs (Kolors, Snapwork, …)  
+3. **Education** → list of credentials  
 
 ## GitHub OAuth (Netlify popup protocol)
 
 | Piece | Value |
 | ----- | ----- |
-| Client ID | `public/admin/config.yml` (public) |
+| Client ID | in `public/admin/config.yml` |
 | Client secret | `/etc/decap-proxy.env` (600, never commit) |
 | Proxy | systemd `decap-oauth-proxy` → `127.0.0.1:8787` |
 | Nginx | `/admin/oauth/` → proxy |
 | **GitHub OAuth callback URL** | `https://calvin.makes.fyi/admin/oauth/callback` |
 | Popup entry | `https://calvin.makes.fyi/admin/oauth/authorize` |
 
-CMS config:
+Config:
 ```yaml
 base_url: https://calvin.makes.fyi
 auth_endpoint: admin/oauth/authorize
 ```
 
-Flow: Login → popup `/admin/oauth/authorize` → `postMessage` handshake → GitHub → `/admin/oauth/callback` → token exchange (server-side) → `authorization:github:success:{"token":"..."}` back to CMS.
-
-If login fails: check callback URL, allow popups, `journalctl -u decap-oauth-proxy`.
+If login fails: verify callback URL exactly, allow popups, `journalctl -u decap-oauth-proxy`.
 
 ## Resume PDF
 
 - File: `public/calvin-dsouza-resume.pdf`
-- Path in CMS: Profile → Resume PDF path
-- Replace the PDF file + redeploy to publish a new resume
+- Path in CMS: Site content → Profile → Resume PDF path
 
 ## Umami analytics
 
