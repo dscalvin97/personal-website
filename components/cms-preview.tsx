@@ -36,7 +36,7 @@ export function useCmsPreview() {
     refresh();
     window.addEventListener("message", refresh);
     window.addEventListener("storage", refresh);
-    const interval = window.setInterval(refresh, 800);
+    const interval = window.setInterval(refresh, 300);
 
     return () => {
       window.removeEventListener("message", refresh);

@@ -1,6 +1,6 @@
 /* global CMS, React */
 (function () {
-  if (typeof CMS === "undefined") return;
+  if (typeof CMS === "undefined" || typeof React === "undefined") return;
 
   var STORAGE_KEY = "decap-preview-draft";
   var SITE = window.location.origin;
@@ -27,32 +27,10 @@
     }
   }
 
-  function notifyIframe(ref) {
-    try {
-      if (ref && ref.current && ref.current.contentWindow) {
-        ref.current.contentWindow.postMessage(
-          { source: "decap-preview", type: "sync" },
-          SITE
-        );
-      }
-    } catch (err) {
-      /* ignore */
-    }
-  }
-
+  // No hooks: Decap renders with its bundled React; UMD hooks blow up.
+  // Re-render on entry change is enough — site polls localStorage.
   function PreviewFrame(props) {
-    var collection = props.collection;
-    var entry = props.entry;
-    var ref = React.useRef(null);
-
-    React.useEffect(
-      function () {
-        writeDraft(collection, entry);
-        notifyIframe(ref);
-      },
-      [collection, entry]
-    );
-
+    writeDraft(props.collection, props.entry);
     return e(
       "div",
       {
@@ -64,7 +42,6 @@
         },
       },
       e("iframe", {
-        ref: ref,
         title: "Site preview",
         src: iframeSrc(),
         style: { height: "100%", width: "100%", border: "0" },
