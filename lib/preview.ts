@@ -68,8 +68,16 @@ function asStringList(value: unknown): string[] {
 
 /** Coerce Decap folder-entry shapes into the site's Role shape. */
 export function normalizeRoleEntry(
-  entry: Record<string, unknown>
+  raw: Record<string, unknown>
 ): Record<string, unknown> {
+  // Accept nested Decap bags
+  let entry = raw || {};
+  if (entry.data && typeof entry.data === "object" && !entry.company) {
+    entry = { ...entry.data, ...entry };
+  }
+  if (entry.fields && typeof entry.fields === "object" && !entry.company) {
+    entry = { ...entry.fields, ...entry };
+  }
   const slug = asString(entry.slug ?? entry.id ?? entry._filename ?? "");
   return {
     ...entry,

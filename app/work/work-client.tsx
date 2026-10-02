@@ -50,8 +50,11 @@ function draftDetail(payload: {
     return name ? `name=${String(name)}` : "content draft";
   }
   if (payload.collection === "roles") {
-    const draft = normalizeRoleEntry(e);
-    return [draft.company, draft.title].filter(Boolean).join(" — ") || "role draft";
+    const draft = normalizeRoleEntry(e) as { company: string; title: string };
+    const company = String(draft.company || "");
+    const title = String(draft.title || "");
+    if (!company && !title) return "role draft (empty entry?)";
+    return [company, title].filter(Boolean).join(" — ");
   }
   if (payload.collection === "education") {
     return String(e.credential || e.slug || "entry");
@@ -139,7 +142,15 @@ export function WorkPageClient() {
                   return (
                     <>
                       <h3 className="mt-2 font-display text-2xl text-paper">
-                        {draft.company}
+                        {draft.company || (
+                          <span className="text-muted">
+                            (no company in draft — keys:{" "}
+                            {Object.keys(preview.payload!.entry || {}).join(
+                              ", "
+                            ) || "none"}
+                            )
+                          </span>
+                        )}
                       </h3>
                       <p className="text-brass">{draft.title}</p>
                       <p className="meta mt-1 text-muted">

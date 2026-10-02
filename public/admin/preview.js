@@ -8,9 +8,102 @@
   var PREVIEW_TOKEN = "151751fa39cc93a351f798602e87ecaa9cc7e7c73e64b41c";
   var e = React.createElement;
 
-  // Stable URL — do NOT cache-bust. Reloads kill live preview.
   function iframeSrc() {
     return SITE + "/work/#preview=" + PREVIEW_TOKEN;
+  }
+
+  // Immutable.Map → plain JSON. postMessage/JSON.stringify of Immutable = {}.
+  function toPlain(value, depth) {
+    depth = depth || 0;
+    if (value == null || depth > 8) return value;
+    if (typeof value !== "object") return value;
+
+    if (typeof value.toJS === "function") {
+      try {
+        return toPlain(value.toJS(), depth + 1);
+      } catch (err) {
+        /* fall through */
+      }
+    }
+    if (typeof value.toObject === "function") {
+      try {
+        return toPlain(value.toObject(), depth + 1);
+      } catch (err) {
+        /* fall through */
+      }
+    }
+    if (typeof value.toJSON === "function") {
+      try {
+        return toPlain(value.toJSON(), depth + 1);
+      } catch (err) {
+        /* fall through */
+      }
+    }
+
+    // Immutable.Map internals
+    if (value._map && typeof value._map === "object") {
+      try {
+        var mapObj = {};
+        var keys = Object.keys(value._map);
+        for (var i = 0; i < keys.length; i++) {
+          var k = keys[i];
+          if (k === "size" || k === "__ownerID" || k === "__hash" || k === "__altered") {
+            continue;
+          }
+          mapObj[k] = toPlain(value._map[k], depth + 1);
+        }
+        if (Object.keys(mapObj).length) return mapObj;
+      } catch (err) {
+        /* fall through */
+      }
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(function (item) {
+        return toPlain(item, depth + 1);
+      });
+    }
+
+    // Already-plain object (or Decap field bag)
+    var out = {};
+    var names = [];
+    try {
+      names = Object.keys(value);
+    } catch (err) {
+      names = [];
+    }
+    // Some immutable lists expose entries
+    if (!names.length && typeof value.forEach === "function") {
+      try {
+        value.forEach(function (v, k) {
+          out[String(k)] = toPlain(v, depth + 1);
+        });
+        if (Object.keys(out).length) return out;
+      } catch (err) {
+        /* fall through */
+      }
+    }
+    for (var j = 0; j < names.length; j++) {
+      var key = names[j];
+      if (key.charAt(0) === "_") continue;
+      out[key] = toPlain(value[key], depth + 1);
+    }
+    return out;
+  }
+
+  function normalizeEntry(entryIn) {
+    var plain = toPlain(entryIn);
+    if (!plain || typeof plain !== "object" || Array.isArray(plain)) {
+      return {};
+    }
+    // Folder/list collections sometimes nest under data/fields
+    if (plain.data && typeof plain.data === "object" && !plain.company && !plain.credential) {
+      plain = Object.assign({}, plain.data, plain);
+    }
+    if (plain.fields && typeof plain.fields === "object" && !plain.company && !plain.credential) {
+      plain = Object.assign({}, plain.fields, plain);
+    }
+    return plain;
   }
 
   function sendToSiteFrames(payload) {
@@ -29,12 +122,20 @@
     }
   }
 
-  function publishDraft(collection, entry) {
+  function publishDraft(collection, rawEntry) {
+    var entry = normalizeEntry(rawEntry);
+    // Guarantee JSON-serializable payload
+    var safeEntry;
+    try {
+      safeEntry = JSON.parse(JSON.stringify(entry));
+    } catch (err) {
+      safeEntry = {};
+    }
     var payload = {
       source: "decap-preview",
       type: "draft",
       collection: collection,
-      entry: entry,
+      entry: safeEntry,
       ts: Date.now(),
     };
     try {
@@ -93,7 +194,6 @@
     fillPreviewShell();
   }
 
-  // No hooks. Stable iframe src. Draft updates via postMessage only.
   function PreviewFrame(props) {
     publishDraft(props.collection, props.entry);
     window.setTimeout(fillPreviewShell, 0);
@@ -123,12 +223,6 @@
         },
       })
     );
-  }
-
-  function normalizeEntry(entryIn) {
-    if (!entryIn) return {};
-    if (typeof entryIn.toJS === "function") return entryIn.toJS();
-    return entryIn;
   }
 
   CMS.registerPreviewTemplate("roles", function (props) {
