@@ -1,0 +1,60 @@
+{
+  "index": "03",
+  "eyebrow": "3D",
+  "title": "Form, light, and materials.",
+  "lede": "Blender and Unity before the web work. Portfolio of Blender assets and scenes on BlendKit; pipelines at Fynd that produced 100,000+ captioned training images.",
+  "blendkitUrl": "https://www.blendkit.com/?query=author_id:908",
+  "blendkitLabel": "BlendKit portfolio",
+  "portfolioLabel": "Portfolio",
+  "portfolioHtml": "Live Blender work — models, scenes, and renders — is on <a href=\"https://www.blendkit.com/?query=author_id:908\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">BlendKit</a>.",
+  "portfolioCard": {
+    "n": "01",
+    "title": "BlendKit author page",
+    "body": "Browse the full 3D catalog — assets and scenes published under this account.",
+    "meta": "blendkit.com ↗"
+  },
+  "practiceLabel": "Practice",
+  "practice": [
+    {
+      "k": "Portfolio",
+      "v": "BlendKit (Blender assets & scenes)"
+    },
+    {
+      "k": "Professional",
+      "v": "3D Game Artist at Fynd · Map Modeler at HERE · contract 3D at Powerweave"
+    },
+    {
+      "k": "Tools",
+      "v": "Blender, Unity, Substance Painter/Designer, ComfyUI, three.js"
+    },
+    {
+      "k": "Output",
+      "v": "Training imagery, product visualization prototypes, motion studies"
+    }
+  ],
+  "selectedLabel": "Selected work",
+  "selected": [
+    {
+      "n": "01",
+      "title": "Automated training imagery",
+      "meta": "Fynd",
+      "href": "https://www.linkedin.com/in/dscalvin",
+      "body": "Python, Blender, and JavaScript pipelines that produced 100,000+ captioned images for ML models."
+    },
+    {
+      "n": "02",
+      "title": "Indoor navigation POC",
+      "meta": "HERE",
+      "body": "Unity prototype for office wayfinding, plus Blender training for internal teams."
+    },
+    {
+      "n": "03",
+      "title": "Browser model viewer",
+      "meta": "Powerweave",
+      "body": "Sketchfab Viewer API prototype for client product review."
+    }
+  ],
+  "relatedLabel": "Related",
+  "relatedHtml": "Timeline on the <a href=\"/work/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">work page</a>. Fiber work on the <a href=\"/craft/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">craft page</a>. <a href=\"/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">Home</a>.",
+  "metaDescription": "Calvin Dsouza — 3D artist. Blender work on BlendKit, pipelines at Fynd, Unity at HERE."
+}

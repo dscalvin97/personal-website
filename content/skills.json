@@ -1,0 +1,8 @@
+{
+  "languages": "TypeScript, JavaScript, Python, C#, PHP, SQL",
+  "web": "React, Next.js, Node.js, Express, FastAPI, Django, Angular, Svelte, TailwindCSS",
+  "data": "PostgreSQL, Redis, Strapi, Contentful, Drupal, Drizzle, Objection",
+  "cloud": "GCP, AWS (S3, CloudFront, EC2, Lambda), Docker, Git",
+  "creative": "Blender, Unity, Substance Painter/Designer, ComfyUI, Photoshop, Illustrator",
+  "also": "REST APIs, multilingual CMS, AI image pipelines, performance budgets"
+}

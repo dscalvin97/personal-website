@@ -1,7 +1,7 @@
 backend:
   name: github
   repo: dscalvin97/personal-website
-  # Edits land here — NOT main. Site deploys only from main after you promote.
+  # Edits land here — NOT main. Promote with scripts/promote-content.sh
   branch: content
   base_url: https://calvin.makes.fyi
   auth_endpoint: admin/oauth/authorize
@@ -12,71 +12,264 @@ media_folder: public/uploads
 public_folder: /uploads
 
 collections:
-  - name: content
-    label: Site content
-    description: Profile, skills, highlights, and site meta — one form, no extra clicks.
+  - name: shared
+    label: Shared (nav & footer)
+    description: Brand name, tagline, nav items, footer links — all pages.
     files:
-      - file: content/site-content.json
-        name: content
-        label: Profile, skills & highlights
+      - file: content/shared.json
+        name: shared
+        label: Shared chrome
         fields:
-          - label: Profile
-            name: profile
+          - { label: Brand name, name: brandName, widget: string, required: true }
+          - { label: Tagline, name: tagline, widget: string, hint: "Footer line under the name" }
+          - label: Nav items
+            name: nav
+            widget: list
+            summary: "{{fields.label}} → {{fields.href}}"
+            fields:
+              - { label: Label, name: label, widget: string, required: true }
+              - { label: Href, name: href, widget: string, required: true, hint: "/work/ or https://..." }
+          - label: Footer links
+            name: footerLinks
+            widget: list
+            summary: "{{fields.label}}"
+            fields:
+              - { label: Label, name: label, widget: string, required: true }
+              - { label: Href, name: href, widget: string, required: true }
+              - { label: Download filename, name: download, widget: string, required: false }
+
+  - name: home
+    label: Home page
+    description: Hero, index list, currently section.
+    files:
+      - file: content/home.json
+        name: home
+        label: Home
+        fields:
+          - { label: Meta line, name: meta, widget: string, hint: "Small copper line above the name" }
+          - { label: First name, name: nameFirst, widget: string, required: true }
+          - { label: Last name, name: nameLast, widget: string, required: true }
+          - { label: Lede, name: lede, widget: text, required: true }
+          - label: Hero links
+            name: links
+            widget: list
+            summary: "{{fields.label}}"
+            fields:
+              - { label: Label, name: label, widget: string, required: true }
+              - { label: Href, name: href, widget: string, required: true }
+              - { label: External, name: external, widget: boolean, required: false, default: false }
+              - { label: Download filename, name: download, widget: string, required: false }
+          - { label: Index heading, name: indexTitle, widget: string }
+          - label: Index items
+            name: index
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - { label: Number, name: n, widget: string, hint: "01" }
+              - { label: Title, name: title, widget: string, required: true }
+              - { label: Meta, name: meta, widget: string, hint: "Archive / Practice" }
+              - { label: Href, name: href, widget: string, required: true }
+              - { label: Blurb, name: blurb, widget: text, required: true }
+          - { label: Currently heading, name: currentlyTitle, widget: string }
+          - { label: Currently paragraph 1 (HTML ok), name: currentlyHtml, widget: text }
+          - { label: Currently paragraph 2 (HTML ok), name: currentlyHtml2, widget: text }
+
+  - name: profile
+    label: Profile
+    description: Name, contact, links, resume path — used on work contact + home fallback.
+    files:
+      - file: content/profile.json
+        name: profile
+        label: Identity
+        fields:
+          - { label: Full name, name: name, widget: string, required: true }
+          - { label: Location, name: location, widget: string }
+          - { label: Email, name: email, widget: string, required: true }
+          - { label: Phone, name: phone, widget: string, required: false }
+          - { label: Headline, name: headline, widget: text }
+          - { label: Summary, name: summary, widget: text }
+          - label: Links
+            name: links
             widget: object
             collapsed: false
             fields:
-              - { label: Full name, name: name, widget: string, required: true }
-              - { label: Location, name: location, widget: string }
-              - { label: Email, name: email, widget: string, required: true }
-              - { label: Phone, name: phone, widget: string, required: false }
-              - { label: Headline, name: headline, widget: text }
-              - { label: Summary, name: summary, widget: text }
-              - label: Links
-                name: links
-                widget: object
-                collapsed: false
-                fields:
-                  - { label: LinkedIn, name: linkedin, widget: string }
-                  - { label: GitHub, name: github, widget: string }
-                  - { label: Gumroad, name: gumroad, widget: string }
-                  - { label: Website, name: website, widget: string }
-              - { label: Resume PDF path, name: resumePdf, widget: string, required: true, hint: "File in public/, e.g. /calvin-dsouza-resume.pdf" }
+              - { label: LinkedIn, name: linkedin, widget: string }
+              - { label: GitHub, name: github, widget: string }
+              - { label: Gumroad, name: gumroad, widget: string }
+              - { label: Website, name: website, widget: string }
+          - { label: Resume PDF path, name: resumePdf, widget: string, required: true }
 
-          - label: Skills
-            name: skills
+  - name: work-page
+    label: Work page
+    description: Work page header and section labels (roles live in Roles).
+    files:
+      - file: content/pages/work.json
+        name: work-page
+        label: Work page copy
+        fields:
+          - { label: Index, name: index, widget: string, hint: "01" }
+          - { label: Eyebrow, name: eyebrow, widget: string }
+          - { label: Title, name: title, widget: string, required: true }
+          - { label: Lede, name: lede, widget: text, required: true }
+          - label: Section labels
+            name: sections
             widget: object
-            collapsed: false
             fields:
-              - { label: Languages, name: languages, widget: text }
-              - { label: Web, name: web, widget: text }
-              - { label: Data & CMS, name: data, widget: text }
-              - { label: Cloud, name: cloud, widget: text }
-              - { label: Creative / 3D, name: creative, widget: text }
-              - { label: Also, name: also, widget: text, required: false }
+              - { label: Experience, name: experience, widget: string }
+              - { label: Highlights, name: highlights, widget: string }
+              - { label: Education, name: education, widget: string }
+              - { label: Tools, name: tools, widget: string }
+              - { label: Contact, name: contact, widget: string }
+          - { label: Tools note, name: toolsNote, widget: text }
+          - { label: Resume button label, name: resumeLabel, widget: string }
 
-          - label: Achievements
-            name: achievements
-            widget: object
-            collapsed: false
-            fields:
-              - label: Highlights
-                name: items
-                widget: list
-                summary: "{{fields.text}}"
-                field: { label: Text, name: text, widget: text, required: true }
+  - name: skills
+    label: Skills (work page)
+    files:
+      - file: content/skills.json
+        name: skills
+        label: Skills
+        fields:
+          - { label: Languages, name: languages, widget: text }
+          - { label: Web, name: web, widget: text }
+          - { label: Data & CMS, name: data, widget: text }
+          - { label: Cloud, name: cloud, widget: text }
+          - { label: Creative / 3D, name: creative, widget: text }
+          - { label: Also, name: also, widget: text, required: false }
 
-          - label: Site
-            name: site
-            widget: object
-            collapsed: true
+  - name: achievements
+    label: Achievements (work page)
+    files:
+      - file: content/achievements.json
+        name: achievements
+        label: Highlights
+        fields:
+          - label: Highlights
+            name: items
+            widget: list
+            summary: "{{fields.text}}"
+            field: { label: Text, name: text, widget: text, required: true }
+
+  - name: site-meta
+    label: Site meta
+    files:
+      - file: content/site-meta.json
+        name: site-meta
+        label: Site
+        fields:
+          - { label: Updated at, name: updatedAt, widget: string, hint: "YYYY-MM-DD" }
+          - { label: Work page title (legacy), name: title, widget: string, required: false }
+
+  - name: developer
+    label: Developer page
+    files:
+      - file: content/pages/developer.json
+        name: developer
+        label: Developer page
+        fields:
+          - { label: Index, name: index, widget: string }
+          - { label: Eyebrow, name: eyebrow, widget: string }
+          - { label: Title, name: title, widget: string, required: true }
+          - { label: Lede, name: lede, widget: text, required: true }
+          - { label: How label, name: howLabel, widget: string }
+          - { label: How paragraphs, name: how, widget: list, field: { label: Paragraph, name: item, widget: text } }
+          - { label: Cases label, name: casesLabel, widget: string }
+          - label: Case files
+            name: cases
+            widget: list
+            summary: "{{fields.title}}"
             fields:
-              - { label: Updated at, name: updatedAt, widget: string, hint: "YYYY-MM-DD — bump when you publish" }
-              - { label: Work page title, name: title, widget: string, required: false }
+              - { label: Number, name: n, widget: string }
+              - { label: Title, name: title, widget: string, required: true }
+              - { label: Meta, name: meta, widget: string }
+              - { label: Body, name: body, widget: text, required: true }
+          - { label: Stack label, name: stackLabel, widget: string }
+          - label: Stack rows
+            name: stack
+            widget: list
+            summary: "{{fields.k}}"
+            fields:
+              - { label: Key, name: k, widget: string, required: true }
+              - { label: Value, name: v, widget: text, required: true }
+          - { label: Further label, name: furtherLabel, widget: string }
+          - { label: Further (HTML ok), name: furtherHtml, widget: text }
+          - { label: Meta description, name: metaDescription, widget: text }
+
+  - name: studio
+    label: 3D page
+    files:
+      - file: content/pages/studio.json
+        name: studio
+        label: 3D page
+        fields:
+          - { label: Index, name: index, widget: string }
+          - { label: Eyebrow, name: eyebrow, widget: string }
+          - { label: Title, name: title, widget: string, required: true }
+          - { label: Lede, name: lede, widget: text, required: true }
+          - { label: BlendKit URL, name: blendkitUrl, widget: string, required: true }
+          - { label: BlendKit button label, name: blendkitLabel, widget: string }
+          - { label: Portfolio label, name: portfolioLabel, widget: string }
+          - { label: Portfolio (HTML ok), name: portfolioHtml, widget: text }
+          - label: Portfolio card
+            name: portfolioCard
+            widget: object
+            fields:
+              - { label: Number, name: n, widget: string }
+              - { label: Title, name: title, widget: string }
+              - { label: Body, name: body, widget: text }
+              - { label: Meta, name: meta, widget: string }
+          - { label: Practice label, name: practiceLabel, widget: string }
+          - label: Practice rows
+            name: practice
+            widget: list
+            summary: "{{fields.k}}"
+            fields:
+              - { label: Key, name: k, widget: string }
+              - { label: Value, name: v, widget: text }
+          - { label: Selected label, name: selectedLabel, widget: string }
+          - label: Selected work
+            name: selected
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - { label: Number, name: n, widget: string }
+              - { label: Title, name: title, widget: string }
+              - { label: Meta, name: meta, widget: string }
+              - { label: Href, name: href, widget: string, required: false }
+              - { label: Body, name: body, widget: text }
+          - { label: Related label, name: relatedLabel, widget: string }
+          - { label: Related (HTML ok), name: relatedHtml, widget: text }
+          - { label: Meta description, name: metaDescription, widget: text }
+
+  - name: craft
+    label: Craft page
+    files:
+      - file: content/pages/craft.json
+        name: craft
+        label: Craft page
+        fields:
+          - { label: Index, name: index, widget: string }
+          - { label: Eyebrow, name: eyebrow, widget: string }
+          - { label: Title, name: title, widget: string, required: true }
+          - { label: Lede, name: lede, widget: text, required: true }
+          - { label: Make label, name: makeLabel, widget: string }
+          - { label: Make paragraphs, name: make, widget: list, field: { label: Paragraph, name: item, widget: text } }
+          - { label: Patterns label, name: patternsLabel, widget: string }
+          - label: Pattern notes
+            name: patterns
+            widget: list
+            summary: "{{fields.k}}"
+            fields:
+              - { label: Key, name: k, widget: string }
+              - { label: Value, name: v, widget: text }
+          - { label: Contact label, name: contactLabel, widget: string }
+          - { label: Contact (HTML ok), name: contactHtml, widget: text }
+          - { label: Meta description, name: metaDescription, widget: text }
 
   - name: roles
     label: Roles
     label_singular: Role
-    description: One file per job. Order 1 appears first on the work page.
+    description: One file per job (work page experience).
     folder: content/roles
     create: true
     delete: true
@@ -86,12 +279,12 @@ collections:
     summary: "{{fields.company}} · order {{fields.order}}"
     sortable_fields: ["order", "company", "period"]
     fields:
-      - { label: Slug, name: slug, widget: string, required: true, hint: "Filename (lowercase, hyphens). Example: kolors" }
-      - { label: Order, name: order, widget: number, value_type: int, required: true, hint: "1 = first listed. Gaps (10, 20, 30) leave room to insert." }
+      - { label: Slug, name: slug, widget: string, required: true, hint: "Filename (lowercase, hyphens)" }
+      - { label: Order, name: order, widget: number, value_type: int, required: true }
       - { label: Company, name: company, widget: string, required: true }
       - { label: Company URL, name: href, widget: string, required: false }
       - { label: Job title, name: title, widget: string, required: true }
-      - { label: Period, name: period, widget: string, hint: "Present  or  Jun 2025 – 2026" }
+      - { label: Period, name: period, widget: string }
       - { label: Location, name: location, widget: string }
       - { label: Summary, name: summary, widget: text }
       - label: Highlights

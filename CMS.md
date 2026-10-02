@@ -1,83 +1,70 @@
 # CMS (Decap) + content model
 
-## Content layout
+## Content is split by page
 
 ```
 content/
-  site-content.json     # profile + skills + achievements + site meta (ONE form)
-  roles/                # one JSON file per job
-    kolors.json
-    snapwork.json
-    ...
-  education/            # one JSON file per credential
-    bsc-computer-science.json
-    ...
+  shared.json           # nav, footer, brand — every page
+  home.json             # hero, index, currently
+  profile.json          # identity, links, resume (work contact + home fallback)
+  skills.json           # work page tools
+  achievements.json     # work highlights
+  site-meta.json        # updatedAt
+  pages/work.json       # work page header + section labels
+  pages/developer.json  # developer page copy + cases + stack
+  pages/studio.json     # 3D page copy + BlendKit + practice
+  pages/craft.json      # craft page copy + pattern notes
+  roles/                # one JSON per job (folder collection)
+  education/            # one JSON per credential (folder collection)
 ```
 
-### Why one file for profile/skills/achievements
-Decap `files` collections always show a file list before the form. To avoid the extra click, all singleton data lives in **one file** → **one collection** → **one scrollable form** (Profile, Skills, Achievements list, Site).
+Every visible string on the site is loaded from these files via `lib/content.ts`.
 
-Roles and Education are **folder** collections — separate entries you can add, reorder, and delete.
+## Decap sidebar (one collection per page)
 
-### Ordering
-- Roles/Education: `order` field (1 = first). Gaps like 10/20/30 leave room to insert.
-- Slug = filename via Decap `slug: {{fields.slug}}`.
+| Collection         | Page / use                          |
+| ------------------ | ----------------------------------- |
+| Shared             | Nav + footer on all pages           |
+| Home page          | `/` hero + index + currently          |
+| Profile            | Contact / identity                  |
+| Work page          | `/work/` header + section labels      |
+| Skills             | `/work/` tools list                   |
+| Achievements       | `/work/` highlights                   |
+| Site meta          | updatedAt stamp                     |
+| Developer page     | `/developer/`                        |
+| 3D page            | `/studio/`                           |
+| Craft page         | `/craft/`                            |
+| Roles              | `/work/` experience list (folder)    |
+| Education          | `/work/` education list (folder)     |
 
-After CMS edits, **rebuild/redeploy** from this server. Commits to `main` do not auto-publish.
+## Live preview
 
-## Save vs publish (important)
+- Editing any collection opens the **matching site page** in the preview iframe (`#preview=<token>`).
+- Typing updates the preview via `postMessage` — **no save required**.
+- Role drafts also get a spotlight card on `/work/`.
+- Preview iframe does **not** reload on every keystroke (stable src).
 
-Decap + GitHub has **no draft-save**. In the admin, **Save = git commit**.
+## Save vs publish
 
-That is why CMS targets the **`content` branch**, not `main`:
+Decap + GitHub has no draft-save. **Save = git commit** to branch **`content`**.
 
-| Step | What happens |
-| ---- | ------------ |
-| Edit + Save in Decap | Commits to `content` — **site does not change** |
-| Preview pane | Shows your unsaved/saved draft in the browser (local) |
-| Promote | Merge `content` → `main` (Action deploys) |
+| Step | Result |
+| ---- | ------ |
+| Edit + Save | Commits to `content` — live site unchanged |
+| Preview | Browser-local draft (works unsaved) |
+| Publish | `./scripts/promote-content.sh` → merges to `main` → Actions deploys |
 
-Promote from this repo (or GitHub PR):
-
-```bash
-./scripts/promote-content.sh
-# or: gh pr create --base main --head content --title "CMS content"
-```
-
-## Admin UI
+## Admin
 
 https://calvin.makes.fyi/admin/
 
-1. **Site content** → one entry: *Profile, skills & highlights* → all singleton fields on one form  
-2. **Roles** → list of jobs (Kolors, Snapwork, …)  
-3. **Education** → list of credentials  
-
-## GitHub OAuth (Netlify popup protocol)
-
-| Piece | Value |
-| ----- | ----- |
-| Client ID | in `public/admin/config.yml` |
-| Client secret | `/etc/decap-proxy.env` (600, never commit) |
-| Proxy | systemd `decap-oauth-proxy` → `127.0.0.1:8787` |
-| Nginx | `/admin/oauth/` → proxy |
-| **GitHub OAuth callback URL** | `https://calvin.makes.fyi/admin/oauth/callback` |
-| Popup entry | `https://calvin.makes.fyi/admin/oauth/authorize` |
-
-Config:
-```yaml
-base_url: https://calvin.makes.fyi
-auth_endpoint: admin/oauth/authorize
-```
-
-If login fails: verify callback URL exactly, allow popups, `journalctl -u decap-oauth-proxy`.
+GitHub OAuth callback URL:
+`https://calvin.makes.fyi/admin/oauth/callback`
 
 ## Resume PDF
 
-- File: `public/calvin-dsouza-resume.pdf`
-- Path in CMS: Site content → Profile → Resume PDF path
+`public/calvin-dsouza-resume.pdf` — path configured in Profile → Resume PDF path.
 
-## Umami analytics
+## Umami
 
-- Dashboard: https://umami.makes.fyi/
-- Credentials: `/home/calvin/.config/umami-bootstrap.txt`
-- Change the default admin password on first login
+https://umami.makes.fyi/ — credentials in `/home/calvin/.config/umami-bootstrap.txt`

@@ -1,0 +1,15 @@
+{
+  "index": "01",
+  "eyebrow": "Work",
+  "title": "Work history.",
+  "lede": "Roles, places, and what I actually shipped. Updated from the CMS content file.",
+  "sections": {
+    "experience": "Experience",
+    "highlights": "Highlights",
+    "education": "Education",
+    "tools": "Tools",
+    "contact": "Contact"
+  },
+  "toolsNote": "Not a skill bar. Things I have actually shipped with. Full timeline in the PDF.",
+  "resumeLabel": "Download resume PDF"
+}

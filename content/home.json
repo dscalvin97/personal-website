@@ -1,0 +1,68 @@
+{
+  "meta": "Mumbai · fullstack · 3D · fiber",
+  "nameFirst": "Calvin",
+  "nameLast": "Dsouza",
+  "lede": "Senior fullstack developer at Kolors India. Before that: 3D and fullstack at Fynd, delivery lead at Snapwork, Blender and Unity at HERE. I also crochet.",
+  "links": [
+    {
+      "label": "LinkedIn",
+      "href": "https://www.linkedin.com/in/dscalvin",
+      "external": true
+    },
+    {
+      "label": "GitHub",
+      "href": "https://github.com/dscalvin97",
+      "external": true
+    },
+    {
+      "label": "Gumroad",
+      "href": "https://dscalvin.gumroad.com/",
+      "external": true
+    },
+    {
+      "label": "Work →",
+      "href": "/work/",
+      "external": false
+    },
+    {
+      "label": "Resume ↓",
+      "href": "/calvin-dsouza-resume.pdf",
+      "external": false,
+      "download": "Calvin-Dsouza-Resume.pdf"
+    }
+  ],
+  "indexTitle": "Index",
+  "index": [
+    {
+      "href": "/work/",
+      "n": "01",
+      "title": "Work",
+      "meta": "Archive",
+      "blurb": "Kolors, Snapwork, Fynd, HERE — fullstack, firmware-adjacent product work, and 3D pipelines."
+    },
+    {
+      "href": "/developer/",
+      "n": "02",
+      "title": "Developer",
+      "meta": "Practice",
+      "blurb": "APIs, apps, CMS, and the infrastructure underneath."
+    },
+    {
+      "href": "/studio/",
+      "n": "03",
+      "title": "3D",
+      "meta": "Practice",
+      "blurb": "Blender, Unity, automated image pipelines."
+    },
+    {
+      "href": "/craft/",
+      "n": "04",
+      "title": "Craft",
+      "meta": "Practice",
+      "blurb": "Crochet — tension, loops, gauge, finished objects."
+    }
+  ],
+  "currentlyTitle": "Currently",
+  "currentlyHtml": "Senior fullstack developer at <a href=\"https://www.kolorsworld.com/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">Kolors India</a>. Web products, firmware-adjacent work, and home automation.",
+  "currentlyHtml2": "Based in Mumbai. Open to interesting work. Full timeline on the <a href=\"/work/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">work page</a>."
+}

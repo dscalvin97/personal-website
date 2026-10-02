@@ -2,9 +2,12 @@
 
 import type { CSSProperties } from "react";
 import {
-  applyPreviewToContent,
-  applyPreviewToEducation,
-  applyPreviewToRoles,
+  PreviewBanner,
+  applyPreviewEducation,
+  applyPreviewPage,
+  applyPreviewRoles,
+  draftDetail,
+  draftLabel,
   useCmsPreview,
 } from "@/components/cms-preview";
 import { PageHeader, Section } from "@/components/page-parts";
@@ -15,123 +18,107 @@ import {
   education as baseEducation,
   profile as baseProfile,
   roles as baseRoles,
-  site as baseSite,
   skills as baseSkills,
-} from "@/lib/work";
-
-function PreviewBanner({
-  label,
-  detail,
-}: {
-  label: string;
-  detail?: string;
-}) {
-  return (
-    <div
-      className="border-b border-copper/50 bg-copper/10 px-5 py-2 text-center font-mono text-[0.7rem] tracking-[0.16em] text-copper uppercase"
-      role="status"
-    >
-      CMS preview · {label}
-      {detail ? ` · ${detail}` : ""} · not published
-    </div>
-  );
-}
-
-
-function draftDetail(payload: {
-  collection: string;
-  entry: Record<string, unknown>;
-} | null): string {
-  if (!payload) return "";
-  const e = payload.entry as Record<string, unknown>;
-  const profile = (e.profile as Record<string, unknown>) || e;
-  if (payload.collection === "content") {
-    const name = profile.name || e.name;
-    return name ? `name=${String(name)}` : "content draft";
-  }
-  if (payload.collection === "roles") {
-    const draft = normalizeRoleEntry(e) as { company: string; title: string };
-    const company = String(draft.company || "");
-    const title = String(draft.title || "");
-    if (!company && !title) return "role draft (empty entry?)";
-    return [company, title].filter(Boolean).join(" — ");
-  }
-  if (payload.collection === "education") {
-    return String(e.credential || e.slug || "entry");
-  }
-  return "";
-}
+  siteMeta as baseSiteMeta,
+  workPage as baseWorkPage,
+} from "@/lib/content";
 
 export function WorkPageClient() {
   const preview = useCmsPreview();
+  const c = preview.payload?.collection;
 
-  const content = applyPreviewToContent(
-    {
-      profile: baseProfile,
-      skills: baseSkills,
-      achievements: { items: baseAchievements.map((text) => ({ text })) },
-      site: baseSite,
-    },
+  const workPage = applyPreviewPage(
+    baseWorkPage,
     preview.payload,
+    "work-page",
     preview.nonce
   );
+  const profile = applyPreviewPage(
+    baseProfile,
+    preview.payload,
+    "profile",
+    preview.nonce
+  );
+  const skills = applyPreviewPage(
+    baseSkills,
+    preview.payload,
+    "skills",
+    preview.nonce
+  );
+  const siteMeta = applyPreviewPage(
+    baseSiteMeta,
+    preview.payload,
+    "site-meta",
+    preview.nonce
+  );
+  const achBase = {
+    items: baseAchievements.map((text) => ({ text })),
+  };
+  const achMerged = applyPreviewPage(
+    achBase,
+    preview.payload,
+    "achievements",
+    preview.nonce
+  );
+  const achievements = (achMerged.items ?? []).map((i) => i.text);
 
-  const roles = applyPreviewToRoles(
+  const roles = applyPreviewRoles(
     baseRoles as unknown as Array<Record<string, unknown>>,
     preview.payload,
     preview.nonce
   ) as typeof baseRoles;
 
-  const education = applyPreviewToEducation(
+  const education = applyPreviewEducation(
     baseEducation as unknown as Array<Record<string, unknown>>,
     preview.payload,
     preview.nonce
   ) as typeof baseEducation;
 
-  const achievements = (content.achievements.items ?? []).map((i) => i.text);
-  const profile = content.profile as typeof baseProfile;
-  const skills = content.skills as typeof baseSkills;
-  const updatedAt = String(
-    (content.site as { updatedAt?: string }).updatedAt ?? baseSite.updatedAt
-  );
+  const showBanner =
+    preview.mode &&
+    [
+      "work-page",
+      "profile",
+      "skills",
+      "achievements",
+      "site-meta",
+      "roles",
+      "education",
+    ].includes(String(c));
 
   return (
     <>
-      {preview.mode ? (
+      {showBanner ? (
         <PreviewBanner
-          label={
-            preview.payload?.collection === "roles"
-              ? "Role"
-              : preview.payload?.collection === "education"
-                ? "Education"
-                : "Site content"
-          }
+          label={draftLabel(preview.payload)}
           detail={draftDetail(preview.payload)}
         />
       ) : null}
       <main id="main">
         <PageHeader
-          index="01"
-          eyebrow="Work"
-          title="Work history."
-          lede="Roles, places, and what I actually shipped. Updated from the CMS content file."
+          index={workPage.index}
+          eyebrow={workPage.eyebrow}
+          title={workPage.title}
+          lede={workPage.lede}
         >
           <div
             className="mt-6 flex flex-wrap items-center gap-4"
             style={{ "--i": 3 } as CSSProperties}
           >
-            <ResumeDownload />
-            <p className="meta text-muted">Updated {updatedAt}</p>
+            <ResumeDownload label={workPage.resumeLabel} />
+            <p className="meta text-muted">Updated {siteMeta.updatedAt}</p>
           </div>
         </PageHeader>
 
-        <Section label="Experience">
+        <Section label={workPage.sections.experience}>
           <div>
-            {preview.mode && preview.payload?.collection === "roles" ? (
+            {preview.mode && c === "roles" ? (
               <div className="mb-6 rounded-md border border-copper bg-copper/10 p-5">
                 <p className="meta text-copper">Draft role (live preview)</p>
                 {(() => {
-                  const draft = normalizeRoleEntry(preview.payload!.entry) as {
+                  const draft = normalizeRoleEntry(
+                    preview.payload!.entry
+                  ) as {
                     company: string;
                     title: string;
                     period: string;
@@ -144,7 +131,7 @@ export function WorkPageClient() {
                       <h3 className="mt-2 font-display text-2xl text-paper">
                         {draft.company || (
                           <span className="text-muted">
-                            (no company in draft — keys:{" "}
+                            (no company — keys:{" "}
                             {Object.keys(preview.payload!.entry || {}).join(
                               ", "
                             ) || "none"}
@@ -154,14 +141,19 @@ export function WorkPageClient() {
                       </h3>
                       <p className="text-brass">{draft.title}</p>
                       <p className="meta mt-1 text-muted">
-                        {[draft.period, draft.location].filter(Boolean).join(" · ")}
+                        {[draft.period, draft.location]
+                          .filter(Boolean)
+                          .join(" · ")}
                       </p>
                       <p className="measure mt-3 text-sm text-paper/85">
                         {draft.summary}
                       </p>
                       <ul className="mt-3 space-y-1.5">
                         {draft.highlights.map((h) => (
-                          <li key={h} className="flex gap-2 text-sm text-muted">
+                          <li
+                            key={h}
+                            className="flex gap-2 text-sm text-muted"
+                          >
                             <span className="mt-2 h-px w-4 shrink-0 bg-copper" />
                             <span>{h}</span>
                           </li>
@@ -184,7 +176,7 @@ export function WorkPageClient() {
                     </p>
                     <h3 className="mt-2 font-display text-3xl leading-tight text-paper sm:text-4xl">
                       {role.company}
-                      {(role as { __draft?: boolean }).__draft ? (
+                      {role.__draft ? (
                         <span className="ml-2 align-middle font-mono text-[0.65rem] tracking-[0.16em] text-copper uppercase">
                           draft
                         </span>
@@ -265,7 +257,7 @@ export function WorkPageClient() {
           </div>
         </Section>
 
-        <Section label="Highlights">
+        <Section label={workPage.sections.highlights}>
           <ul className="space-y-4">
             {achievements.map((item) => (
               <li
@@ -281,7 +273,7 @@ export function WorkPageClient() {
           </ul>
         </Section>
 
-        <Section label="Education">
+        <Section label={workPage.sections.education}>
           <div className="divide-y divide-line border-y border-line">
             {education.map((item) => (
               <div
@@ -298,19 +290,20 @@ export function WorkPageClient() {
           </div>
         </Section>
 
-        <Section label="Tools">
+        <Section label={workPage.sections.tools}>
           <div className="measure">
             <p>
               {skills.languages}. {skills.web}. {skills.data}. {skills.cloud}.{" "}
               {skills.creative}.
             </p>
+            <p className="meta mt-4 text-muted">{workPage.toolsNote}</p>
             <div className="mt-6">
-              <ResumeDownload label="Download resume PDF" />
+              <ResumeDownload label={workPage.resumeLabel} />
             </div>
           </div>
         </Section>
 
-        <Section label="Contact">
+        <Section label={workPage.sections.contact}>
           <div className="measure">
             <p>
               {profile.name} · {profile.location}
@@ -322,4 +315,3 @@ export function WorkPageClient() {
     </>
   );
 }
-

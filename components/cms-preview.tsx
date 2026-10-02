@@ -5,6 +5,7 @@ import {
   isPreviewMode,
   mergeEducationDraft,
   mergeRoleDraft,
+  normalizeRoleEntry,
   readPreviewDraft,
   type PreviewPayload,
 } from "@/lib/preview";
@@ -14,6 +15,20 @@ type PreviewState = {
   payload: PreviewPayload | null;
   nonce: number;
 };
+
+export type PreviewCollection =
+  | "shared"
+  | "home"
+  | "profile"
+  | "skills"
+  | "achievements"
+  | "site-meta"
+  | "work-page"
+  | "developer"
+  | "studio"
+  | "craft"
+  | "roles"
+  | "education";
 
 function normalizeMessage(data: unknown): PreviewPayload | null {
   if (!data || typeof data !== "object") return null;
@@ -51,10 +66,7 @@ export function useCmsPreview() {
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
       const fromDraft = normalizeMessage(event.data);
-      if (fromDraft) {
-        apply(fromDraft);
-        return;
-      }
+      if (fromDraft) apply(fromDraft);
     };
 
     const onStorage = (event: StorageEvent) => {
@@ -65,8 +77,6 @@ export function useCmsPreview() {
     apply(readPreviewDraft());
     window.addEventListener("message", onMessage);
     window.addEventListener("storage", onStorage);
-
-    // Light backup only — primary path is postMessage while typing
     const interval = window.setInterval(() => apply(readPreviewDraft()), 1000);
 
     return () => {
@@ -79,72 +89,146 @@ export function useCmsPreview() {
   return state;
 }
 
-export function applyPreviewToRoles<T extends Record<string, unknown>>(
+function isCollection(
+  payload: PreviewPayload | null,
+  ...names: string[]
+): boolean {
+  return !!payload && names.includes(payload.collection);
+}
+
+function deepMerge<T>(base: T, patch: Record<string, unknown>): T {
+  const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
+  for (const [key, value] of Object.entries(patch)) {
+    if (value === undefined) continue;
+    const prev = out[key];
+    if (
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      prev &&
+      typeof prev === "object" &&
+      !Array.isArray(prev)
+    ) {
+      out[key] = deepMerge(prev, value as Record<string, unknown>);
+    } else {
+      out[key] = value;
+    }
+  }
+  return out as T;
+}
+
+export function applyPreviewPage<T>(
+  base: T,
+  payload: PreviewPayload | null,
+  collection: PreviewCollection,
+  nonce: number
+): T {
+  if (!isCollection(payload, collection)) return base;
+  void nonce;
+  return deepMerge(base, payload!.entry);
+}
+
+export function applyPreviewRoles<T extends Record<string, unknown>>(
   roles: T[],
   payload: PreviewPayload | null,
   nonce: number
 ): T[] {
-  if (!payload || payload.collection !== "roles") return roles;
+  if (!isCollection(payload, "roles")) return roles;
   void nonce;
-  return mergeRoleDraft(roles, payload.entry) as T[];
+  return mergeRoleDraft(roles, payload!.entry) as T[];
 }
 
-export function applyPreviewToEducation<T extends Record<string, unknown>>(
+export function applyPreviewEducation<T extends Record<string, unknown>>(
   items: T[],
   payload: PreviewPayload | null,
   nonce: number
 ): T[] {
-  if (!payload || payload.collection !== "education") return items;
+  if (!isCollection(payload, "education")) return items;
   void nonce;
-  return mergeEducationDraft(items, payload.entry) as T[];
+  return mergeEducationDraft(items, payload!.entry) as T[];
 }
 
-export function applyPreviewToContent<
-  T extends {
-    profile: Record<string, unknown>;
-    skills: Record<string, unknown>;
-    achievements: { items: Array<{ text: string }> };
-    site: Record<string, unknown>;
-  },
->(content: T, payload: PreviewPayload | null, nonce: number): T {
-  if (!payload || payload.collection !== "content") return content;
-  void nonce;
-  const entry = payload.entry as Partial<T> & Record<string, unknown>;
-  const profile = {
-    ...content.profile,
-    ...((entry.profile as Record<string, unknown>) || {}),
+export function draftCollection(
+  payload: PreviewPayload | null
+): PreviewCollection | null {
+  if (!payload) return null;
+  return payload.collection as PreviewCollection;
+}
+
+export function draftLabel(payload: PreviewPayload | null): string {
+  const c = draftCollection(payload);
+  const map: Record<string, string> = {
+    shared: "Shared",
+    home: "Home",
+    profile: "Profile",
+    skills: "Skills",
+    achievements: "Achievements",
+    "site-meta": "Site meta",
+    "work-page": "Work page",
+    developer: "Developer",
+    studio: "3D",
+    craft: "Craft",
+    roles: "Role",
+    education: "Education",
   };
-  if (typeof entry.name === "string") profile.name = entry.name;
-  if (typeof entry.email === "string") profile.email = entry.email;
-  if (typeof entry.location === "string") profile.location = entry.location;
-  if (typeof entry.headline === "string") profile.headline = entry.headline;
-  if (typeof entry.summary === "string") profile.summary = entry.summary;
-  if (typeof entry.resumePdf === "string") profile.resumePdf = entry.resumePdf;
-  if (entry.links && typeof entry.links === "object") {
-    profile.links = {
-      ...(profile.links as Record<string, unknown>),
-      ...(entry.links as Record<string, unknown>),
-    };
+  return c ? map[c] || c : "";
+}
+
+export function draftDetail(payload: PreviewPayload | null): string {
+  if (!payload) return "";
+  const e = payload.entry as Record<string, unknown>;
+  const c = payload.collection;
+
+  if (c === "roles") {
+    const draft = normalizeRoleEntry(e) as { company: string; title: string };
+    const company = String(draft.company || "");
+    const title = String(draft.title || "");
+    if (!company && !title) return "role draft (empty entry?)";
+    return [company, title].filter(Boolean).join(" — ");
   }
+  if (c === "education") {
+    return String(e.credential || e.slug || "entry");
+  }
+  if (c === "profile") {
+    return String(e.name || e.headline || "profile");
+  }
+  if (c === "home") {
+    return String(e.nameLast || e.meta || "home");
+  }
+  if (c === "developer" || c === "studio" || c === "craft" || c === "work-page") {
+    return String(e.title || e.eyebrow || c);
+  }
+  if (c === "skills") {
+    return String(e.languages || "skills");
+  }
+  if (c === "achievements") {
+    const items = e.items;
+    if (Array.isArray(items)) return `${items.length} highlight(s)`;
+    return "achievements";
+  }
+  if (c === "shared") {
+    return String(e.brandName || e.tagline || "shared");
+  }
+  if (c === "site-meta") {
+    return String(e.updatedAt || "site meta");
+  }
+  return c || "";
+}
 
-  const skills = {
-    ...content.skills,
-    ...((entry.skills as Record<string, unknown>) || {}),
-  };
-  if (typeof entry.languages === "string") skills.languages = entry.languages;
-
-  const achievements = entry.achievements
-    ? {
-        ...content.achievements,
-        ...(entry.achievements as { items: Array<{ text: string }> }),
-      }
-    : content.achievements;
-
-  const site = {
-    ...content.site,
-    ...((entry.site as Record<string, unknown>) || {}),
-  };
-  if (typeof entry.updatedAt === "string") site.updatedAt = entry.updatedAt;
-
-  return { ...content, profile, skills, achievements, site };
+export function PreviewBanner({
+  label,
+  detail,
+}: {
+  label: string;
+  detail?: string;
+}) {
+  return (
+    <div
+      className="border-b border-copper/50 bg-copper/10 px-5 py-2 text-center font-mono text-[0.7rem] tracking-[0.16em] text-copper uppercase"
+      role="status"
+    >
+      CMS preview · {label}
+      {detail ? ` · ${detail}` : ""} · not published
+    </div>
+  );
 }

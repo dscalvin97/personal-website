@@ -4,8 +4,22 @@ export const PREVIEW_STORAGE_KEY = "decap-preview-draft";
 export const PREVIEW_TOKEN =
   process.env.NEXT_PUBLIC_PREVIEW_TOKEN ?? "";
 
+export type PreviewCollection =
+  | "shared"
+  | "home"
+  | "profile"
+  | "skills"
+  | "achievements"
+  | "site-meta"
+  | "work-page"
+  | "developer"
+  | "studio"
+  | "craft"
+  | "roles"
+  | "education";
+
 export type PreviewPayload = {
-  collection: "content" | "roles" | "education";
+  collection: PreviewCollection;
   entry: Record<string, unknown>;
   ts: number;
 };

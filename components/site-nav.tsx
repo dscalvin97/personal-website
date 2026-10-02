@@ -1,12 +1,5 @@
 import Link from "next/link";
-
-const nav = [
-  { href: "/", label: "Home" },
-  { href: "/work/", label: "Work" },
-  { href: "/developer/", label: "Dev" },
-  { href: "/studio/", label: "3D" },
-  { href: "/craft/", label: "Craft" },
-] as const;
+import { shared } from "@/lib/content";
 
 export function SiteNav() {
   return (
@@ -16,11 +9,11 @@ export function SiteNav() {
           href="/"
           className="font-display text-xl leading-none tracking-tight text-paper hover:text-brass"
         >
-          Calvin Dsouza
+          {shared.brandName}
         </Link>
         <nav aria-label="Primary">
           <ul className="flex items-center gap-0.5 sm:gap-1">
-            {nav.map((item) => (
+            {shared.nav.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}

@@ -4,84 +4,65 @@
 
   var STORAGE_KEY = "decap-preview-draft";
   var SITE = window.location.origin;
-  // Must match NEXT_PUBLIC_PREVIEW_TOKEN used by the site build
   var PREVIEW_TOKEN = "151751fa39cc93a351f798602e87ecaa9cc7e7c73e64b41c";
   var e = React.createElement;
 
-  function iframeSrc() {
-    return SITE + "/work/#preview=" + PREVIEW_TOKEN;
+  var COLLECTION_PATH = {
+    shared: "/",
+    home: "/",
+    profile: "/work/",
+    skills: "/work/",
+    achievements: "/work/",
+    "site-meta": "/work/",
+    "work-page": "/work/",
+    developer: "/developer/",
+    studio: "/studio/",
+    craft: "/craft/",
+    roles: "/work/",
+    education: "/work/",
+  };
+
+  function iframeSrc(collection) {
+    var path = COLLECTION_PATH[collection] || "/work/";
+    return SITE + path + "#preview=" + PREVIEW_TOKEN;
   }
 
-  // Immutable.Map → plain JSON. postMessage/JSON.stringify of Immutable = {}.
   function toPlain(value, depth) {
     depth = depth || 0;
     if (value == null || depth > 8) return value;
     if (typeof value !== "object") return value;
-
     if (typeof value.toJS === "function") {
-      try {
-        return toPlain(value.toJS(), depth + 1);
-      } catch (err) {
-        /* fall through */
-      }
+      try { return toPlain(value.toJS(), depth + 1); } catch (err) {}
     }
     if (typeof value.toObject === "function") {
-      try {
-        return toPlain(value.toObject(), depth + 1);
-      } catch (err) {
-        /* fall through */
-      }
+      try { return toPlain(value.toObject(), depth + 1); } catch (err) {}
     }
     if (typeof value.toJSON === "function") {
-      try {
-        return toPlain(value.toJSON(), depth + 1);
-      } catch (err) {
-        /* fall through */
-      }
+      try { return toPlain(value.toJSON(), depth + 1); } catch (err) {}
     }
-
-    // Immutable.Map internals
     if (value._map && typeof value._map === "object") {
       try {
         var mapObj = {};
         var keys = Object.keys(value._map);
         for (var i = 0; i < keys.length; i++) {
           var k = keys[i];
-          if (k === "size" || k === "__ownerID" || k === "__hash" || k === "__altered") {
-            continue;
-          }
+          if (k === "size" || k.charAt(0) === "_") continue;
           mapObj[k] = toPlain(value._map[k], depth + 1);
         }
         if (Object.keys(mapObj).length) return mapObj;
-      } catch (err) {
-        /* fall through */
-      }
+      } catch (err) {}
     }
-
     if (Array.isArray(value)) {
-      return value.map(function (item) {
-        return toPlain(item, depth + 1);
-      });
+      return value.map(function (item) { return toPlain(item, depth + 1); });
     }
-
-    // Already-plain object (or Decap field bag)
     var out = {};
     var names = [];
-    try {
-      names = Object.keys(value);
-    } catch (err) {
-      names = [];
-    }
-    // Some immutable lists expose entries
+    try { names = Object.keys(value); } catch (err) { names = []; }
     if (!names.length && typeof value.forEach === "function") {
       try {
-        value.forEach(function (v, k) {
-          out[String(k)] = toPlain(v, depth + 1);
-        });
+        value.forEach(function (v, k) { out[String(k)] = toPlain(v, depth + 1); });
         if (Object.keys(out).length) return out;
-      } catch (err) {
-        /* fall through */
-      }
+      } catch (err) {}
     }
     for (var j = 0; j < names.length; j++) {
       var key = names[j];
@@ -93,14 +74,11 @@
 
   function normalizeEntry(entryIn) {
     var plain = toPlain(entryIn);
-    if (!plain || typeof plain !== "object" || Array.isArray(plain)) {
-      return {};
-    }
-    // Folder/list collections sometimes nest under data/fields
-    if (plain.data && typeof plain.data === "object" && !plain.company && !plain.credential) {
+    if (!plain || typeof plain !== "object" || Array.isArray(plain)) return {};
+    if (plain.data && typeof plain.data === "object" && !plain.company && !plain.credential && !plain.name && !plain.title) {
       plain = Object.assign({}, plain.data, plain);
     }
-    if (plain.fields && typeof plain.fields === "object" && !plain.company && !plain.credential) {
+    if (plain.fields && typeof plain.fields === "object" && !plain.company && !plain.credential && !plain.name && !plain.title) {
       plain = Object.assign({}, plain.fields, plain);
     }
     return plain;
@@ -111,26 +89,19 @@
     for (var i = 0; i < frames.length; i++) {
       var frame = frames[i];
       var src = frame.getAttribute("src") || "";
-      if (src.indexOf("/work/") === -1) continue;
+      if (src.indexOf("/#preview=") === -1 && src.indexOf("/work/#preview=") === -1 &&
+          src.indexOf("/developer/#preview=") === -1 && src.indexOf("/studio/#preview=") === -1 &&
+          src.indexOf("/craft/#preview=") === -1) continue;
       try {
-        if (frame.contentWindow) {
-          frame.contentWindow.postMessage(payload, SITE);
-        }
-      } catch (err) {
-        /* ignore */
-      }
+        if (frame.contentWindow) frame.contentWindow.postMessage(payload, SITE);
+      } catch (err) {}
     }
   }
 
   function publishDraft(collection, rawEntry) {
     var entry = normalizeEntry(rawEntry);
-    // Guarantee JSON-serializable payload
     var safeEntry;
-    try {
-      safeEntry = JSON.parse(JSON.stringify(entry));
-    } catch (err) {
-      safeEntry = {};
-    }
+    try { safeEntry = JSON.parse(JSON.stringify(entry)); } catch (err) { safeEntry = {}; }
     var payload = {
       source: "decap-preview",
       type: "draft",
@@ -138,11 +109,7 @@
       entry: safeEntry,
       ts: Date.now(),
     };
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch (err) {
-      /* ignore */
-    }
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); } catch (err) {}
     sendToSiteFrames(payload);
   }
 
@@ -153,14 +120,14 @@
       s.id = styleId;
       s.textContent =
         "#preview-pane,#preview-pane iframe{width:100%;height:100%;border:0;display:block}" +
-        "iframe[src*='/work/']{width:100%!important;height:100%!important;min-height:100%!important;border:0;display:block}";
+        "iframe[src*='#preview=']{width:100%!important;height:100%!important;min-height:100%!important;border:0;display:block}";
       document.head.appendChild(s);
     }
     var frames = document.querySelectorAll("iframe");
     for (var i = 0; i < frames.length; i++) {
       var frame = frames[i];
       var src = frame.getAttribute("src") || "";
-      if (src.indexOf("/work/") === -1 && frame.id !== "preview-pane") continue;
+      if (src.indexOf("#preview=") === -1 && frame.id !== "preview-pane") continue;
       try {
         var doc = frame.contentDocument;
         if (!doc || !doc.documentElement) continue;
@@ -174,18 +141,10 @@
           (doc.head || doc.documentElement).appendChild(st);
         }
         var root = doc.querySelector(".site-preview-root");
-        if (root) {
-          root.style.height = "100%";
-          root.style.width = "100%";
-        }
+        if (root) { root.style.height = "100%"; root.style.width = "100%"; }
         var inner = doc.querySelector(".site-preview-root iframe");
-        if (inner) {
-          inner.style.height = "100%";
-          inner.style.width = "100%";
-        }
-      } catch (err) {
-        /* ignore */
-      }
+        if (inner) { inner.style.height = "100%"; inner.style.width = "100%"; }
+      } catch (err) {}
     }
   }
 
@@ -196,53 +155,47 @@
 
   function PreviewFrame(props) {
     publishDraft(props.collection, props.entry);
+    // Same src string → React keeps the iframe mounted (no reload).
+    // Different page path → one navigation when collection target changes.
+    var src = iframeSrc(props.collection);
     window.setTimeout(fillPreviewShell, 0);
     return e(
       "div",
       {
         className: "site-preview-root",
         style: {
-          width: "100%",
-          height: "100%",
-          minHeight: "100vh",
-          border: "0",
-          background: "#12100e",
-          overflow: "hidden",
+          width: "100%", height: "100%", minHeight: "100vh",
+          border: "0", background: "#12100e", overflow: "hidden",
         },
       },
       e("iframe", {
         className: "site-preview-iframe",
         title: "Site preview",
-        src: iframeSrc(),
-        style: {
-          width: "100%",
-          height: "100%",
-          minHeight: "100vh",
-          border: "0",
-          display: "block",
-        },
+        src: src,
+        style: { width: "100%", height: "100%", minHeight: "100vh", border: "0", display: "block" },
       })
     );
   }
 
-  CMS.registerPreviewTemplate("roles", function (props) {
-    return e(PreviewFrame, {
-      collection: "roles",
-      entry: normalizeEntry(props.entry),
+  function register(name, collection) {
+    CMS.registerPreviewTemplate(name, function (props) {
+      return e(PreviewFrame, {
+        collection: collection,
+        entry: normalizeEntry(props.entry),
+      });
     });
-  });
+  }
 
-  CMS.registerPreviewTemplate("education", function (props) {
-    return e(PreviewFrame, {
-      collection: "education",
-      entry: normalizeEntry(props.entry),
-    });
-  });
-
-  CMS.registerPreviewTemplate("content", function (props) {
-    return e(PreviewFrame, {
-      collection: "content",
-      entry: normalizeEntry(props.entry),
-    });
-  });
+  register("shared", "shared");
+  register("home", "home");
+  register("profile", "profile");
+  register("skills", "skills");
+  register("achievements", "achievements");
+  register("site-meta", "site-meta");
+  register("work-page", "work-page");
+  register("developer", "developer");
+  register("studio", "studio");
+  register("craft", "craft");
+  register("roles", "roles");
+  register("education", "education");
 })();

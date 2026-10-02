@@ -1,0 +1,45 @@
+{
+  "brandName": "Calvin Dsouza",
+  "tagline": "Mumbai · software · 3D · fiber",
+  "nav": [
+    {
+      "href": "/",
+      "label": "Home"
+    },
+    {
+      "href": "/work/",
+      "label": "Work"
+    },
+    {
+      "href": "/developer/",
+      "label": "Dev"
+    },
+    {
+      "href": "/studio/",
+      "label": "3D"
+    },
+    {
+      "href": "/craft/",
+      "label": "Craft"
+    }
+  ],
+  "footerLinks": [
+    {
+      "label": "Resume",
+      "href": "/calvin-dsouza-resume.pdf",
+      "download": "Calvin-Dsouza-Resume.pdf"
+    },
+    {
+      "label": "LinkedIn",
+      "href": "https://www.linkedin.com/in/dscalvin"
+    },
+    {
+      "label": "GitHub",
+      "href": "https://github.com/dscalvin97"
+    },
+    {
+      "label": "Gumroad",
+      "href": "https://dscalvin.gumroad.com/"
+    }
+  ]
+}

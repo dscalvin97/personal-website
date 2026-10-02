@@ -1,0 +1,64 @@
+{
+  "index": "02",
+  "eyebrow": "Developer",
+  "title": "Software that works on a Tuesday.",
+  "lede": "Fullstack product work with readable defaults, honest performance, and deployments that don’t need a prayer.",
+  "howLabel": "How I work",
+  "how": [
+    "Own the feature from the data shape to the reverse proxy. Prefer boring reliability over clever demos. If it loads slow, that’s a bug.",
+    "At Fynd I shipped across eight products and built pipelines that generated six figures of training data. At Snapwork I led delivery for GCash. At Kolors, software that has to coexist with firmware and home automation."
+  ],
+  "casesLabel": "Case files",
+  "cases": [
+    {
+      "n": "01",
+      "title": "100,000+ training images",
+      "meta": "Fynd · Python · Blender",
+      "body": "Automated pipelines that turned 3D scenes into captioned datasets for ML models."
+    },
+    {
+      "n": "02",
+      "title": "Eight products, one engineer",
+      "meta": "Fynd · Next.js · Node",
+      "body": "Fullstack features across Pixelbin, Erase.bg, Upscale.media and others — frontend and backend."
+    },
+    {
+      "n": "03",
+      "title": "Localization without a dev ticket",
+      "meta": "Fynd · Strapi",
+      "body": "CMS for 20+ languages with live shared UI updates. Content teams ship without waiting on engineering."
+    },
+    {
+      "n": "04",
+      "title": "GCash delivery",
+      "meta": "Snapwork · Team lead",
+      "body": "Led two developers on client-facing fullstack work. Reusable components and API patterns."
+    }
+  ],
+  "stackLabel": "Stack",
+  "stack": [
+    {
+      "k": "Languages",
+      "v": "TypeScript, JavaScript, Python, C#, PHP, SQL"
+    },
+    {
+      "k": "Web",
+      "v": "React, Next.js, Node.js, Express, FastAPI, Django, Angular, Svelte"
+    },
+    {
+      "k": "Data & CMS",
+      "v": "PostgreSQL, Redis, Strapi, Contentful, Drizzle, Objection"
+    },
+    {
+      "k": "Cloud",
+      "v": "GCP, AWS (S3, CloudFront, EC2, Lambda), Docker"
+    },
+    {
+      "k": "Also",
+      "v": "REST APIs, multilingual CMS, AI image pipelines"
+    }
+  ],
+  "furtherLabel": "Further",
+  "furtherHtml": "Roles and education on the <a href=\"/work/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">work page</a>. 3D work on the <a href=\"/studio/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">studio page</a>. LinkedIn: <a href=\"https://www.linkedin.com/in/dscalvin\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">dscalvin</a>.",
+  "metaDescription": "Calvin Dsouza — fullstack developer. Web apps, APIs, CMS, performance."
+}

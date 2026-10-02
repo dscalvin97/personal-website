@@ -1,0 +1,33 @@
+{
+  "index": "04",
+  "eyebrow": "Craft",
+  "title": "Crochet.",
+  "lede": "Hooks, yarn, and slow making. Same curiosity as the 3D work — tension, topology, how a curve sits in space.",
+  "makeLabel": "What I make",
+  "make": [
+    "Amigurumi, homeware, and whatever keeps my hands busy. Patterns and finished pieces show up on Gumroad as they land.",
+    "Stitch patterns are algorithms. Increases are topology. A bad join looks like a bad mesh edge."
+  ],
+  "patternsLabel": "How patterns are written",
+  "patterns": [
+    {
+      "k": "Front-load",
+      "v": "Skill level, yarn weight, hook, finished size — up front"
+    },
+    {
+      "k": "Terms",
+      "v": "US terms by default; UK called out when used"
+    },
+    {
+      "k": "Voice",
+      "v": "Short steps. No filler. If a line doesn’t help, it isn’t in the PDF"
+    },
+    {
+      "k": "Where",
+      "v": "Digital patterns on Gumroad"
+    }
+  ],
+  "contactLabel": "Contact",
+  "contactHtml": "Patterns, materials, commissions — <a href=\"https://www.linkedin.com/in/dscalvin\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">LinkedIn</a>. Shop: <a href=\"https://dscalvin.gumroad.com/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">Gumroad</a>. 3D side: <a href=\"/studio/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">studio</a>.",
+  "metaDescription": "Calvin Dsouza — crochet and handmade work."
+}
