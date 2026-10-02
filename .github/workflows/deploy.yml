@@ -12,6 +12,7 @@ concurrency:
 env:
   NEXT_PUBLIC_UMAMI_SCRIPT_URL: https://umami.makes.fyi/script.js
   NEXT_PUBLIC_UMAMI_WEBSITE_ID: 42543dd5-f91a-44d9-9ba8-80a4e96bedb5
+  NEXT_PUBLIC_PREVIEW_TOKEN: 151751fa39cc93a351f798602e87ecaa9cc7e7c73e64b41c
 
 jobs:
   build-and-deploy:

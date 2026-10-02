@@ -1,18 +1,28 @@
 export const PREVIEW_STORAGE_KEY = "decap-preview-draft";
 
+/** Must match NEXT_PUBLIC_PREVIEW_TOKEN / public/admin/preview.js */
+export const PREVIEW_TOKEN =
+  process.env.NEXT_PUBLIC_PREVIEW_TOKEN ?? "";
+
 export type PreviewPayload = {
   collection: "content" | "roles" | "education";
   entry: Record<string, unknown>;
   ts: number;
 };
 
+function expectedHash(): string {
+  return `#preview=${PREVIEW_TOKEN}`;
+}
+
 export function isPreviewMode(): boolean {
   if (typeof window === "undefined") return false;
-  return new URLSearchParams(window.location.search).get("preview") === "1";
+  if (!PREVIEW_TOKEN) return false;
+  return window.location.hash === expectedHash();
 }
 
 export function readPreviewDraft(): PreviewPayload | null {
   if (typeof window === "undefined") return null;
+  if (!isPreviewMode()) return null;
   try {
     const raw = window.localStorage.getItem(PREVIEW_STORAGE_KEY);
     if (!raw) return null;
@@ -24,6 +34,7 @@ export function readPreviewDraft(): PreviewPayload | null {
 
 export function writePreviewDraft(payload: PreviewPayload): void {
   if (typeof window === "undefined") return;
+  if (!isPreviewMode()) return;
   window.localStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify(payload));
 }
 

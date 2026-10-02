@@ -4,10 +4,12 @@
 
   var STORAGE_KEY = "decap-preview-draft";
   var SITE = window.location.origin;
+  // Must match NEXT_PUBLIC_PREVIEW_TOKEN used by the site build
+  var PREVIEW_TOKEN = "151751fa39cc93a351f798602e87ecaa9cc7e7c73e64b41c";
   var e = React.createElement;
 
   function iframeSrc() {
-    return SITE + "/work/?preview=1";
+    return SITE + "/work/#preview=" + PREVIEW_TOKEN;
   }
 
   function writeDraft(collection, entry) {
@@ -34,7 +36,7 @@
         );
       }
     } catch (err) {
-      /* ignore cross-frame noise */
+      /* ignore */
     }
   }
 
