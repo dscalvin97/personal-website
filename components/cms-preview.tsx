@@ -15,6 +15,18 @@ type PreviewState = {
   nonce: number;
 };
 
+function normalizeMessage(data: unknown): PreviewPayload | null {
+  if (!data || typeof data !== "object") return null;
+  const msg = data as Record<string, unknown>;
+  if (msg.source !== "decap-preview" || msg.type !== "draft") return null;
+  if (!msg.collection || !msg.entry) return null;
+  return {
+    collection: msg.collection as PreviewPayload["collection"],
+    entry: msg.entry as Record<string, unknown>,
+    ts: Number(msg.ts || Date.now()),
+  };
+}
+
 export function useCmsPreview() {
   const [state, setState] = useState<PreviewState>({
     mode: false,
@@ -25,22 +37,34 @@ export function useCmsPreview() {
   useEffect(() => {
     if (!isPreviewMode()) return;
 
-    const refresh = () => {
+    const apply = (payload: PreviewPayload | null) => {
       setState((prev) => ({
         mode: true,
-        payload: readPreviewDraft(),
+        payload,
         nonce: prev.nonce + 1,
       }));
     };
 
-    refresh();
-    window.addEventListener("message", refresh);
-    window.addEventListener("storage", refresh);
-    const interval = window.setInterval(refresh, 300);
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      const fromDraft = normalizeMessage(event.data);
+      if (fromDraft) {
+        apply(fromDraft);
+        return;
+      }
+      apply(readPreviewDraft());
+    };
+
+    const onStorage = () => apply(readPreviewDraft());
+
+    apply(readPreviewDraft());
+    window.addEventListener("message", onMessage);
+    window.addEventListener("storage", onStorage);
+    const interval = window.setInterval(() => apply(readPreviewDraft()), 400);
 
     return () => {
-      window.removeEventListener("message", refresh);
-      window.removeEventListener("storage", refresh);
+      window.removeEventListener("message", onMessage);
+      window.removeEventListener("storage", onStorage);
       window.clearInterval(interval);
     };
   }, []);
@@ -78,19 +102,43 @@ export function applyPreviewToContent<
 >(content: T, payload: PreviewPayload | null, nonce: number): T {
   if (!payload || payload.collection !== "content") return content;
   void nonce;
-  const entry = payload.entry as Partial<T>;
-  return {
-    ...content,
-    ...(entry.profile ? { profile: { ...content.profile, ...entry.profile } } : {}),
-    ...(entry.skills ? { skills: { ...content.skills, ...entry.skills } } : {}),
-    ...(entry.achievements
-      ? {
-          achievements: {
-            ...content.achievements,
-            ...entry.achievements,
-          },
-        }
-      : {}),
-    ...(entry.site ? { site: { ...content.site, ...entry.site } } : {}),
+  const entry = payload.entry as Partial<T> & Record<string, unknown>;
+  const profile = {
+    ...content.profile,
+    ...((entry.profile as Record<string, unknown>) || {}),
   };
+  // Some Decap builds flatten file fields to the entry root
+  if (typeof entry.name === "string") profile.name = entry.name;
+  if (typeof entry.email === "string") profile.email = entry.email;
+  if (typeof entry.location === "string") profile.location = entry.location;
+  if (typeof entry.headline === "string") profile.headline = entry.headline;
+  if (typeof entry.summary === "string") profile.summary = entry.summary;
+  if (typeof entry.resumePdf === "string") profile.resumePdf = entry.resumePdf;
+  if (entry.links && typeof entry.links === "object") {
+    profile.links = {
+      ...(profile.links as Record<string, unknown>),
+      ...(entry.links as Record<string, unknown>),
+    };
+  }
+
+  const skills = {
+    ...content.skills,
+    ...((entry.skills as Record<string, unknown>) || {}),
+  };
+  if (typeof entry.languages === "string") skills.languages = entry.languages;
+
+  const achievements = entry.achievements
+    ? {
+        ...content.achievements,
+        ...(entry.achievements as { items: Array<{ text: string }> }),
+      }
+    : content.achievements;
+
+  const site = {
+    ...content.site,
+    ...((entry.site as Record<string, unknown>) || {}),
+  };
+  if (typeof entry.updatedAt === "string") site.updatedAt = entry.updatedAt;
+
+  return { ...content, profile, skills, achievements, site };
 }

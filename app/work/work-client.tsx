@@ -18,15 +18,45 @@ import {
   skills as baseSkills,
 } from "@/lib/work";
 
-function PreviewBanner({ label }: { label: string }) {
+function PreviewBanner({
+  label,
+  detail,
+}: {
+  label: string;
+  detail?: string;
+}) {
   return (
     <div
       className="border-b border-copper/50 bg-copper/10 px-5 py-2 text-center font-mono text-[0.7rem] tracking-[0.16em] text-copper uppercase"
       role="status"
     >
-      CMS preview · {label} · not published yet
+      CMS preview · {label}
+      {detail ? ` · ${detail}` : ""} · not published
     </div>
   );
+}
+
+
+function draftDetail(payload: {
+  collection: string;
+  entry: Record<string, unknown>;
+} | null): string {
+  if (!payload) return "";
+  const e = payload.entry as Record<string, unknown>;
+  const profile = (e.profile as Record<string, unknown>) || e;
+  if (payload.collection === "content") {
+    const name = profile.name || e.name;
+    return name ? `name=${String(name)}` : "content draft";
+  }
+  if (payload.collection === "roles") {
+    const company = e.company || e.slug;
+    const title = e.title;
+    return [company, title].filter(Boolean).join(" — ");
+  }
+  if (payload.collection === "education") {
+    return String(e.credential || e.slug || "entry");
+  }
+  return "";
 }
 
 export function WorkPageClient() {
@@ -73,6 +103,7 @@ export function WorkPageClient() {
                 ? "Education"
                 : "Site content"
           }
+          detail={draftDetail(preview.payload)}
         />
       ) : null}
       <main id="main">
