@@ -1,7 +1,8 @@
 backend:
   name: github
   repo: dscalvin97/personal-website
-  branch: main
+  # Edits land here — NOT main. Site deploys only from main after you promote.
+  branch: content
   base_url: https://calvin.makes.fyi
   auth_endpoint: admin/oauth/authorize
 

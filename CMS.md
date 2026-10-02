@@ -25,6 +25,25 @@ Roles and Education are **folder** collections — separate entries you can add,
 
 After CMS edits, **rebuild/redeploy** from this server. Commits to `main` do not auto-publish.
 
+## Save vs publish (important)
+
+Decap + GitHub has **no draft-save**. In the admin, **Save = git commit**.
+
+That is why CMS targets the **`content` branch**, not `main`:
+
+| Step | What happens |
+| ---- | ------------ |
+| Edit + Save in Decap | Commits to `content` — **site does not change** |
+| Preview pane | Shows your unsaved/saved draft in the browser (local) |
+| Promote | Merge `content` → `main` (Action deploys) |
+
+Promote from this repo (or GitHub PR):
+
+```bash
+./scripts/promote-content.sh
+# or: gh pr create --base main --head content --title "CMS content"
+```
+
 ## Admin UI
 
 https://calvin.makes.fyi/admin/
