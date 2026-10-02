@@ -9,6 +9,7 @@ import {
 } from "@/components/cms-preview";
 import { PageHeader, Section } from "@/components/page-parts";
 import { ResumeDownload } from "@/components/resume-download";
+import { normalizeRoleEntry } from "@/lib/preview";
 import {
   achievements as baseAchievements,
   education as baseEducation,
@@ -49,9 +50,8 @@ function draftDetail(payload: {
     return name ? `name=${String(name)}` : "content draft";
   }
   if (payload.collection === "roles") {
-    const company = e.company || e.slug;
-    const title = e.title;
-    return [company, title].filter(Boolean).join(" — ");
+    const draft = normalizeRoleEntry(e);
+    return [draft.company, draft.title].filter(Boolean).join(" — ") || "role draft";
   }
   if (payload.collection === "education") {
     return String(e.credential || e.slug || "entry");
@@ -124,6 +124,43 @@ export function WorkPageClient() {
 
         <Section label="Experience">
           <div>
+            {preview.mode && preview.payload?.collection === "roles" ? (
+              <div className="mb-6 rounded-md border border-copper bg-copper/10 p-5">
+                <p className="meta text-copper">Draft role (live preview)</p>
+                {(() => {
+                  const draft = normalizeRoleEntry(preview.payload!.entry) as {
+                    company: string;
+                    title: string;
+                    period: string;
+                    location: string;
+                    summary: string;
+                    highlights: string[];
+                  };
+                  return (
+                    <>
+                      <h3 className="mt-2 font-display text-2xl text-paper">
+                        {draft.company}
+                      </h3>
+                      <p className="text-brass">{draft.title}</p>
+                      <p className="meta mt-1 text-muted">
+                        {[draft.period, draft.location].filter(Boolean).join(" · ")}
+                      </p>
+                      <p className="measure mt-3 text-sm text-paper/85">
+                        {draft.summary}
+                      </p>
+                      <ul className="mt-3 space-y-1.5">
+                        {draft.highlights.map((h) => (
+                          <li key={h} className="flex gap-2 text-sm text-muted">
+                            <span className="mt-2 h-px w-4 shrink-0 bg-copper" />
+                            <span>{h}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  );
+                })()}
+              </div>
+            ) : null}
             {roles.map((role, i) => (
               <div
                 key={String(role.slug ?? role.id ?? role.company ?? i)}
@@ -136,6 +173,11 @@ export function WorkPageClient() {
                     </p>
                     <h3 className="mt-2 font-display text-3xl leading-tight text-paper sm:text-4xl">
                       {role.company}
+                      {(role as { __draft?: boolean }).__draft ? (
+                        <span className="ml-2 align-middle font-mono text-[0.65rem] tracking-[0.16em] text-copper uppercase">
+                          draft
+                        </span>
+                      ) : null}
                     </h3>
                     <p className="mt-1 text-base text-brass">{role.title}</p>
                   </div>
@@ -160,25 +202,53 @@ export function WorkPageClient() {
                 <p className="measure mt-5">{role.summary}</p>
 
                 <ul className="mt-5 space-y-3">
-                  {(role.highlights ?? []).map((item) => (
-                    <li
-                      key={item}
-                      className="flex gap-3 text-sm leading-relaxed text-paper/85"
-                    >
-                      <span
-                        className="mt-2 h-px w-5 shrink-0 bg-copper"
-                        aria-hidden="true"
-                      />
-                      <span>{item}</span>
-                    </li>
-                  ))}
+                  {(Array.isArray(role.highlights) ? role.highlights : []).map(
+                    (raw) => {
+                      const item =
+                        typeof raw === "string"
+                          ? raw
+                          : String(
+                              (raw as { item?: unknown; text?: unknown })
+                                .item ??
+                                (raw as { text?: unknown }).text ??
+                                ""
+                            );
+                      if (!item) return null;
+                      return (
+                        <li
+                          key={item}
+                          className="flex gap-3 text-sm leading-relaxed text-paper/85"
+                        >
+                          <span
+                            className="mt-2 h-px w-5 shrink-0 bg-copper"
+                            aria-hidden="true"
+                          />
+                          <span>{item}</span>
+                        </li>
+                      );
+                    }
+                  )}
                 </ul>
 
-                {role.tech?.length ? (
-                  <p className="meta mt-4 text-muted">
-                    {role.tech.join("  ·  ")}
-                  </p>
-                ) : null}
+                {(() => {
+                  const tech = Array.isArray(role.tech)
+                    ? role.tech
+                        .map((raw) =>
+                          typeof raw === "string"
+                            ? raw
+                            : String(
+                                (raw as { item?: unknown; text?: unknown })
+                                  .item ??
+                                  (raw as { text?: unknown }).text ??
+                                  ""
+                              )
+                        )
+                        .filter(Boolean)
+                    : [];
+                  return tech.length ? (
+                    <p className="meta mt-4 text-muted">{tech.join("  ·  ")}</p>
+                  ) : null;
+                })()}
               </div>
             ))}
           </div>
