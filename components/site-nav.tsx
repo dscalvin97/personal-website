@@ -1,7 +1,26 @@
+"use client";
+
 import Link from "next/link";
-import { shared } from "@/lib/content";
+import {
+  applyPreviewPage,
+  useCmsPreview,
+} from "@/components/cms-preview";
+import { shared as baseShared } from "@/lib/content";
+
+type Shared = typeof baseShared;
+
+export function useSharedDraft(): Shared {
+  const preview = useCmsPreview();
+  return applyPreviewPage(
+    baseShared,
+    preview.payload,
+    "shared",
+    preview.nonce
+  );
+}
 
 export function SiteNav() {
+  const shared = useSharedDraft();
   return (
     <header className="fixed inset-x-0 top-0 z-20 border-b border-line bg-ink/85 backdrop-blur-md">
       <div className="mx-auto flex h-12 w-full max-w-4xl items-center justify-between px-5 sm:h-14">
@@ -13,7 +32,7 @@ export function SiteNav() {
         </Link>
         <nav aria-label="Primary">
           <ul className="flex items-center gap-0.5 sm:gap-1">
-            {shared.nav.map((item) => (
+            {(shared.nav || []).map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}

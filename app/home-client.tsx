@@ -13,6 +13,38 @@ import {
 } from "@/components/cms-preview";
 import { home as baseHome, shared as baseShared, profile as baseProfile } from "@/lib/content";
 
+
+function asText(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    const o = value as { item?: unknown; text?: unknown; k?: unknown; v?: unknown };
+    return String(o.item ?? o.text ?? o.k ?? "");
+  }
+  return String(value);
+}
+
+function asTextList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(asText).filter(Boolean);
+}
+
+function asSpecList(value: unknown): { k: string; v: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((row) => {
+      if (row && typeof row === "object") {
+        const o = row as { k?: unknown; v?: unknown; item?: unknown; text?: unknown };
+        return {
+          k: asText(o.k ?? o.item ?? o.text),
+          v: asText(o.v ?? o.text ?? ""),
+        };
+      }
+      return null;
+    })
+    .filter((r): r is { k: string; v: string } => !!r && (!!r.k || !!r.v));
+}
+
 function renderHtml(html: string) {
   return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
@@ -55,20 +87,20 @@ export function HomePageClient() {
               className="meta text-copper"
               style={{ "--i": 0 } as CSSProperties}
             >
-              {home.meta}
+              {asText(home.meta)}
             </p>
             <h1
               className="mt-5 font-display text-[clamp(3rem,11vw,6.5rem)] leading-[0.9] tracking-[-0.03em] text-paper"
               style={{ "--i": 1 } as CSSProperties}
             >
-              {home.nameFirst}
-              <span className="block italic text-brass">{home.nameLast}</span>
+              {asText(home.nameFirst)}
+              <span className="block italic text-brass">{asText(home.nameLast)}</span>
             </h1>
             <p
               className="measure mt-8 text-lg leading-relaxed text-paper/85 sm:text-xl"
               style={{ "--i": 2 } as CSSProperties}
             >
-              {home.lede}
+              {asText(home.lede)}
             </p>
             <div
               className="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.72rem] tracking-[0.14em] text-muted uppercase"
@@ -79,31 +111,31 @@ export function HomePageClient() {
                 if (link.external) {
                   return (
                     <a
-                      key={link.label}
+                      key={asText(link.label)}
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cls}
                     >
-                      {link.label}
+                      {asText(link.label)}
                     </a>
                   );
                 }
                 if (link.download) {
                   return (
                     <a
-                      key={link.label}
+                      key={asText(link.label)}
                       href={link.href}
                       download={link.download}
                       className={cls}
                     >
-                      {link.label}
+                      {asText(link.label)}
                     </a>
                   );
                 }
                 return (
-                  <Link key={link.label} href={link.href} className={cls}>
-                    {link.label}
+                  <Link key={asText(link.label)} href={link.href} className={cls}>
+                    {asText(link.label)}
                   </Link>
                 );
               })}
@@ -117,19 +149,19 @@ export function HomePageClient() {
         >
           <div className="mx-auto w-full max-w-4xl px-5">
             <div className="flex items-baseline justify-between gap-4">
-              <h2 className="meta text-brass">{home.indexTitle}</h2>
+              <h2 className="meta text-brass">{asText(home.indexTitle)}</h2>
               <div className="tick-rule flex-1" aria-hidden="true" />
             </div>
             <div className="mt-6">
               {(home.index || []).map((item) => (
                 <IndexItem
                   key={item.href}
-                  n={item.n}
-                  title={item.title}
-                  meta={item.meta}
+                  n={asText(item.n)}
+                  title={asText(item.title)}
+                  meta={asText(item.meta)}
                   href={item.href}
                 >
-                  {item.blurb}
+                  {asText(item.blurb)}
                 </IndexItem>
               ))}
             </div>
@@ -140,7 +172,7 @@ export function HomePageClient() {
           <div className="mx-auto w-full max-w-4xl px-5">
             <div className="measure">
               <h2 className="font-display text-3xl leading-tight text-paper sm:text-4xl">
-                {home.currentlyTitle}
+                {asText(home.currentlyTitle)}
               </h2>
               <p className="mt-5">{renderHtml(home.currentlyHtml)}</p>
               <p>{renderHtml(home.currentlyHtml2)}</p>

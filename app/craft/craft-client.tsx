@@ -15,6 +15,38 @@ import {
 } from "@/components/page-parts";
 import { craft as baseCraft } from "@/lib/content";
 
+
+function asText(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    const o = value as { item?: unknown; text?: unknown; k?: unknown; v?: unknown };
+    return String(o.item ?? o.text ?? o.k ?? "");
+  }
+  return String(value);
+}
+
+function asTextList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(asText).filter(Boolean);
+}
+
+function asSpecList(value: unknown): { k: string; v: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((row) => {
+      if (row && typeof row === "object") {
+        const o = row as { k?: unknown; v?: unknown; item?: unknown; text?: unknown };
+        return {
+          k: asText(o.k ?? o.item ?? o.text),
+          v: asText(o.v ?? o.text ?? ""),
+        };
+      }
+      return null;
+    })
+    .filter((r): r is { k: string; v: string } => !!r && (!!r.k || !!r.v));
+}
+
 function renderHtml(html: string) {
   return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
@@ -42,7 +74,7 @@ export function CraftPageClient() {
 
         <Section label={cr.makeLabel}>
           <div className="measure">
-            {(cr.make || []).map((p) => (
+            {asTextList(cr.make).map((p) => (
               <p key={p.slice(0, 24)}>
                 {p.includes("Gumroad") ? (
                   <>
@@ -61,7 +93,7 @@ export function CraftPageClient() {
         </Section>
 
         <Section label={cr.patternsLabel}>
-          <SpecList items={cr.patterns || []} />
+          <SpecList items={asSpecList(cr.patterns)} />
         </Section>
 
         <Section label={cr.contactLabel}>

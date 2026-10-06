@@ -4,6 +4,7 @@ import "./globals.css";
 import { Analytics } from "@/components/analytics";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
+import { home, profile, shared } from "@/lib/content";
 
 const instrument = Instrument_Serif({
   variable: "--font-display",
@@ -29,11 +30,10 @@ const mono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Calvin Dsouza",
-    template: "%s · Calvin Dsouza",
+    default: shared.brandName,
+    template: `%s · ${shared.brandName}`,
   },
-  description:
-    "Calvin Dsouza — fullstack developer, 3D artist, crocheter. Mumbai. Software, firmware-adjacent product work, and things made by hand.",
+  description: profile.summary || profile.headline || home.lede,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

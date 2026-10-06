@@ -1,6 +1,9 @@
-import { shared } from "@/lib/content";
+"use client";
+
+import { useSharedDraft } from "@/components/site-nav";
 
 export function SiteFooter() {
+  const shared = useSharedDraft();
   return (
     <footer className="border-t border-line">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-5 py-10 sm:flex-row sm:items-center sm:justify-between">

@@ -15,6 +15,38 @@ import {
 } from "@/components/page-parts";
 import { developer as baseDeveloper } from "@/lib/content";
 
+
+function asText(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    const o = value as { item?: unknown; text?: unknown; k?: unknown; v?: unknown };
+    return String(o.item ?? o.text ?? o.k ?? "");
+  }
+  return String(value);
+}
+
+function asTextList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(asText).filter(Boolean);
+}
+
+function asSpecList(value: unknown): { k: string; v: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((row) => {
+      if (row && typeof row === "object") {
+        const o = row as { k?: unknown; v?: unknown; item?: unknown; text?: unknown };
+        return {
+          k: asText(o.k ?? o.item ?? o.text),
+          v: asText(o.v ?? o.text ?? ""),
+        };
+      }
+      return null;
+    })
+    .filter((r): r is { k: string; v: string } => !!r && (!!r.k || !!r.v));
+}
+
 function renderHtml(html: string) {
   return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
@@ -47,7 +79,7 @@ export function DeveloperPageClient() {
 
         <Section label={d.howLabel}>
           <div className="measure">
-            {(d.how || []).map((p) => (
+            {asTextList(d.how).map((p) => (
               <p key={p.slice(0, 24)}>{p}</p>
             ))}
           </div>
@@ -56,18 +88,18 @@ export function DeveloperPageClient() {
         <Section label={d.casesLabel}>
           <div>
             {(d.cases || []).map((cse) => (
-              <div key={cse.n} className="index-row reveal">
-                <span className="meta text-copper">{cse.n}</span>
+              <div key={asText(cse.n)} className="index-row reveal">
+                <span className="meta text-copper">{asText(cse.n)}</span>
                 <div>
                   <h3 className="font-display text-2xl leading-tight text-paper sm:text-[1.75rem]">
-                    {cse.title}
+                    {asText(cse.title)}
                   </h3>
                   <div className="measure mt-2 text-sm leading-relaxed text-muted">
-                    {cse.body}
+                    {asText(cse.body)}
                   </div>
                 </div>
                 <span className="index-meta meta text-muted sm:text-right">
-                  {cse.meta}
+                  {asText(cse.meta)}
                 </span>
               </div>
             ))}
@@ -75,7 +107,7 @@ export function DeveloperPageClient() {
         </Section>
 
         <Section label={d.stackLabel}>
-          <SpecList items={d.stack || []} />
+          <SpecList items={asSpecList(d.stack)} />
         </Section>
 
         <Section label={d.furtherLabel}>

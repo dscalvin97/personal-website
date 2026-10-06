@@ -17,6 +17,38 @@ import {
 import { ResumeDownload } from "@/components/resume-download";
 import { studio as baseStudio } from "@/lib/content";
 
+
+function asText(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object") {
+    const o = value as { item?: unknown; text?: unknown; k?: unknown; v?: unknown };
+    return String(o.item ?? o.text ?? o.k ?? "");
+  }
+  return String(value);
+}
+
+function asTextList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(asText).filter(Boolean);
+}
+
+function asSpecList(value: unknown): { k: string; v: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((row) => {
+      if (row && typeof row === "object") {
+        const o = row as { k?: unknown; v?: unknown; item?: unknown; text?: unknown };
+        return {
+          k: asText(o.k ?? o.item ?? o.text),
+          v: asText(o.v ?? o.text ?? ""),
+        };
+      }
+      return null;
+    })
+    .filter((r): r is { k: string; v: string } => !!r && (!!r.k || !!r.v));
+}
+
 function renderHtml(html: string) {
   return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
@@ -44,14 +76,14 @@ export function StudioPageClient() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-sm border border-copper bg-copper/10 px-4 py-2 font-mono text-[0.72rem] tracking-[0.14em] text-brass uppercase transition-colors hover:bg-copper hover:text-ink"
             >
-              {s.blendkitLabel}
+              {asText(s.blendkitLabel)}
               <span aria-hidden="true">↗</span>
             </a>
             <ResumeDownload label="Resume" />
           </div>
         </PageHeader>
 
-        <Section label={s.portfolioLabel}>
+        <Section label={asText(s.portfolioLabel)}>
           <div className="measure">
             <p>{renderHtml(s.portfolioHtml)}</p>
           </div>
@@ -62,43 +94,43 @@ export function StudioPageClient() {
               rel="noopener noreferrer"
               className="index-row reveal"
             >
-              <span className="meta text-copper">{s.portfolioCard.n}</span>
+              <span className="meta text-copper">{asText(s.portfolioCard.n)}</span>
               <div>
                 <h3 className="index-title font-display text-2xl leading-tight text-paper transition-colors sm:text-[1.75rem]">
-                  {s.portfolioCard.title}
+                  {asText(s.portfolioCard.title)}
                 </h3>
                 <div className="measure mt-2 text-sm leading-relaxed text-muted">
-                  {s.portfolioCard.body}
+                  {asText(s.portfolioCard.body)}
                 </div>
               </div>
               <span className="index-meta meta text-muted sm:text-right">
-                {s.portfolioCard.meta}
+                {asText(s.portfolioCard.meta)}
               </span>
             </a>
           </div>
         </Section>
 
-        <Section label={s.practiceLabel}>
-          <SpecList items={s.practice || []} />
+        <Section label={asText(s.practiceLabel)}>
+          <SpecList items={asSpecList(s.practice)} />
         </Section>
 
-        <Section label={s.selectedLabel}>
+        <Section label={asText(s.selectedLabel)}>
           <div>
             {(s.selected || []).map((item) => (
               <IndexItem
-                key={item.n}
-                n={item.n}
-                title={item.title}
-                meta={item.meta}
+                key={asText(item.n)}
+                n={asText(item.n)}
+                title={asText(item.title)}
+                meta={asText(item.meta)}
                 href={item.href}
               >
-                {item.body}
+                {asText(item.body)}
               </IndexItem>
             ))}
           </div>
         </Section>
 
-        <Section label={s.relatedLabel}>
+        <Section label={asText(s.relatedLabel)}>
           <div className="measure">
             <p>{renderHtml(s.relatedHtml)}</p>
           </div>
