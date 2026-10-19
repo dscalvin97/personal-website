@@ -266,6 +266,38 @@ collections:
           - { label: Contact (HTML ok), name: contactHtml, widget: text }
           - { label: Meta description, name: metaDescription, widget: text }
 
+  - name: templates
+    label: Templates page
+    fields:
+      - file: content/pages/templates.json
+        name: templates
+        label: Templates page
+        fields:
+          - { label: Index, name: index, widget: string }
+          - { label: Eyebrow, name: eyebrow, widget: string }
+          - { label: Title, name: title, widget: string, required: true }
+          - { label: Lede, name: lede, widget: text, required: true }
+          - { label: Catalog label, name: catalogLabel, widget: string }
+          - label: Templates
+            name: items
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { label: Name, name: name, widget: string, required: true }
+              - { label: Tagline, name: tagline, widget: text, required: true }
+              - { label: Description, name: description, widget: text }
+              - { label: Image path (in public/), name: image, widget: string, hint: "e.g. /templates/spooky-invite.png" }
+              - { label: Image alt text, name: imageAlt, widget: string }
+              - { label: Repo URL, name: repo, widget: string }
+              - { label: Use-this-template URL, name: useUrl, widget: string, hint: "https://github.com/OWNER/REPO/generate" }
+              - { label: Stack tags, name: stack, widget: list, field: { label: Tag, name: item, widget: string } }
+              - { label: Meta line, name: meta, widget: string, hint: "e.g. MIT · Node 24+" }
+          - { label: CTA label, name: ctaLabel, widget: string }
+          - { label: CTA (HTML ok), name: ctaHtml, widget: text }
+          - { label: More label, name: moreLabel, widget: string }
+          - { label: More (HTML ok), name: moreHtml, widget: text }
+          - { label: Meta description, name: metaDescription, widget: text }
+
   - name: roles
     label: Roles
     label_singular: Role

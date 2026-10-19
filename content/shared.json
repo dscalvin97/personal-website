@@ -21,6 +21,10 @@
     {
       "href": "/craft/",
       "label": "Craft"
+    },
+    {
+      "href": "/templates/",
+      "label": "Templates"
     }
   ],
   "footerLinks": [

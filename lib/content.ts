@@ -7,6 +7,7 @@ import homeJson from "@/content/home.json";
 import craftJson from "@/content/pages/craft.json";
 import developerJson from "@/content/pages/developer.json";
 import studioJson from "@/content/pages/studio.json";
+import templatesJson from "@/content/pages/templates.json";
 import workPageJson from "@/content/pages/work.json";
 import profileJson from "@/content/profile.json";
 import roleFynd from "@/content/roles/fynd.json";
@@ -62,6 +63,7 @@ export type WorkPageContent = typeof workPageJson;
 export type DeveloperContent = typeof developerJson;
 export type StudioContent = typeof studioJson;
 export type CraftContent = typeof craftJson;
+export type TemplatesContent = typeof templatesJson;
 
 function byOrder<T extends { order?: number }>(items: T[]): T[] {
   return [...items].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
@@ -76,6 +78,7 @@ export const workPage = workPageJson as WorkPageContent;
 export const developer = developerJson as DeveloperContent;
 export const studio = studioJson as StudioContent;
 export const craft = craftJson as CraftContent;
+export const templates = templatesJson as TemplatesContent;
 
 export const updatedAt = siteMeta.updatedAt;
 export const resumeHref = profile.resumePdf;

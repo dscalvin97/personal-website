@@ -14,6 +14,7 @@ content/
   pages/developer.json  # developer page copy + cases + stack
   pages/studio.json     # 3D page copy + BlendKit + practice
   pages/craft.json      # craft page copy + pattern notes
+  pages/templates.json  # templates catalog page + entries
   roles/                # one JSON per job (folder collection)
   education/            # one JSON per credential (folder collection)
 ```
@@ -34,6 +35,7 @@ Every visible string on the site is loaded from these files via `lib/content.ts`
 | Developer page     | `/developer/`                        |
 | 3D page            | `/studio/`                           |
 | Craft page         | `/craft/`                            |
+| Templates page     | `/templates/` catalog + entries      |
 | Roles              | `/work/` experience list (folder)    |
 | Education          | `/work/` education list (folder)     |
 

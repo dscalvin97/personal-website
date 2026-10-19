@@ -1,0 +1,25 @@
+{
+  "index": "05",
+  "eyebrow": "Templates",
+  "title": "Templates.",
+  "lede": "Start-from-GitHub templates I maintain. One-click on a platform that fits, or clone and run — zero npm dependencies, all party details in a single JSON file, nothing to fight.",
+  "catalogLabel": "The catalog",
+  "items": [
+    {
+      "name": "Spooky Invite",
+      "tagline": "A Halloween party invite that gets spookier as the night approaches.",
+      "description": "Countdown with escalating creepiness (fog, cobwebs, a blood-red sky in the final hours), RSVPs in SQLite, and a one-night-only live race map showing every guest's walking route to the door. One HTML file, one Node server, no dependencies.",
+      "image": "/templates/spooky-invite.png",
+      "imageAlt": "Spooky Invite preview: glowing Halloween title with date, time and venue",
+      "repo": "https://github.com/dscalvin97/spooky-invite",
+      "useUrl": "https://github.com/dscalvin97/spooky-invite/generate",
+      "stack": ["Node.js", "SQLite", "Leaflet", "Zero deps"],
+      "meta": "MIT · Node 24+"
+    }
+  ],
+  "ctaLabel": "Using one",
+  "ctaHtml": "Open a template, hit <b>Use this template</b> on GitHub, then <code>cp config.example.json config.json</code>, fill in your details, and <code>node server.js</code>. Each README covers Docker, VPS, PaaS and one-click deploys.",
+  "moreLabel": "More soon",
+  "moreHtml": "New Year countdown, birthday invite, and others are planned — this page grows as they ship.",
+  "metaDescription": "Calvin Dsouza — GitHub templates: party invites and countdowns you can deploy in one click."
+}
