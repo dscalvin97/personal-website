@@ -30,4 +30,8 @@ Static personal site for calvin.makes.fyi. Next.js 16 static export → `out/`,
 rsync to `/var/www/calvin/` + nginx reload. Content lives in `content/*.json`
 (edited via Decap CMS, see `CMS.md`); publish flow is
 `./scripts/promote-content.sh` (merge `content` → `main` → Actions deploys).
-Home hero is live WebGL (three.js + R3F) that loads after first paint.
+No WebGL ships in the UI — the old `hero-scene*.tsx` files were dead code and
+were deleted in the 2026-10 neo-brutalist redesign; three.js / @react-three/*
+stay in `package.json` for future /studio inline demos only. All UI motion is
+hand-written CSS (reactive dot field, site loader) with reduced-motion kill
+paths; zero idle rAF.

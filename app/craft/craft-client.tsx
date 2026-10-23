@@ -13,6 +13,7 @@ import {
   Section,
   SpecList,
 } from "@/components/page-parts";
+import { CommandButton } from "@/components/command-button";
 import { craft as baseCraft } from "@/lib/content";
 
 
@@ -99,6 +100,9 @@ export function CraftPageClient() {
         <Section label={cr.contactLabel}>
           <div className="measure">
             <p>{renderHtml(cr.contactHtml)}</p>
+            <div className="mt-6 flex flex-wrap gap-4">
+              <CommandButton command="shop_patterns" />
+            </div>
           </div>
         </Section>
       </main>

@@ -5,6 +5,7 @@ import { TemplatesPageClient } from "./templates-client";
 export const metadata: Metadata = {
   title: "Templates",
   description: templates.metaDescription,
+  alternates: { canonical: "/templates/" },
 };
 
 export default function TemplatesPage() {

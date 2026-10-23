@@ -2,7 +2,8 @@
 
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { IndexItem } from "@/components/page-parts";
+import { CommandButton } from "@/components/command-button";
+import { DirRow } from "@/components/page-parts";
 import {
   PreviewBanner,
   applyPreviewPage,
@@ -24,27 +25,6 @@ function asText(value: unknown): string {
   return String(value);
 }
 
-function asTextList(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.map(asText).filter(Boolean);
-}
-
-function asSpecList(value: unknown): { k: string; v: string }[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .map((row) => {
-      if (row && typeof row === "object") {
-        const o = row as { k?: unknown; v?: unknown; item?: unknown; text?: unknown };
-        return {
-          k: asText(o.k ?? o.item ?? o.text),
-          v: asText(o.v ?? o.text ?? ""),
-        };
-      }
-      return null;
-    })
-    .filter((r): r is { k: string; v: string } => !!r && (!!r.k || !!r.v));
-}
-
 function renderHtml(html: string) {
   return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }
@@ -57,19 +37,17 @@ export function HomePageClient() {
   const home = applyPreviewPage(baseHome, preview.payload, "home", preview.nonce);
   const profile = applyPreviewPage(baseProfile, preview.payload, "profile", preview.nonce);
 
-  const links = home.links?.length
+  type HomeLink = {
+    label: string;
+    href: string;
+    external?: boolean;
+    download?: string;
+  };
+  const links: HomeLink[] = home.links?.length
     ? home.links
     : [
         { label: "LinkedIn", href: profile.links.linkedin, external: true },
         { label: "GitHub", href: profile.links.github, external: true },
-        { label: "Gumroad", href: profile.links.gumroad, external: true },
-        { label: "Work →", href: "/work/", external: false },
-        {
-          label: "Resume ↓",
-          href: profile.resumePdf,
-          external: false,
-          download: "Calvin-Dsouza-Resume.pdf",
-        },
       ];
 
   return (
@@ -81,30 +59,46 @@ export function HomePageClient() {
         />
       ) : null}
       <main id="main">
-        <section className="pt-24 pb-14 sm:pt-32 sm:pb-20">
+        <section className="pt-10 pb-14 sm:pt-16 sm:pb-20">
           <div className="mx-auto w-full max-w-4xl px-5 enter">
-            <p
-              className="meta text-copper"
-              style={{ "--i": 0 } as CSSProperties}
-            >
+            <p className="kicker" style={{ "--i": 0 } as CSSProperties}>
               {asText(home.meta)}
             </p>
             <h1
-              className="mt-5 font-display text-[clamp(3rem,11vw,6.5rem)] leading-[0.9] tracking-[-0.03em] text-paper"
+              className="mt-6 text-[clamp(3rem,11vw,6.5rem)] leading-[0.9] font-black tracking-[-0.03em] text-lime uppercase"
               style={{ "--i": 1 } as CSSProperties}
             >
               {asText(home.nameFirst)}
-              <span className="block italic text-brass">{asText(home.nameLast)}</span>
+              <span className="block">{asText(home.nameLast)}</span>
             </h1>
-            <p
-              className="measure mt-8 text-lg leading-relaxed text-paper/85 sm:text-xl"
+            {/* TYPE 2 diff headline — locked copy, discussions/2026-10-23-copy-round.md */}
+            <div
+              className="diff mt-9"
               style={{ "--i": 2 } as CSSProperties}
+            >
+              <div className="add">+ software that works on a Tuesday</div>
+              <div className="add">+ 100k+ training images, rendered and captioned</div>
+              <div className="add">+ crochet patterns with no filler</div>
+              <div className="del">- a hero shot of someone else's MacBook</div>
+            </div>
+            <p
+              className="measure mt-9 text-lg leading-relaxed text-paper/85 sm:text-xl"
+              style={{ "--i": 3 } as CSSProperties}
             >
               {asText(home.lede)}
             </p>
             <div
+              className="mt-8 flex flex-wrap gap-4"
+              style={{ "--i": 4 } as CSSProperties}
+            >
+              <CommandButton command="get_cv" />
+              <CommandButton command="shop_patterns" />
+              <CommandButton command="mail_calvin" />
+              <CommandButton command="copy_email" />
+            </div>
+            <div
               className="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[0.72rem] tracking-[0.14em] text-muted uppercase"
-              style={{ "--i": 3 } as CSSProperties}
+              style={{ "--i": 5 } as CSSProperties}
             >
               {links.map((link) => {
                 const cls = "transition-colors hover:text-brass";
@@ -143,35 +137,33 @@ export function HomePageClient() {
           </div>
         </section>
 
-        <section
-          className="border-t border-line py-12 sm:py-16"
-          aria-label="Index"
-        >
+        <section className="border-t-2 py-12 sm:py-16" aria-label="Index">
           <div className="mx-auto w-full max-w-4xl px-5">
             <div className="flex items-baseline justify-between gap-4">
-              <h2 className="meta text-brass">{asText(home.indexTitle)}</h2>
+              <h2 className="text-lg font-black tracking-wide text-wht uppercase sm:text-xl">
+                {asText(home.indexTitle)}
+              </h2>
               <div className="tick-rule flex-1" aria-hidden="true" />
             </div>
-            <div className="mt-6">
+            <div className="mt-6 space-y-3">
               {(home.index || []).map((item) => (
-                <IndexItem
+                <DirRow
                   key={item.href}
-                  n={asText(item.n)}
-                  title={asText(item.title)}
-                  meta={asText(item.meta)}
+                  kind="dir"
+                  name={asText(item.title)}
+                  size={asText(item.meta)}
+                  blurb={asText(item.blurb)}
                   href={item.href}
-                >
-                  {asText(item.blurb)}
-                </IndexItem>
+                />
               ))}
             </div>
           </div>
         </section>
 
-        <section className="border-t border-line py-12 sm:py-16">
+        <section className="border-t-2 py-12 sm:py-16">
           <div className="mx-auto w-full max-w-4xl px-5">
             <div className="measure">
-              <h2 className="font-display text-3xl leading-tight text-paper sm:text-4xl">
+              <h2 className="text-3xl leading-tight font-black text-paper uppercase sm:text-4xl">
                 {asText(home.currentlyTitle)}
               </h2>
               <p className="mt-5">{renderHtml(home.currentlyHtml)}</p>
@@ -183,4 +175,3 @@ export function HomePageClient() {
     </>
   );
 }
-

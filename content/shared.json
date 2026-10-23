@@ -3,28 +3,24 @@
   "tagline": "Mumbai · software · 3D · fiber",
   "nav": [
     {
-      "href": "/",
-      "label": "Home"
-    },
-    {
-      "href": "/work/",
-      "label": "Work"
-    },
-    {
       "href": "/developer/",
-      "label": "Dev"
+      "label": "Software",
+      "descriptor": "Web apps, APIs, and CMS"
     },
     {
       "href": "/studio/",
-      "label": "3D"
+      "label": "Studio",
+      "descriptor": "Blender renders and pipelines"
     },
     {
       "href": "/craft/",
-      "label": "Craft"
+      "label": "Crochet",
+      "descriptor": "Patterns and finished pieces"
     },
     {
       "href": "/templates/",
-      "label": "Templates"
+      "label": "Templates",
+      "descriptor": "Party apps you can deploy in a minute"
     }
   ],
   "footerLinks": [

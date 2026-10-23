@@ -1,213 +1,573 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* ─────────────────────────────────────────────────────────────
+   Neo-brutalist × terminal. Hand-written, no UI library.
+   Locked spec: discussions/2026-10-23-blend-selected.html
+   Component classes live in @layer components so Tailwind
+   utilities can still override them when composed.
+   ───────────────────────────────────────────────────────────── */
 
 @theme {
-  --color-ink: #12100e;
-  --color-ink-2: #1a1714;
-  --color-paper: #f3efe7;
-  --color-muted: #9a9084;
-  --color-line: #2f2923;
-  --color-copper: #b45f3c;
-  --color-brass: #c4a35a;
+  /* blend-set palette (locked) */
+  --color-blk: #111110;
+  --color-wht: #fdfdfa;
+  --color-lime: #cdf556;
+  --color-yell: #ffd43b;
+  --color-blue: #3348ff;
+  --color-mag: #ff4fa3;
+  --color-term: #0c1410;
+  --color-grn: #7dffa0;
+  --color-edge: #2a3d31; /* hairline border on dark */
+  --color-dim: #6b8b78; /* 12px secondary — >=4.5:1 on blk/term */
+  --color-note: #9fb8a8; /* 13px secondary */
+
+  /* Legacy token names — the HTML strings authored in content/*.json
+     via Decap reference these classes (text-brass, decoration-copper…).
+     Same names, remapped values: old content re-skins with no edits. */
+  --color-ink: #111110;
+  --color-ink-2: #111110;
+  --color-paper: #fdfdfa;
+  --color-muted: #9fb8a8;
+  --color-line: #2a3d31;
+  --color-copper: #ff4fa3;
+  --color-brass: #cdf556;
   --color-moss: #5a6b4a;
   --color-clay: #c45c4a;
-  --font-display: var(--font-display), "Instrument Serif", Georgia, serif;
-  --font-sans: var(--font-sans), "Schibsted Grotesk", system-ui, sans-serif;
+
+  --font-sans: var(--font-sans), "Schibsted Grotesk", ui-sans-serif,
+    system-ui, sans-serif;
   --font-mono: var(--font-mono), "Geist Mono", ui-monospace, monospace;
-}
-
-html {
-  color-scheme: dark;
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-body {
-  background: var(--color-ink);
-  color: var(--color-paper);
-  font-family: var(--font-sans), system-ui, sans-serif;
-  letter-spacing: 0.005em;
-  -webkit-font-smoothing: antialiased;
-}
-
-::selection {
-  background: var(--color-copper);
-  color: var(--color-ink);
-}
-
-/* measured tick rule — workshop, not candy stitch */
-.tick-rule {
-  height: 8px;
-  background-image: linear-gradient(
-    90deg,
-    var(--color-line) 0 1px,
-    transparent 1px 12px
-  );
-  background-size: 12px 8px;
-  background-repeat: repeat-x;
-  opacity: 0.9;
-}
-
-.tick-rule-copper {
-  height: 8px;
-  background-image: linear-gradient(
-    90deg,
-    color-mix(in oklch, var(--color-copper) 55%, transparent) 0 1px,
-    transparent 1px 12px
-  );
-  background-size: 12px 8px;
-  background-repeat: repeat-x;
-}
-
-.reveal {
-  animation: reveal-up 0.5s cubic-bezier(0, 0, 0.2, 1) both;
-  animation-timeline: view();
-  animation-range: entry 4% cover 24%;
-}
-
-@keyframes reveal-up {
-  from {
-    opacity: 0;
-    transform: translateY(0.85rem);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@supports not (animation-timeline: view()) {
-  .reveal {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.enter > * {
-  animation: enter-up 0.4s cubic-bezier(0, 0, 0.2, 1) both;
-  animation-delay: calc(var(--i, 0) * 60ms);
-}
-
-@keyframes enter-up {
-  from {
-    opacity: 0;
-    transform: translateY(0.55rem);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .enter > * {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
+  /* display = the heavy poster sans; Instrument Serif dropped (Leo's
+     in-plan ruling — the locked colophon names only mono + sans) */
+  --font-display: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {
-  --font-heading: var(--font-display), "Instrument Serif", Georgia, serif;
-  --font-sans: var(--font-sans), "Schibsted Grotesk", system-ui, sans-serif;
-  --font-mono: var(--font-mono), "Geist Mono", ui-monospace, monospace;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --font-heading: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-:root {
-  --background: oklch(0.17 0.01 70);
-  --foreground: oklch(0.94 0.02 85);
-  --card: oklch(0.2 0.01 70);
-  --card-foreground: oklch(0.94 0.02 85);
-  --popover: oklch(0.2 0.01 70);
-  --popover-foreground: oklch(0.94 0.02 85);
-  --primary: oklch(0.65 0.12 45);
-  --primary-foreground: oklch(0.17 0.01 70);
-  --secondary: oklch(0.28 0.02 70);
-  --secondary-foreground: oklch(0.94 0.02 85);
-  --muted: oklch(0.28 0.01 70);
-  --muted-foreground: oklch(0.68 0.02 80);
-  --accent: oklch(0.28 0.02 70);
-  --accent-foreground: oklch(0.94 0.02 85);
-  --destructive: oklch(0.65 0.15 25);
-  --border: oklch(0.3 0.015 70);
-  --input: oklch(0.3 0.015 70);
-  --ring: oklch(0.7 0.1 45);
-  --chart-1: oklch(0.72 0.1 45);
-  --chart-2: oklch(0.75 0.08 85);
-  --chart-3: oklch(0.7 0.07 145);
-  --chart-4: oklch(0.65 0.05 250);
-  --chart-5: oklch(0.6 0.1 20);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.2 0.01 70);
-  --sidebar-foreground: oklch(0.94 0.02 85);
-  --sidebar-primary: oklch(0.65 0.12 45);
-  --sidebar-primary-foreground: oklch(0.17 0.01 70);
-  --sidebar-accent: oklch(0.28 0.01 70);
-  --sidebar-accent-foreground: oklch(0.94 0.02 85);
-  --sidebar-border: oklch(0.3 0.015 70);
-  --sidebar-ring: oklch(0.7 0.1 45);
+@property --mx {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.5;
+}
+@property --my {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.5;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
-    @apply font-sans;
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    /* keep backward-tabbed focus clear of the sticky status-line nav
+       (WCAG 2.4.11); 13rem > its 200px worst wrapped height */
+    scroll-padding-top: 13rem;
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background: var(--color-term);
+    color: var(--color-wht);
+    font-family: var(--font-sans);
+    letter-spacing: 0.005em;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    border-color: var(--color-line);
+  }
+
+  ::selection {
+    background: var(--color-lime);
+    color: var(--color-blk);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }
 
 @layer components {
+  /* ── BG1 reactive dots + blob field (site-wide) ──────────────
+     Two parallax dot layers + scanline + cursor-following blobs,
+     driven by --mx/--my written once per pointer batch inside a
+     single rAF (idle-zero). Fully static under reduced-motion
+     (JS never attaches there). No WebGL, no library. */
+  .field {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    --mx: 0.5;
+    --my: 0.5;
+    transition: --mx 0.35s ease-out, --my 0.35s ease-out;
+  }
+  .field .layer {
+    position: absolute;
+    inset: -40px;
+    pointer-events: none;
+  }
+  .field .far {
+    background-image: radial-gradient(
+      rgba(255, 255, 255, 0.45) 1.6px,
+      transparent 2px
+    );
+    background-size: 14px 14px;
+    transform: translate3d(
+      calc((var(--mx) - 0.5) * -12px),
+      calc((var(--my) - 0.5) * -12px),
+      0
+    );
+  }
+  .field .near {
+    background-image: radial-gradient(
+      rgba(0, 0, 0, 0.35) 1.4px,
+      transparent 1.8px
+    );
+    background-size: 26px 26px;
+    transform: translate3d(
+      calc((var(--mx) - 0.5) * 26px),
+      calc((var(--my) - 0.5) * 26px),
+      0
+    );
+  }
+  .field .scan {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.22) 0 1px,
+      transparent 1px 4px
+    );
+  }
+  .field .blob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 240px;
+    height: 210px;
+    margin: -105px 0 0 -120px;
+    pointer-events: none;
+    border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+    transform: translate3d(
+        calc((var(--mx) - 0.5) * 60px),
+        calc((var(--my) - 0.5) * 50px),
+        0
+      )
+      rotate(calc((var(--mx) - 0.5) * 20deg));
+  }
+  .field .blob.a {
+    /* Alpha is a contrast budget, not a taste choice: worst case = both
+       blobs overlapping behind transparent text (they sit concentric at
+       viewport center at rest). At lime .08 / grn .044 the worst-case
+       background is L=0.025 and every text color that can sit over the
+       field clears 4.5:1 (binding pair = 11.5px magenta meta at 4.61;
+       dim text never sits on the field — colophon has its own surface). */
+    background: rgba(205, 245, 86, 0.08);
+  }
+  .field .blob.b {
+    width: 170px;
+    height: 160px;
+    margin: -65px 0 0 -75px;
+    background: rgba(125, 255, 160, 0.044);
+    border-radius: 61% 39% 55% 45% / 48% 62% 38% 52%;
+    transform: translate3d(
+        calc((var(--mx) - 0.5) * -40px),
+        calc((var(--my) - 0.5) * -34px),
+        0
+      )
+      rotate(calc((var(--my) - 0.5) * -16deg));
+  }
+  .no-field .field {
+    display: none;
+  }
+
+  /* ── MOTION 3 site loader ────────────────────────────────────
+     Static HTML in the export; content underneath renders at
+     first paint (never gates LCP — Yuki). Pure CSS timeline, so
+     it works with JS off; pointer-events:none from the start so
+     it can never trap input; skipped entirely under
+     prefers-reduced-motion (display:none, before first paint). */
+  .site-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: boot-out 0.25s ease 1.5s forwards;
+  }
+  .boot {
+    background: var(--color-term);
+    border: 3px solid var(--color-grn);
+    box-shadow: 6px 6px 0 var(--color-blk);
+    padding: 14px 18px;
+    min-width: min(340px, calc(100vw - 40px));
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--color-dim);
+  }
+  .boot .ll {
+    opacity: 0;
+    color: var(--color-grn);
+    animation: boot-on 0.01s linear both;
+  }
+  .boot .l1 {
+    animation-delay: 0.15s;
+  }
+  .boot .l2 {
+    animation-delay: 0.4s;
+  }
+  .boot .l3 {
+    animation-delay: 0.65s;
+  }
+  .boot .l4 {
+    animation-delay: 0.9s;
+  }
+  .boot .rdy {
+    opacity: 0;
+    color: var(--color-lime);
+    font-weight: 700;
+    animation: boot-on 0.01s linear 1.15s both;
+  }
+
+  /* ── BLEND B command bar (buttons) ───────────────────────────
+     7px under-edge collapses into the page when pressed. */
+  .cmd {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+    background: var(--color-term);
+    color: var(--color-grn);
+    border: 3px solid var(--color-grn);
+    border-bottom-width: 7px;
+    padding: 12px 18px;
+    cursor: pointer;
+    box-shadow: 5px 5px 0 var(--color-blk);
+    text-align: left;
+    text-decoration: none;
+  }
+  .cmd .p {
+    color: var(--color-lime);
+  }
+  .cmd:hover,
+  .cmd:focus-visible {
+    background: var(--color-grn);
+    color: var(--color-blk);
+    border-color: var(--color-blk);
+    border-bottom-width: 3px;
+    padding-bottom: 16px;
+    box-shadow: 5px 2px 0 var(--color-blk);
+    transform: translateY(3px);
+  }
+  .cmd:hover .p,
+  .cmd:focus-visible .p {
+    color: var(--color-blk);
+  }
+
+  /* ── MOTION 2 stamp (copy_email confirmation) ──────────────── */
+  .cmd.stamped {
+    position: relative;
+  }
+  .cmd.stamped::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+    border: 3px dashed var(--color-blue);
+    border-radius: 6px;
+    animation: stamp 0.3s ease-out forwards;
+  }
+
+  /* ── HOVER 4 caret reveal (standalone block links) ─────────── */
+  .h4 {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 15px;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: var(--color-term);
+    color: var(--color-wht);
+    border: 3px solid var(--color-wht);
+    box-shadow: 5px 5px 0 var(--color-lime);
+    padding: 14px 18px;
+  }
+  .h4 .p {
+    color: var(--color-lime);
+    opacity: 0;
+  }
+  .h4:hover,
+  .h4:focus-visible {
+    background: var(--color-grn);
+    color: var(--color-blk);
+    border-color: var(--color-blk);
+    box-shadow: 5px 5px 0 var(--color-wht);
+  }
+  .h4:hover .p,
+  .h4:focus-visible .p {
+    color: var(--color-blk);
+    opacity: 1;
+  }
+
+  /* ── CARD 2 directory row (the index/card element) ─────────── */
+  .dirrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    text-decoration: none;
+    background: var(--color-blk);
+    border: 2px solid var(--color-edge);
+    color: var(--color-wht);
+  }
+  .dirrow .perm {
+    color: var(--color-dim);
+    padding: 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .dirrow .nm {
+    color: var(--color-grn);
+    font-weight: 700;
+    flex: 1;
+    min-width: 0;
+    padding-right: 8px;
+    overflow-wrap: anywhere;
+  }
+  .dirrow .nm::after {
+    content: "/";
+    color: var(--color-lime);
+  }
+  .dirrow.file .nm::after {
+    content: none;
+  }
+  .dirrow .sz {
+    color: var(--color-dim);
+    font-size: 12px;
+    padding-right: 10px;
+    text-align: right;
+  }
+  .dirrow .bl {
+    flex-basis: 100%;
+    padding: 0 10px 10px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--color-note);
+  }
+  a.dirrow {
+    cursor: pointer;
+  }
+  a.dirrow:hover,
+  a.dirrow:focus-visible {
+    background: var(--color-lime);
+    color: var(--color-blk);
+    border-color: var(--color-blk);
+    box-shadow: 6px 6px 0 var(--color-blk);
+    /* !important: .reveal's fill:both would otherwise hold
+       transform:none over this hover/focus shift */
+    transform: translate(-2px, -2px) !important;
+  }
+  a.dirrow:hover .nm,
+  a.dirrow:focus-visible .nm {
+    color: var(--color-blk);
+  }
+  a.dirrow:hover .nm::after,
+  a.dirrow:focus-visible .nm::after {
+    color: var(--color-blk);
+  }
+  a.dirrow:hover .perm,
+  a.dirrow:hover .sz,
+  a.dirrow:hover .bl,
+  a.dirrow:focus-visible .perm,
+  a.dirrow:focus-visible .sz,
+  a.dirrow:focus-visible .bl {
+    color: #2b4a35;
+  }
+
+  /* ── TYPE 2 diff headline (home) ───────────────────────────── */
+  .diff {
+    font-family: var(--font-mono);
+    font-size: clamp(16px, 3.6vw, 26px);
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .diff .add {
+    color: var(--color-grn);
+  }
+  .diff .add b {
+    color: var(--color-lime);
+  }
+  .diff .del {
+    color: var(--color-mag);
+    text-decoration: line-through;
+    text-decoration-thickness: 3px;
+  }
+
+  /* ── kicker chip ───────────────────────────────────────────── */
+  .kicker {
+    overflow-wrap: anywhere;
+    display: inline-block;
+    background: var(--color-lime);
+    color: var(--color-blk);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+  }
+
+  /* ── FOOTER 5 man page + 7 colophon strip ──────────────────── */
+  .man {
+    overflow-wrap: anywhere;
+    background: var(--color-blk);
+    border: 2px solid var(--color-edge);
+    color: var(--color-note);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 14px 16px;
+    max-width: 35rem;
+  }
+  .man .hd {
+    color: var(--color-wht);
+    border-bottom: 1px solid var(--color-edge);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+  .man b {
+    color: var(--color-lime);
+    font-weight: 700;
+  }
+  .man .also {
+    word-spacing: 0.5em;
+  }
+  .man .also a {
+    color: var(--color-grn);
+    text-decoration: none;
+  }
+  .man .also a:hover,
+  .man .also a:focus-visible {
+    background: var(--color-lime);
+    color: var(--color-blk);
+  }
+  .man .args {
+    color: var(--color-grn);
+  }
+  .colophon {
+    /* opaque surface: keeps 12px dim text at 4.98:1 even when a blob
+       passes behind the footer (Nadia's ship-gate finding) */
+    background: var(--color-term);
+    border-top: 2px solid var(--color-edge);
+    padding-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--color-dim);
+  }
+  .colophon a {
+    color: var(--color-grn);
+    text-decoration: none;
+  }
+  .colophon a:hover,
+  .colophon a:focus-visible {
+    background: var(--color-lime);
+    color: var(--color-blk);
+  }
+
+  /* ── EXTRA 1 bracket toggle ────────────────────────────────── */
+  .x1 {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 13px;
+    color: var(--color-wht);
+  }
+  .x1 input {
+    position: absolute;
+    opacity: 0;
+  }
+  .x1 .tr {
+    width: 70px;
+    height: 34px;
+    border: 3px solid var(--color-grn);
+    background: var(--color-term);
+    position: relative;
+    box-shadow: 4px 4px 0 var(--color-blk);
+  }
+  .x1 .tr i {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 100%;
+    background: var(--color-dim);
+    transition: left 0.12s steps(3), background 0.12s steps(1);
+    font-style: normal;
+  }
+  .x1 input:checked + .tr {
+    border-color: var(--color-lime);
+  }
+  .x1 input:checked + .tr i {
+    left: 34px;
+    background: var(--color-lime);
+  }
+  .x1 input:focus-visible + .tr {
+    outline: 3px solid var(--color-yell);
+    outline-offset: 2px;
+  }
+  .x1 .lb::before {
+    content: "[ ] ";
+    color: var(--color-mag);
+  }
+  .x1 input:checked ~ .lb::before {
+    content: "[x] ";
+    color: var(--color-lime);
+  }
+
+  /* ── kept workshop motifs ──────────────────────────────────── */
+  .tick-rule {
+    height: 8px;
+    background-image: linear-gradient(
+      90deg,
+      var(--color-line) 0 1px,
+      transparent 1px 12px
+    );
+    background-size: 12px 8px;
+    background-repeat: repeat-x;
+    opacity: 0.9;
+  }
+
+  .tick-rule-copper {
+    height: 8px;
+    background-image: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--color-copper) 55%, transparent) 0 1px,
+      transparent 1px 12px
+    );
+    background-size: 12px 8px;
+    background-repeat: repeat-x;
+  }
+
   .measure {
     max-width: 38rem;
   }
@@ -220,38 +580,91 @@ body {
     margin-top: 0;
   }
   .meta {
-    font-family: var(--font-mono), ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 0.72rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  .index-row {
-    display: grid;
-    grid-template-columns: 2.5rem 1fr auto;
-    gap: 1rem;
-    align-items: baseline;
-    padding: 1.35rem 0;
-    border-top: 1px solid var(--color-line);
-    transition: color 0.15s ease, background-color 0.15s ease;
+
+  /* ── entrance reveals (existing, kept) ─────────────────────── */
+  .reveal {
+    animation: reveal-up 0.5s cubic-bezier(0, 0, 0.2, 1) both;
+    animation-timeline: view();
+    animation-range: entry 4% cover 24%;
   }
-  .index-row:last-child {
-    border-bottom: 1px solid var(--color-line);
-  }
-  .index-row:hover,
-  .index-row:focus-visible {
-    background: color-mix(in oklch, var(--color-copper) 8%, transparent);
-  }
-  .index-row:hover .index-title,
-  .index-row:focus-visible .index-title {
-    color: var(--color-brass);
-  }
-  @media (max-width: 640px) {
-    .index-row {
-      grid-template-columns: 2rem 1fr;
-      grid-template-rows: auto auto;
+
+  @supports not (animation-timeline: view()) {
+    .reveal {
+      animation: none;
+      opacity: 1;
+      transform: none;
     }
-    .index-meta {
-      grid-column: 2;
-    }
+  }
+
+  .enter > * {
+    animation: enter-up 0.4s cubic-bezier(0, 0, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+}
+
+@keyframes boot-on {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes boot-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@keyframes stamp {
+  from {
+    transform: scale(0.6) rotate(-6deg);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.25) rotate(3deg);
+    opacity: 0;
+  }
+}
+/* transform-only: content paints at full opacity in frame 1 (Chrome never
+   registers opacity-0 paints as LCP while a filling animation is attached —
+   Chromium 421434650; Yuki's ruling on this build) */
+@keyframes reveal-up {
+  from {
+    transform: translateY(0.85rem);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes enter-up {
+  from {
+    transform: translateY(0.55rem);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* ── reduced-motion kill paths (Elena) ─────────────────────────
+   Kill every animation and transition; state changes become
+   instant. The loader is hidden outright via display:none — it
+   applies at first paint, so reduce users never see a flash. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .reveal,
+  .enter > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .site-loader {
+    display: none !important;
   }
 }

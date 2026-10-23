@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   PreviewBanner,
   applyPreviewPage,
@@ -8,7 +7,7 @@ import {
   draftLabel,
   useCmsPreview,
 } from "@/components/cms-preview";
-import { PageHeader, Section } from "@/components/page-parts";
+import { DirRow, PageHeader, Section } from "@/components/page-parts";
 import { templates as baseTemplates } from "@/lib/content";
 
 type TemplateItem = {
@@ -40,6 +39,12 @@ function asItems(value: unknown): TemplateItem[] {
     }));
 }
 
+/**
+ * /templates — Leo's bare Rauno index rhythm: no thumbnails, just
+ * CARD 2 directory rows (name, meta, one-line what-it-is) and the
+ * two real links per entry. Command names follow the team's
+ * verb_object rule (copy round §6).
+ */
 export function TemplatesPageClient() {
   const preview = useCmsPreview();
   const c = preview.payload?.collection;
@@ -63,60 +68,36 @@ export function TemplatesPageClient() {
         />
 
         <Section label={t.catalogLabel}>
-          <div className="grid gap-6 sm:grid-cols-2">
-            {items.map((item, i) => (
-              <article
-                key={item.name}
-                className="enter flex flex-col border border-line bg-ink-2/60"
-                style={{ "--i": i } as React.CSSProperties}
-              >
-                <Image
-                  src={item.image}
-                  alt={item.imageAlt || item.name}
-                  width={1200}
-                  height={630}
-                  className="w-full border-b border-line"
+          <div className="space-y-4">
+            {items.map((item) => (
+              <div key={item.name}>
+                <DirRow
+                  kind="dir"
+                  name={item.name}
+                  size={[...item.stack, item.meta].filter(Boolean).join(" · ")}
+                  blurb={[item.tagline, item.description]
+                    .filter(Boolean)
+                    .join(" ")}
                 />
-                <div className="flex flex-1 flex-col gap-3 p-5">
-                  <div>
-                    <h3 className="font-display text-2xl tracking-[-0.01em] text-paper">
-                      {item.name}
-                    </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-paper/80">
-                      {item.tagline}
-                    </p>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted">
-                    {item.description}
-                  </p>
-                  <div className="meta flex flex-wrap gap-x-3 gap-y-1 text-brass">
-                    {item.stack.map((s) => (
-                      <span key={s}>{s}</span>
-                    ))}
-                    {item.meta ? (
-                      <span className="text-muted">{item.meta}</span>
-                    ) : null}
-                  </div>
-                  <div className="mt-auto flex items-center gap-4 pt-2">
-                    <a
-                      href={item.useUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="meta border border-copper/60 px-4 py-2 text-copper transition-colors hover:bg-copper hover:text-ink"
-                    >
-                      Use this template ↗
-                    </a>
-                    <a
-                      href={item.repo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="meta text-muted transition-colors hover:text-brass"
-                    >
-                      View repo ↗
-                    </a>
-                  </div>
+                <div className="mt-1 flex flex-wrap gap-5 px-3 font-mono text-xs">
+                  <a
+                    href={item.useUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-grn hover:bg-lime hover:text-blk focus-visible:bg-lime focus-visible:text-blk"
+                  >
+                    use_template ↗
+                  </a>
+                  <a
+                    href={item.repo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-grn hover:bg-lime hover:text-blk focus-visible:bg-lime focus-visible:text-blk"
+                  >
+                    view_repo ↗
+                  </a>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         </Section>
