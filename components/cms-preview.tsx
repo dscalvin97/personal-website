@@ -27,6 +27,7 @@ export type PreviewCollection =
   | "developer"
   | "studio"
   | "craft"
+  | "templates"
   | "roles"
   | "education";
 

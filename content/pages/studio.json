@@ -1,6 +1,6 @@
 {
-  "index": "03",
-  "eyebrow": "3D",
+  "index": "02",
+  "eyebrow": "Studio",
   "title": "Form, light, and materials.",
   "lede": "Blender and Unity before the web work. Portfolio of Blender assets and scenes on BlendKit; pipelines at Fynd that produced 100,000+ captioned training images.",
   "blendkitUrl": "https://www.blendkit.com/?query=author_id:908",
@@ -55,6 +55,6 @@
     }
   ],
   "relatedLabel": "Related",
-  "relatedHtml": "Timeline on the <a href=\"/work/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">work page</a>. Fiber work on the <a href=\"/craft/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">craft page</a>. <a href=\"/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">Home</a>.",
+  "relatedHtml": "Timeline on the <a href=\"/developer/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">software page</a>. Fiber work on the <a href=\"/craft/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">crochet page</a>. <a href=\"/\" class=\"text-brass underline decoration-copper/50 underline-offset-4 hover:text-copper\">Home</a>.",
   "metaDescription": "Calvin Dsouza — 3D artist. Blender work on BlendKit, pipelines at Fynd, Unity at HERE."
 }

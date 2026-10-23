@@ -3,8 +3,9 @@ import { studio } from "@/lib/content";
 import { StudioPageClient } from "./studio-client";
 
 export const metadata: Metadata = {
-  title: "3D",
+  title: "Studio",
   description: studio.metaDescription,
+  alternates: { canonical: "/studio/" },
 };
 
 export default function StudioPage() {

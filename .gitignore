@@ -40,4 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env.production.local
+
+# OpenCode / OpenChamber agent tooling (local, not project source)
 .opencode/
+opencode.json
+discussions/

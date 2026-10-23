@@ -10,20 +10,21 @@
   var COLLECTION_PATH = {
     shared: "/",
     home: "/",
-    profile: "/work/",
-    skills: "/work/",
-    achievements: "/work/",
-    "site-meta": "/work/",
-    "work-page": "/work/",
+    profile: "/developer/",
+    skills: "/developer/",
+    achievements: "/developer/",
+    "site-meta": "/developer/",
+    "work-page": "/developer/",
     developer: "/developer/",
     studio: "/studio/",
     craft: "/craft/",
-    roles: "/work/",
-    education: "/work/",
+    templates: "/templates/",
+    roles: "/developer/",
+    education: "/developer/",
   };
 
   function iframeSrc(collection) {
-    var path = COLLECTION_PATH[collection] || "/work/";
+    var path = COLLECTION_PATH[collection] || "/developer/";
     return SITE + path + "#preview=" + PREVIEW_TOKEN;
   }
 
@@ -89,9 +90,10 @@
     for (var i = 0; i < frames.length; i++) {
       var frame = frames[i];
       var src = frame.getAttribute("src") || "";
-      if (src.indexOf("/#preview=") === -1 && src.indexOf("/work/#preview=") === -1 &&
+      if (src.indexOf("/#preview=") === -1 &&
           src.indexOf("/developer/#preview=") === -1 && src.indexOf("/studio/#preview=") === -1 &&
-          src.indexOf("/craft/#preview=") === -1) continue;
+          src.indexOf("/craft/#preview=") === -1 &&
+          src.indexOf("/templates/#preview=") === -1) continue;
       try {
         if (frame.contentWindow) frame.contentWindow.postMessage(payload, SITE);
       } catch (err) {}
@@ -196,6 +198,7 @@
   register("developer", "developer");
   register("studio", "studio");
   register("craft", "craft");
+  register("templates", "templates");
   register("roles", "roles");
   register("education", "education");
 })();

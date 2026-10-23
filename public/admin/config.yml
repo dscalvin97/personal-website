@@ -27,8 +27,9 @@ collections:
             widget: list
             summary: "{{fields.label}} → {{fields.href}}"
             fields:
-              - { label: Label, name: label, widget: string, required: true }
-              - { label: Href, name: href, widget: string, required: true, hint: "/work/ or https://..." }
+              - { label: Label, name: label, widget: string, required: true, hint: "Plain word: Software / Studio / Crochet / Templates" }
+              - { label: Descriptor, name: descriptor, widget: string, required: false, hint: "One line under the label, >=640px only (e.g. Web apps, APIs, and CMS)" }
+              - { label: Href, name: href, widget: string, required: true, hint: "/developer/ or https://..." }
           - label: Footer links
             name: footerLinks
             widget: list
@@ -100,12 +101,12 @@ collections:
           - { label: Resume PDF path, name: resumePdf, widget: string, required: true }
 
   - name: work-page
-    label: Work page
-    description: Work page header and section labels (roles live in Roles).
+    label: Experience sections (renders on /developer)
+    description: Section labels + copy for the experience content folded into the software page (roles live in Roles).
     files:
       - file: content/pages/work.json
         name: work-page
-        label: Work page copy
+        label: Experience copy
         fields:
           - { label: Index, name: index, widget: string, hint: "01" }
           - { label: Eyebrow, name: eyebrow, widget: string }
@@ -124,7 +125,7 @@ collections:
           - { label: Resume button label, name: resumeLabel, widget: string }
 
   - name: skills
-    label: Skills (work page)
+    label: Skills (developer page)
     files:
       - file: content/skills.json
         name: skills
@@ -138,7 +139,7 @@ collections:
           - { label: Also, name: also, widget: text, required: false }
 
   - name: achievements
-    label: Achievements (work page)
+    label: Achievements (developer page)
     files:
       - file: content/achievements.json
         name: achievements
@@ -196,11 +197,11 @@ collections:
           - { label: Meta description, name: metaDescription, widget: text }
 
   - name: studio
-    label: 3D page
+    label: Studio page
     files:
       - file: content/pages/studio.json
         name: studio
-        label: 3D page
+        label: Studio page
         fields:
           - { label: Index, name: index, widget: string }
           - { label: Eyebrow, name: eyebrow, widget: string }
@@ -266,10 +267,42 @@ collections:
           - { label: Contact (HTML ok), name: contactHtml, widget: text }
           - { label: Meta description, name: metaDescription, widget: text }
 
+  - name: templates
+    label: Templates page
+    files:
+      - file: content/pages/templates.json
+        name: templates
+        label: Templates page
+        fields:
+          - { label: Index, name: index, widget: string }
+          - { label: Eyebrow, name: eyebrow, widget: string }
+          - { label: Title, name: title, widget: string, required: true }
+          - { label: Lede, name: lede, widget: text, required: true }
+          - { label: Catalog label, name: catalogLabel, widget: string }
+          - label: Templates
+            name: items
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { label: Name, name: name, widget: string, required: true }
+              - { label: Tagline, name: tagline, widget: text, required: true }
+              - { label: Description, name: description, widget: text }
+              - { label: Image path (in public/), name: image, widget: string, hint: "e.g. /templates/spooky-invite.png" }
+              - { label: Image alt text, name: imageAlt, widget: string }
+              - { label: Repo URL, name: repo, widget: string }
+              - { label: Use-this-template URL, name: useUrl, widget: string, hint: "https://github.com/OWNER/REPO/generate" }
+              - { label: Stack tags, name: stack, widget: list, field: { label: Tag, name: item, widget: string } }
+              - { label: Meta line, name: meta, widget: string, hint: "e.g. MIT · Node 24+" }
+          - { label: CTA label, name: ctaLabel, widget: string }
+          - { label: CTA (HTML ok), name: ctaHtml, widget: text }
+          - { label: More label, name: moreLabel, widget: string }
+          - { label: More (HTML ok), name: moreHtml, widget: text }
+          - { label: Meta description, name: metaDescription, widget: text }
+
   - name: roles
     label: Roles
     label_singular: Role
-    description: One file per job (work page experience).
+    description: One file per job (experience on the developer page).
     folder: content/roles
     create: true
     delete: true
