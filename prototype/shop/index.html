@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>calvin.makes — the shop (prototype)</title>
+<style>
+/* ══ PROTOTYPE SHEET — art direction of the CHROME is deliberately
+   neutral here; the group's architecture is what this proves:
+   DOM is the site, the scene is the dressing (see minutes
+   discussions/2026-10-24-3d-shop-group-round1.md). ══ */
+:root {
+  --ink: #14130f; --paper: #f2eee4; --term: #0d120f;
+  --grn: #7dffa0; --lime: #cdf556; --mag: #ff4fa3; --blue: #6f86ff;
+  --dim: #a8a395; --edge: #2a3d31;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--term); color: var(--paper);
+  font: 15px/1.6 ui-sans-serif, system-ui, sans-serif; }
+a { color: var(--grn); }
+#stage { position: fixed; inset: 0; }
+#stage canvas { display: block; width: 100%; height: 100%; }
+
+/* ── HUD: nav of record — always visible, in the DOM, above the scene */
+.hud { position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
+  padding: 10px 16px; background: rgba(13,18,15,.92);
+  border-bottom: 2px solid var(--edge);
+  font-family: ui-monospace, monospace; font-size: 14px; }
+.hud .shop { font-weight: 700; color: var(--lime); margin-right: 6px;
+  text-decoration: none; }
+.hud nav { display: flex; flex-wrap: wrap; gap: 4px 2px; }
+.hud nav a { color: var(--paper); text-decoration: none; padding: 6px 9px;
+  border: 2px solid transparent; }
+.hud nav a small { display: block; color: var(--dim); font-size: 11.5px; }
+.hud nav a:hover, .hud nav a:focus-visible, .hud nav a[aria-current] {
+  background: var(--lime); color: var(--ink); border-color: var(--lime); outline: none; }
+.hud nav a:hover small, .hud nav a:focus-visible small,
+.hud nav a[aria-current] small { color: var(--ink); }
+.till { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.till a, .till button { font: 700 13px/1.3 ui-monospace, monospace;
+  background: var(--term); color: var(--grn); border: 2px solid var(--grn);
+  border-bottom-width: 5px; padding: 8px 12px; cursor: pointer;
+  text-decoration: none; }
+.till a:hover, .till a:focus-visible, .till button:hover,
+.till button:focus-visible { background: var(--grn); color: var(--ink); }
+:focus-visible { outline: 2px solid #ffd43b; outline-offset: 2px; }
+
+/* ── scene hotspots: real DOM anchors, positioned over the canvas */
+#hots { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+.hot { position: absolute; transform: translate(-50%, -50%);
+  pointer-events: auto; min-width: 44px; min-height: 44px;
+  font: 700 13px/1.25 ui-monospace, monospace; text-align: left;
+  background: rgba(20,19,15,.86); color: var(--paper); text-decoration: none;
+  border: 2px solid var(--lime); padding: 8px 12px; cursor: pointer;
+  transition: opacity .25s ease; }
+.hot small { display: block; color: var(--dim); font-weight: 400; font-size: 11px; }
+.hot:hover, .hot:focus-visible { background: var(--lime); color: var(--ink); }
+.hot:hover small, .hot:focus-visible small { color: var(--ink); }
+.hot[hidden] { display: none; }
+
+/* ── panels: the content, in real DOM, one per route */
+.panelwrap { position: fixed; top: 64px; right: 16px; bottom: 16px;
+  z-index: 15; width: min(380px, calc(100vw - 32px));
+  overflow: auto; pointer-events: none; }
+.panel { background: var(--paper); color: var(--ink);
+  border: 3px solid var(--ink); box-shadow: 8px 8px 0 rgba(0,0,0,.55);
+  padding: 18px 20px; pointer-events: auto; }
+.panel[hidden] { display: none; }
+.panel h2 { margin: 0 0 2px; font-size: 22px; font-weight: 800; }
+.panel h2:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.panel .desc { font-family: ui-monospace, monospace; font-size: 12px;
+  color: #57534a; margin: 0 0 12px; }
+.panel p { margin: 0 0 10px; font-size: 14.5px; }
+.panel .cta { display: inline-block; font: 700 13px/1.3 ui-monospace, monospace;
+  background: var(--ink); color: var(--grn); border: 2px solid var(--ink);
+  border-bottom: 5px solid var(--grn); padding: 10px 14px; margin: 4px 6px 6px 0;
+  text-decoration: none; cursor: pointer; }
+.panel .cta:hover, .panel .cta:focus-visible { background: var(--grn); color: var(--ink); }
+.panel .links { font-family: ui-monospace, monospace; font-size: 12.5px;
+  border-top: 2px solid var(--ink); margin-top: 12px; padding-top: 10px; }
+.panel .fine { font-family: ui-monospace, monospace; font-size: 11px;
+  color: #6b675c; }
+.panel .ledger { list-style: none; margin: 0 0 8px; padding: 0;
+  font-family: ui-monospace, monospace; font-size: 12.5px; }
+.panel .ledger li { display: flex; justify-content: space-between; gap: 10px;
+  border-bottom: 1px dotted #9c968a; padding: 4px 0; }
+.panel .ledger b { font-weight: 700; }
+
+/* ── mobile zone dock (thumb reach) ─────────────────────────── */
+#dock { display: none; position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: 20; background: rgba(13,18,15,.94); border-top: 2px solid var(--edge);
+  padding: 6px; gap: 4px; }
+#dock a { flex: 1; text-align: center; color: var(--paper); text-decoration: none;
+  font: 700 12px/1.2 ui-monospace, monospace; padding: 10px 4px;
+  border: 2px solid transparent; }
+#dock a[aria-current] { border-color: var(--lime); color: var(--lime); }
+@media (max-width: 640px) {
+  #dock { display: flex; }
+  .hud nav { display: none; }         /* labels-only dock on phones */
+  .panelwrap { top: auto; right: 8px; left: 8px; bottom: 58px; width: auto;
+    max-height: 52vh; }
+  .till { margin-left: 0; }
+}
+
+/* ── DOM-only shop: reduce-motion / no-WebGL / no-JS ─────────── */
+.dom2d #stage, .dom2d #hots { display: none; }
+.dom2d .panelwrap { position: static; width: auto; max-width: 720px;
+  margin: 84px auto 40px; overflow: visible; pointer-events: auto; }
+.dom2d .panel { margin-bottom: 18px; }
+.dom2d .panel[hidden] { display: block; }   /* everything, in flow */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+.skiplink { position: absolute; left: -9999px; }
+.skiplink:focus { left: 8px; top: 8px; z-index: 99; background: var(--lime);
+  color: var(--ink); padding: 8px 12px; font-family: ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div id="stage" aria-hidden="true"></div>
+<a class="skiplink" href="#panel-hub">Skip to shop content</a>
+
+<header class="hud">
+  <a class="shop" href="#/">calvin.makes&nbsp;$</a>
+  <nav aria-label="Stalls">
+    <a href="#/craft/" data-zone="craft">Crochet<small>Patterns and finished pieces</small></a>
+    <a href="#/studio/" data-zone="studio">Studio<small>Blender renders and pipelines</small></a>
+    <a href="#/developer/" data-zone="developer">Back office<small>Work history &amp; the CV</small></a>
+    <a href="#/templates/" data-zone="templates">Templates<small>Party apps, free — get one</small></a>
+  </nav>
+  <div class="till">
+    <a href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">&gt; get_cv</a>
+    <a href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">&gt; shop_patterns</a>
+    <a href="mailto:dscalvin97@gmail.com">&gt; mail_calvin</a>
+  </div>
+</header>
+
+<div id="hots" aria-hidden="false"></div>
+
+<div class="panelwrap">
+  <!-- Panels are the site. Prerendered in real HTML; the scene is
+       enhancement. Every panel carries real links (minutes §Synthesis 2). -->
+  <section class="panel" id="panel-hub" data-zone="hub" hidden>
+    <h2 tabindex="-1">The shop</h2>
+    <p class="desc">calvin.makes — software · 3D · crochet · Mumbai</p>
+    <p>Calvin Dsouza makes software, 3D renders, and crochet patterns from
+       Mumbai. This whole site is his shop: walk up to a stall, or use the
+       menu — both work, both are real links.</p>
+    <p class="fine">Prototype note: pattern names &amp; prices don't exist yet —
+       tags read name-only until Calvin decides them (Marcus, minutes C-4).</p>
+    <div class="links">
+      <a href="#/craft/">→ the crochet stall</a> ·
+      <a href="#/studio/">→ the studio wall</a> ·
+      <a href="#/developer/">→ the back office</a> ·
+      <a href="#/templates/">→ the templates rack</a>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-craft" data-zone="craft" hidden>
+    <h2 tabindex="-1">Crochet</h2>
+    <p class="desc">Patterns and finished pieces</p>
+    <p>Hooks, yarn, and slow making. Same curiosity as the 3D work — tension,
+       topology, how a curve sits in space. Patterns are digital PDFs on
+       Gumroad: front-loaded skill level, short steps, no filler.</p>
+    <a class="cta" href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">&gt; shop_patterns</a>
+    <a class="cta" href="mailto:dscalvin97@gmail.com">&gt; mail_calvin</a>
+    <div class="links">Notice by the till: prices live on Gumroad — they're
+      real, and they change when Calvin says so.</div>
+  </section>
+
+  <section class="panel" id="panel-studio" data-zone="studio" hidden>
+    <h2 tabindex="-1">Studio</h2>
+    <p class="desc">Blender renders and pipelines</p>
+    <p>The drying rack holds the prints: Blender assets and scenes live on
+       BlendKit; at Fynd, Python/Blender pipelines produced 100,000+ captioned
+       training images.</p>
+    <a class="cta" href="https://www.blendkit.com/?query=author_id:908" target="_blank" rel="noopener noreferrer">&gt; view_blendkit</a>
+    <div class="links">Cards on the rack are labeled with real project names;
+      empty slots are where new prints hang.</div>
+  </section>
+
+  <section class="panel" id="panel-developer" data-zone="developer" hidden>
+    <h2 tabindex="-1">Back office</h2>
+    <p class="desc">Work history &amp; the CV — the room where the records live</p>
+    <p>Software that works on a Tuesday. The ledger is the real timeline:</p>
+    <ul class="ledger">
+      <li><span><b>Kolors India</b> — Senior Fullstack Developer</span><span>Present</span></li>
+      <li><span><b>Snapwork</b> — Senior Full-Stack Developer</span><span>2025–26</span></li>
+      <li><span><b>Fynd</b> — 3D Game Artist &amp; Full-Stack Developer</span><span>2022–25</span></li>
+      <li><span><b>HERE Technologies</b> — Map Modeler</span><span>2018–20</span></li>
+      <li><span><b>Powerweave</b> — 3D Artist (contract)</span><span>2018</span></li>
+    </ul>
+    <a class="cta" href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">&gt; get_cv</a>
+    <a class="cta" href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">&gt; view_github</a>
+    <div class="links">Drawers stay shut — opening one opens the page, not geometry.</div>
+  </section>
+
+  <section class="panel" id="panel-templates" data-zone="templates" hidden>
+    <h2 tabindex="-1">Templates</h2>
+    <p class="desc">Party apps you can deploy in a minute</p>
+    <p>Free things live by the door. Spooky Invite: a Halloween party invite
+       that gets spookier as the night approaches — one HTML file, one Node
+       server, no dependencies.</p>
+    <a class="cta" href="https://github.com/dscalvin97/spooky-invite" target="_blank" rel="noopener noreferrer">&gt; get_it_free</a>
+    <div class="links">Free — get it. No price invented here; the repo is the price tag.</div>
+  </section>
+
+  <section class="panel" id="panel-counter" data-zone="counter" hidden>
+    <h2 tabindex="-1">The counter</h2>
+    <p class="desc">Till · notice board · the man page by the door</p>
+    <p>Till's unattended. Everything's on the shelves — take a look. When you
+       need Calvin: mail is one click, the CV is one click.</p>
+    <a class="cta" href="mailto:dscalvin97@gmail.com">&gt; mail_calvin</a>
+    <div class="links">
+      Notice board: <a href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">github(1)</a> ·
+      <a href="https://www.linkedin.com/in/dscalvin" target="_blank" rel="noopener noreferrer">linkedin(1)</a> ·
+      <a href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">gumroad(1)</a><br>
+      <span class="fine">No cookies. No trackers. No invented numbers. Prototype —
+      architecture from the 2026-10-24 group minutes.</span>
+    </div>
+  </section>
+</div>
+
+<nav id="dock" aria-label="Zones">
+  <a href="#/" data-zone="hub">shop</a>
+  <a href="#/craft/" data-zone="craft">crochet</a>
+  <a href="#/studio/" data-zone="studio">studio</a>
+  <a href="#/developer/" data-zone="developer">office</a>
+  <a href="#/templates/" data-zone="templates">templates</a>
+</nav>
+
+<script type="importmap">
+{ "imports": { "three": "https://esm.sh/three@0.186.1" } }
+</script>
+<script type="module">
+import * as THREE from "three";
+
+/* ═══════════════ STATE + ROUTING (hash = prototype stand-in for
+   the production pathname routes; minutes: Farid §A) ═══════════ */
+const ZONES = ["hub", "craft", "studio", "developer", "templates", "counter"];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+let current = "hub";
+let gl = null;                 // scene handle, null in DOM-only mode
+let lastTrigger = null;        // activating control, for focus restore (Elena R2)
+
+/* camera poses: Sana §B — one per zone, fov per pose */
+const POSES = {
+  hub:       { p: [0, 2.0, 10.2],  l: [0, 1.2, -0.5], fov: 46 },
+  craft:     { p: [-2.6, 1.55, 2.9], l: [-5.1, 1.35, -4.6], fov: 33 },
+  studio:    { p: [3.2, 1.55, 2.9],  l: [5.6, 1.45, -4.6],  fov: 33 },
+  developer: { p: [0, 1.75, 1.9],  l: [0, 1.25, -5.2], fov: 35 },
+  templates: { p: [3.4, 1.5, 6.4], l: [5.0, 1.05, 3.0],  fov: 33 },
+  counter:   { p: [0.4, 1.5, 4.6], l: [0, 1.05, 1.8],  fov: 36 },
+};
+const DOLLY_IN = { p: [0, 2.1, 15.5], l: [0, 1.4, 0], fov: 50 }; // walk-in start (= poster frame)
+
+function zoneFromHash() {
+  const m = (location.hash || "").match(/^#\/(\w*)\/?$/);
+  const z = m ? m[1] : "";
+  if (z === "studio") return "studio";
+  if (z === "craft") return "craft";
+  if (z === "developer") return "developer";
+  if (z === "templates") return "templates";
+  if (z === "counter") return "counter";
+  return "hub";
+}
+function panelFor(z) { return document.getElementById("panel-" + z); }
+
+/* ═══════════ DOM-ONLY SHOP (reduce / no-WebGL): everything in flow ══ */
+function enterDomMode() {
+  document.body.classList.add("dom2d");
+  document.querySelectorAll(".panel").forEach(p => (p.hidden = false));
+  document.getElementById("hots").style.display = "none";
+}
+
+/* ═══════════ SCENE (Sana §C: primitives, vertex-color bake, zero lights) */
+function vertexBake(geo, hex, opt = {}) {
+  geo.computeVertexNormals();
+  const pos = geo.attributes.position, nor = geo.attributes.normal;
+  const base = new THREE.Color(hex);
+  const amb = opt.amb ?? 0.55, bounce = opt.bounce ?? 0.35,
+        win = opt.win ?? 0.3, floor = opt.floor ?? 0, ao = opt.ao ?? 0.25;
+  const winDir = new THREE.Vector3(-0.5, 0.6, 1).normalize();
+  const col = new Float32Array(pos.count * 3);
+  const v = new THREE.Vector3(), n = new THREE.Vector3(), c = new THREE.Color();
+  const maxY = opt.maxY ?? 3;
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i); n.fromBufferAttribute(nor, i);
+    const h = THREE.MathUtils.clamp((v.y - floor) / (maxY - floor), 0, 1);
+    const up = 0.5 + 0.5 * n.y;                       // fake bounce (Bruno)
+    const d = Math.max(0, n.dot(winDir));
+    const corner = 1 - ao * (1 - h) * (1 - Math.abs(n.z));
+    let k = amb + bounce * up * (1 - h) + win * d + 0.06 * (1 - up);
+    k = THREE.MathUtils.clamp(k * corner, 0.15, 1.25);
+    c.copy(base).multiplyScalar(k);
+    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+  }
+  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  return geo;
+}
+function mesh(geo, hex, opt) {
+  return new THREE.Mesh(vertexBake(geo, hex, opt),
+    new THREE.MeshBasicMaterial({ vertexColors: true }));
+}
+
+function signTexture(lines, w = 512, h = 256) {
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+  const g = cv.getContext("2d");
+  g.fillStyle = "#14130f"; g.fillRect(0, 0, w, h);
+  g.strokeStyle = "#cdf556"; g.lineWidth = 8; g.strokeRect(8, 8, w - 16, h - 16);
+  g.textAlign = "center"; g.fillStyle = "#f2eee4";
+  lines.forEach((ln, i) => {
+    g.font = (i === 0 ? "700 " : "400 ") + (i === 0 ? 58 : 34) + "px monospace";
+    g.fillStyle = i === 0 ? "#cdf556" : "#f2eee4";
+    g.fillText(ln, w / 2, 90 + i * 56);
+  });
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+function sign(lines, w, h, pos, rotY = 0) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
+    new THREE.MeshBasicMaterial({ map: signTexture(lines) }));
+  m.position.set(...pos); m.rotation.y = rotY;
+  return m;
+}
+
+function buildShop() {
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("#0d120f");
+  scene.fog = new THREE.Fog("#0d120f", 9, 17);
+
+  const room = new THREE.Group(); scene.add(room);
+  const W = 14, D = 12, H = 3.4;
+  const floor = mesh(new THREE.BoxGeometry(W, 0.2, D), "#3c3128", { floor: -0.1, amb: .6, ao: .1 });
+  floor.position.y = -0.1; room.add(floor);
+  const back = mesh(new THREE.BoxGeometry(W, H, 0.2), "#6d5f4e", { floor: 0, maxY: H, ao: .35 });
+  back.position.set(0, H / 2, -D / 2); room.add(back);
+  const left = mesh(new THREE.BoxGeometry(0.2, H, D), "#5d5244", { floor: 0, maxY: H, ao: .4, win: .42 });
+  left.position.set(-W / 2, H / 2, 0); room.add(left);
+  const right = mesh(new THREE.BoxGeometry(0.2, H, D), "#5d5244", { floor: 0, maxY: H, ao: .4, win: .18 });
+  right.position.set(W / 2, H / 2, 0); room.add(right);
+
+  /* counter + till + clipboard (till/notice zone) */
+  const counter = mesh(new THREE.BoxGeometry(5.2, 1.05, 1.1), "#7a5c3e", { floor: 0, maxY: 1.1, ao: .3 });
+  counter.position.set(0, 0.525, 1.9); room.add(counter);
+  const till = mesh(new THREE.BoxGeometry(0.55, 0.4, 0.45), "#232019", { floor: 0.9, maxY: 1.6 });
+  till.position.set(1.7, 1.26, 1.9); room.add(till);
+  const clipboard = mesh(new THREE.BoxGeometry(0.5, 0.7, 0.04), "#d8d2c2", { floor: 0.9, maxY: 1.8, win: .5 });
+  clipboard.position.set(-1.6, 1.45, 1.35); clipboard.rotation.x = -0.12; room.add(clipboard);
+
+  /* menu board — the literal menu (Leo §B: diegetic alias of the HUD) */
+  room.add(sign(["MENU", "crochet · studio", "back office · templates"], 3.6, 1.5, [0, 2.4, -5.55]));
+
+  /* yarn cubby wall — crochet zone */
+  const cubby = new THREE.Group();
+  const shelf = mesh(new THREE.BoxGeometry(3.6, 2.4, 0.5), "#6d4f33", { floor: 0, maxY: 2.6, ao: .3, win: .4 });
+  shelf.position.set(-5.1, 1.4, -5.5); cubby.add(shelf);
+  const yarnColors = ["#b6542f", "#3e6fb0", "#c9a227", "#7da05a", "#a44d7c", "#5f8f7c"];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) {
+    const y = mesh(new THREE.SphereGeometry(0.19, 12, 10), yarnColors[(r * 5 + c) % 6],
+      { floor: 0.3, maxY: 2.4, win: .5, ao: .15 });
+    y.position.set(-6.35 + c * 0.62, 0.75 + r * 0.68, -5.15); cubby.add(y);
+  }
+  room.add(cubby);
+  room.add(sign(["CROCHET", "patterns & finished pieces"], 2.4, 1.0, [-5.1, 2.85, -5.55]));
+
+  /* drying rack + cards — studio zone (empty slots = honest gallery) */
+  const rack = new THREE.Group();
+  [5.0, 7.4].forEach(x => {
+    const post = mesh(new THREE.BoxGeometry(0.12, 2.6, 0.12), "#4a4238", { floor: 0, maxY: 2.6, win: .35 });
+    post.position.set(x, 1.3, -5.4); rack.add(post);
+  });
+  for (let i = 0; i < 4; i++) {
+    const wire = mesh(new THREE.BoxGeometry(2.5, 0.04, 0.04), "#8b8375", { floor: 0, maxY: 2.6, win: .5 });
+    wire.position.set(6.2, 0.9 + i * 0.55, -5.4); rack.add(wire);
+    if (i < 2) { // two printed cards; empty slots stay empty (Sana §C)
+      const card = mesh(new THREE.BoxGeometry(0.62, 0.8, 0.02),
+        ["#2f4a86", "#86352f"][i], { floor: 0.5, maxY: 2.2, win: .7, ao: .1 });
+      card.position.set(5.7 + i * 0.9, 0.9 + i * 0.55 - 0.42, -5.38); rack.add(card);
+    }
+  }
+  room.add(rack);
+  room.add(sign(["STUDIO", "blender renders"], 2.2, 0.95, [6.2, 2.8, -5.55]));
+
+  /* back office: desk + ledger + drawer wall (developer zone) */
+  const desk = mesh(new THREE.BoxGeometry(3.4, 0.9, 1.2), "#6d4f33", { floor: 0, maxY: 1.2, ao: .3, win: .4 });
+  desk.position.set(0, 0.45, -4.4); room.add(desk);
+  const ledger = mesh(new THREE.BoxGeometry(0.8, 0.06, 0.6), "#d8d2c2", { floor: 0.8, maxY: 1.4, win: .7 });
+  ledger.position.set(-0.4, 0.93, -4.3); room.add(ledger);
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) {
+    const dr = mesh(new THREE.BoxGeometry(0.42, 0.3, 0.3), "#7d6a52",
+      { floor: 0, maxY: 3, ao: .3, win: .25 });
+    dr.position.set(-1.35 + c * 0.54, 1.45 + r * 0.38, -5.72); room.add(dr);
+  }
+  room.add(sign(["BACK OFFICE", "the records live here"], 2.6, 1.05, [0, 3.15, -5.85]));
+
+  /* pamphlet rack — templates, near the door */
+  const pr = mesh(new THREE.BoxGeometry(1.4, 2.0, 0.14), "#4a4238", { floor: 0, maxY: 2.2, win: .3 });
+  pr.position.set(4.9, 1.0, 3.1); pr.rotation.y = -0.5; room.add(pr);
+  for (let i = 0; i < 3; i++) {
+    const pam = mesh(new THREE.BoxGeometry(0.4, 0.55, 0.03), ["#33412a", "#3a2f4d", "#4d3a2f"][i],
+      { floor: 0.2, maxY: 2, win: .6 });
+    pam.position.set(4.65 - i * 0.02, 0.7 + (i % 2) * 0.7, 3.22 + i * 0.05);
+    pam.rotation.y = -0.5; room.add(pam);
+  }
+  room.add(sign(["TEMPLATES", "free — take one"], 1.9, 0.85, [5.15, 2.4, 2.3], -0.5));
+
+  /* door + out-link signs */
+  const door = mesh(new THREE.BoxGeometry(1.6, 2.6, 0.12), "#33291f", { floor: 0, maxY: 2.8, win: .35 });
+  door.position.set(-4.5, 1.3, 5.85); room.add(door);
+  room.add(sign(["calvin.makes", "open to interesting work"], 1.5, 0.75, [-4.5, 2.7, 5.78]));
+
+  /* one light-pool quad per zone arrival (Sana §B.4, additive, one-shot lerp) */
+  const pools = {};
+  ["craft", "studio", "developer", "templates"].forEach(z => {
+    const q = new THREE.Mesh(new THREE.CircleGeometry(1.4, 24),
+      new THREE.MeshBasicMaterial({ color: "#cdf556", transparent: true, opacity: 0,
+        blending: THREE.AdditiveBlending, depthWrite: false }));
+    const pos = { craft: [-5.1, 0.02, -4.6], studio: [6.2, 0.02, -4.6],
+                  developer: [0, 0.02, -4.2], templates: [6.2, 0.02, 2.2] }[z];
+    q.rotation.x = -Math.PI / 2; q.position.set(...pos); scene.add(q); pools[z] = q;
+  });
+  return { scene, pools };
+}
+
+/* ═══════════ RENDER LOOP — demand only: runs during glides/bursts,
+   stops dead at rest (Yuki idle-zero; prototype proof) ═══════════ */
+function startGL(canvas) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false,
+    powerPreference: "default" });
+  const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  renderer.setPixelRatio(dpr);
+  const { scene, pools } = buildShop();
+  const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 60);
+  camera.position.set(...POSES.hub.p);
+  let glide = null, burst = null, dirty = true, raf = null;
+
+  function size() {
+    const w = innerWidth, h = innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    dirty = true; kick();
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+  function frame() {
+    raf = null;
+    const now = performance.now();
+    if (glide) {
+      let t = Math.min(1, (now - glide.t0) / glide.dur);
+      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
+      const a = glide.from, b = glide.to;
+      camera.position.set(
+        THREE.MathUtils.lerp(a.p[0], b.p[0], e) + Math.sin(e * Math.PI) * glide.arc,
+        THREE.MathUtils.lerp(a.p[1], b.p[1], e),
+        THREE.MathUtils.lerp(a.p[2], b.p[2], e));
+      camera.lookAt(
+        THREE.MathUtils.lerp(a.l[0], b.l[0], e),
+        THREE.MathUtils.lerp(a.l[1], b.l[1], e),
+        THREE.MathUtils.lerp(a.l[2], b.l[2], e));
+      camera.fov = THREE.MathUtils.lerp(a.fov, b.fov, e);
+      camera.updateProjectionMatrix();
+      if (t >= 1) { glide = null; onArrive(current); }
+      dirty = true;
+    }
+    if (burst) { // arrival light-pool one-shot, ≤2s then 0 frames (Sana §D)
+      const t = Math.min(1, (now - burst.t0) / 900);
+      const k = t < 0.6 ? t / 0.6 : 1 - (t - 0.6) / 0.4 * 0.85;
+      burst.pool.material.opacity = 0.22 * k;
+      if (t >= 1) { burst.pool.material.opacity = 0.03; burst = null; }
+      dirty = true;
+    }
+    if (dirty) { renderer.render(scene, camera); dirty = false; updateHots(); }
+    if (glide || burst) kick();               // converge → stop (idle = 0 frames)
+  }
+  addEventListener("resize", size);
+  size();
+
+  return {
+    goTo(zone, instant) {
+      const to = POSES[zone] || POSES.hub;
+      const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd); fwd.add(camera.position);
+      const from = { p: camera.position.toArray(),
+        l: [fwd.x, fwd.y, fwd.z], fov: camera.fov };
+      if (glide) { from.p = camera.position.toArray(); }
+      if (instant || reduce.matches) {
+        camera.position.set(...to.p);
+        camera.lookAt(...to.l); camera.fov = to.fov; camera.updateProjectionMatrix();
+        onArrive(zone); dirty = true; kick(); return;
+      }
+      const dist = Math.hypot(to.p[0] - from.p[0], to.p[2] - from.p[2]);
+      glide = { t0: performance.now(), dur: Math.min(900, 420 + dist * 95),
+                from, to, arc: 0.35 };
+      camera.lookAt(...(from.l || to.l)); kick();
+    },
+    walkIn() {                              // Elena Ruling 1: ≤3s, authored, once
+      camera.position.set(...DOLLY_IN.p);
+      camera.lookAt(...DOLLY_IN.l); camera.fov = DOLLY_IN.fov;
+      camera.updateProjectionMatrix();
+      glide = { t0: performance.now(), dur: 2800, from: DOLLY_IN,
+                to: POSES.hub, arc: 0.6 };
+      dirty = true; kick();
+    },
+    skipWalkIn() { if (glide && glide.dur > 1000) { glide.to = POSES.hub;
+      glide.t0 = performance.now() - glide.dur * 0.86; kick(); } },
+    pools,
+    camera,
+    addBurst(p) { burst = { pool: p, t0: performance.now() }; dirty = true; kick(); },
+  };
+}
+
+/* ═══════════ WIRING: routing, panels, hotspots, focus (Elena R2), walk-in ══ */
+const zoneHotAnchors = {
+  craft:     new THREE.Vector3(-5.1, 1.7, -5.1),
+  studio:    new THREE.Vector3(6.2, 1.8, -5.1),
+  developer: new THREE.Vector3(0, 1.8, -5.5),
+  templates: new THREE.Vector3(4.9, 1.25, 3.1),
+  counter:   new THREE.Vector3(0.2, 1.25, 1.9),
+};
+let walking = false;
+const hotsEl = document.getElementById("hots");
+
+function setAriaCurrent(zone) {
+  document.querySelectorAll(".hud nav a, #dock a").forEach(a => {
+    if (a.dataset.zone === zone) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+}
+
+function showPanel(zone, focusMode) {
+  document.querySelectorAll(".panel").forEach(p => (p.hidden = p.dataset.zone !== zone));
+  const panel = panelFor(zone);
+  if (panel && focusMode) {
+    /* Elena Ruling 2: mounted + focusable at activation; heading gets focus
+       immediately, ahead of the glide. */
+    panel.querySelector("h2").focus({ preventScroll: false });
+  }
+}
+
+function onArrive(zone) {
+  if (walking) { walking = false; try { sessionStorage.setItem("walked", "1"); } catch (e) {} }
+  if (gl && gl.pools && gl.pools[zone]) gl.addBurst(gl.pools[zone]); // ≤2s one-shot
+  setAriaCurrent(zone);
+  document.title = zone === "hub" ? "calvin.makes — the shop (prototype)"
+    : zone + " — calvin.makes (prototype)";
+}
+
+function setZone(zone, opts) {
+  opts = opts || {};
+  current = zone;
+  showPanel(zone, opts.focus !== false);
+  if (gl) gl.goTo(zone, opts.instant);
+  else onArrive(zone);
+  updateHotVisibility(zone);
+}
+
+/* hotspots: real anchors over the canvas, projected per render (Sana §B) */
+const hotEls = {};
+function makeHot(zone, label, sub) {
+  const a = document.createElement("a");
+  a.className = "hot"; a.href = "#/" + (zone === "counter" ? "counter" : zone + "/");
+  a.dataset.zone = zone;
+  a.innerHTML = label + (sub ? "<small>" + sub + "</small>" : "");
+  a.addEventListener("click", () => { lastTrigger = a; });
+  hotsEl.appendChild(a); hotEls[zone] = a; return a;
+}
+makeHot("craft", "> approach", "crochet — patterns & pieces");
+makeHot("studio", "> approach", "studio — renders & prints");
+makeHot("developer", "> approach", "back office — records");
+makeHot("templates", "> approach", "templates — free, take one");
+makeHot("counter", "> approach", "the counter — till & notices");
+const stepBack = document.createElement("a");
+stepBack.className = "hot"; stepBack.href = "#/";
+stepBack.textContent = "< step back to the shop floor";
+stepBack.addEventListener("click", () => { lastTrigger = stepBack; });
+hotsEl.appendChild(stepBack);
+
+function updateHotVisibility(zone) {
+  Object.values(hotEls).forEach(a => (a.hidden = zone !== "hub" && zone !== "counter"));
+  if (hotEls.counter) hotEls.counter.hidden = !(zone === "hub");
+  stepBack.hidden = zone === "hub";
+}
+
+function updateHots() {
+  if (!gl || !gl.camera) return;
+  const v = new THREE.Vector3();
+  Object.entries(zoneHotAnchors).forEach(([z, anchor]) => {
+    const el = hotEls[z]; if (!el || el.hidden) return;
+    v.copy(anchor).project(gl.camera);
+    if (v.z > 1) { el.style.opacity = "0"; el.style.pointerEvents = "none"; return; }
+    el.style.opacity = "1"; el.style.pointerEvents = "auto";
+    const px = (v.x * 0.5 + 0.5) * innerWidth;
+    const py = (-v.y * 0.5 + 0.5) * innerHeight;
+    const panelOpen = !!document.querySelector(".panel:not([hidden])");
+    const rightEdge = innerWidth - (panelOpen && innerWidth > 700 ? 420 : 110);
+    el.style.left = Math.min(Math.max(px, 110), rightEdge) + "px";
+    el.style.top = Math.min(Math.max(py, 110), innerHeight - 150) + "px";
+  });
+  if (!stepBack.hidden) {
+    stepBack.style.left = "24px";
+    stepBack.style.top = (innerHeight - 120) + "px";
+  }
+}
+window.updateHots = updateHots;
+window.onArrive = onArrive;
+
+/* hash routing: hash = prototype stand-in for the production routes.
+   deep links land instantly (no glide); walk-in only at the shopfront. */
+let booted = false;
+function onRoute(fromPop) {
+  const zone = zoneFromHash();
+  if (zone === current && booted) return;
+  booted = true;
+  const deep = location.hash && location.hash !== "#/";
+  setZone(zone, { instant: deep || !gl, focus: true });
+  if (!gl && zone === "hub") document.querySelectorAll(".panel").forEach(p => (p.hidden = false));
+}
+addEventListener("hashchange", () => {
+  /* Elena R2b: any route transition lands focus somewhere named —
+     clicks restore to their activating control; Back/Forward (popstate
+     via hashchange with no trigger) lands on the HUD item for the zone. */
+  const zone = zoneFromHash();
+  current = zone;
+  showPanel(zone, false);
+  if (gl) gl.goTo(zone, false);
+  updateHotVisibility(zone);
+  setAriaCurrent(zone);
+  if (!lastTrigger || !document.contains(lastTrigger) || lastTrigger.offsetParent === null) {
+    const hud = document.querySelector('.hud nav a[data-zone="' + (zone === "hub" ? "craft" : zone) + '"]')
+      || document.querySelector(".hud .shop");
+    if (hud) hud.focus({ preventScroll: true });
+  } else { lastTrigger.focus({ preventScroll: true }); lastTrigger = null; }
+  booted = true;
+});
+
+/* delegated trigger capture (Elena R2: restore to the activating control) */
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[href^="#/"]');
+  if (a) lastTrigger = a;
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if (current !== "hub") { location.hash = "#/"; }
+  }
+});
+
+/* ═══════════ INIT ═══════════ */
+function init() {
+  const canWebGL = (() => {
+    try { const c = document.createElement("canvas");
+      return !!(c.getContext("webgl2") || c.getContext("webgl")); }
+    catch (e) { return false; }
+  })();
+
+  if (reduce.matches || !canWebGL) {           // Elena: reduce = the 2D shop
+    enterDomMode();
+    setAriaCurrent(zoneFromHash());
+    return;
+  }
+
+  const canvas = document.createElement("canvas");
+  document.getElementById("stage").appendChild(canvas);
+  gl = startGL(canvas);
+  /* expose burst/kick into the gl handle used by onArrive */
+  const kickRef = gl;
+
+  let walked = false;
+  try { walked = sessionStorage.getItem("walked") === "1"; } catch (e) {}
+
+  const zone = zoneFromHash();
+  current = zone;
+  showPanel(zone, false);                      // content usable from frame one
+  updateHotVisibility(zone);
+  setAriaCurrent(zone);
+  booted = true;
+
+  if (zone === "hub" && !walked) {
+    /* walk-in one-shot (Elena Ruling 1): ≤3s, authored arc, once per
+       session; ANY input skips; end pose = entry pose; skip on reduce
+       (we're not here) or no-WebGL (we're not here). */
+    walking = true;
+    gl.walkIn();
+    const skip = () => { gl.skipWalkIn(); walking = false;
+      try { sessionStorage.setItem("walked", "1"); } catch (e) {} };
+    addEventListener("pointerdown", skip, { once: true });
+    addEventListener("keydown", skip, { once: true });
+  } else {
+    gl.goTo(zone, true);                       // deep link / return visit: instant
+  }
+
+}
+init();
+</script>
+</body>
+</html>
