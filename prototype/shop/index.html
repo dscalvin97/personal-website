@@ -5,117 +5,151 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>calvin.makes — the shop (prototype)</title>
 <style>
-/* ══ PROTOTYPE SHEET — art direction of the CHROME is deliberately
-   neutral here; the group's architecture is what this proves:
-   DOM is the site, the scene is the dressing (see minutes
-   discussions/2026-10-24-3d-shop-group-round1.md). ══ */
+/* ══ PLAYFUL GAME SHEET — no terminal anywhere. Warm, chunky,
+   rounded. DOM remains the site (minutes architecture unchanged). ══ */
 :root {
-  --ink: #14130f; --paper: #f2eee4; --term: #0d120f;
-  --grn: #7dffa0; --lime: #cdf556; --mag: #ff4fa3; --blue: #6f86ff;
-  --dim: #a8a395; --edge: #2a3d31;
+  --cream: #fff6e3; --paper: #fffdf6; --ink: #3a2c1d; --brown: #7a5c3e;
+  --honey: #ffb02e; --tomato: #ff6459; --leaf: #57b85a; --sky: #5aa9ff;
+  --grape: #b98cff; --line: #e7d7b8; --shadow: rgba(58,44,29,.28);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
-body { background: var(--term); color: var(--paper);
-  font: 15px/1.6 ui-sans-serif, system-ui, sans-serif; }
-a { color: var(--grn); }
+body { background: #ffe9c2; color: var(--ink);
+  font-family: ui-rounded, "SF Pro Rounded", Nunito, "Segoe UI", system-ui,
+  sans-serif; font-size: 16px; line-height: 1.55; }
+a { color: #b2560d; }
 #stage { position: fixed; inset: 0; }
 #stage canvas { display: block; width: 100%; height: 100%; }
 
-/* ── HUD: nav of record — always visible, in the DOM, above the scene */
-.hud { position: fixed; top: 0; left: 0; right: 0; z-index: 20;
-  display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center;
-  padding: 10px 16px; background: rgba(13,18,15,.92);
-  border-bottom: 2px solid var(--edge);
-  font-family: ui-monospace, monospace; font-size: 14px; }
-.hud .shop { font-weight: 700; color: var(--lime); margin-right: 6px;
-  text-decoration: none; }
+/* ── HUD: a friendly floating bar ── */
+.hud { position: fixed; top: 12px; left: 12px; right: 12px; z-index: 20;
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center;
+  padding: 10px 16px; background: var(--paper);
+  border: 3px solid var(--ink); border-radius: 18px;
+  box-shadow: 0 5px 0 var(--shadow); }
+.hud .shop { font-weight: 900; font-size: 18px; color: var(--ink);
+  text-decoration: none; letter-spacing: .2px; margin-right: 4px; }
+.hud .shop .star { color: var(--honey); }
 .hud nav { display: flex; flex-wrap: wrap; gap: 4px 2px; }
-.hud nav a { color: var(--paper); text-decoration: none; padding: 6px 9px;
-  border: 2px solid transparent; }
-.hud nav a small { display: block; color: var(--dim); font-size: 11.5px; }
+.hud nav a { color: var(--ink); text-decoration: none; padding: 6px 12px;
+  border-radius: 12px; font-weight: 800; border: 3px solid transparent; }
+.hud nav a small { display: block; color: #8b7a63; font-weight: 600;
+  font-size: 11.5px; }
 .hud nav a:hover, .hud nav a:focus-visible, .hud nav a[aria-current] {
-  background: var(--lime); color: var(--ink); border-color: var(--lime); outline: none; }
+  background: var(--honey); border-color: var(--ink); }
 .hud nav a:hover small, .hud nav a:focus-visible small,
 .hud nav a[aria-current] small { color: var(--ink); }
-.till { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
-.till a, .till button { font: 700 13px/1.3 ui-monospace, monospace;
-  background: var(--term); color: var(--grn); border: 2px solid var(--grn);
-  border-bottom-width: 5px; padding: 8px 12px; cursor: pointer;
-  text-decoration: none; }
+.till { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap;
+  align-items: center; }
+.till a, .till button { font: 800 14px/1.2 inherit; background: var(--leaf);
+  color: #fff; text-decoration: none; border: 3px solid var(--ink);
+  border-radius: 14px; padding: 9px 14px; cursor: pointer;
+  box-shadow: 0 3px 0 var(--shadow); }
+.till a:nth-of-type(2) { background: var(--sky); }
+.till a:nth-of-type(3) { background: var(--grape); }
+.till button { background: var(--honey); color: var(--ink); }
 .till a:hover, .till a:focus-visible, .till button:hover,
-.till button:focus-visible { background: var(--grn); color: var(--ink); }
-:focus-visible { outline: 2px solid #ffd43b; outline-offset: 2px; }
+.till button:focus-visible { transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--shadow); }
+.till .score { font-weight: 900; background: var(--cream);
+  border: 3px solid var(--ink); border-radius: 14px; padding: 8px 12px;
+  color: var(--ink); }
+.till .score b { color: #b2560d; }
+:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
 
-/* ── scene hotspots: real DOM anchors, positioned over the canvas */
+/* ── hotspots: chunky rounded tags over the scene ── */
 #hots { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
 .hot { position: absolute; transform: translate(-50%, -50%);
   pointer-events: auto; min-width: 44px; min-height: 44px;
-  font: 700 13px/1.25 ui-monospace, monospace; text-align: left;
-  background: rgba(20,19,15,.86); color: var(--paper); text-decoration: none;
-  border: 2px solid var(--lime); padding: 8px 12px; cursor: pointer;
-  transition: opacity .25s ease; }
-.hot small { display: block; color: var(--dim); font-weight: 400; font-size: 11px; }
-.hot:hover, .hot:focus-visible { background: var(--lime); color: var(--ink); }
-.hot:hover small, .hot:focus-visible small { color: var(--ink); }
+  font: 800 13.5px/1.25 inherit; text-align: left;
+  background: var(--paper); color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 14px; padding: 8px 12px;
+  cursor: pointer; text-decoration: none;
+  box-shadow: 0 3px 0 var(--shadow); transition: opacity .25s ease,
+    transform .12s ease; }
+.hot small { display: block; color: #8b7a63; font-weight: 600; font-size: 11.5px; }
+.hot:hover, .hot:focus-visible { transform: translate(-50%,-50%) scale(1.05);
+  background: var(--honey); }
+.hot.serve { background: var(--tomato); color: #fff; z-index: 14; }
+.hot.serve small { color: #ffe3df; }
+.hot.serve:hover, .hot.serve:focus-visible { background: var(--honey);
+  color: var(--ink); }
 .hot[hidden] { display: none; }
+.bubble { position: absolute; transform: translate(-50%, -100%);
+  pointer-events: none; z-index: 11; max-width: 240px;
+  background: #fff; color: var(--ink); font-weight: 800; font-size: 13.5px;
+  border: 3px solid var(--ink); border-radius: 16px; padding: 8px 12px;
+  box-shadow: 0 3px 0 var(--shadow); }
+.bubble::after { content: ""; position: absolute; left: 18px; bottom: -12px;
+  width: 0; height: 0; border: 8px solid transparent;
+  border-top-color: var(--ink); }
+.dom2d #bell, .dom2d .bubble { display: none; }
+.coin { position: absolute; transform: translate(-50%, -50%);
+  font-size: 26px; pointer-events: none; z-index: 12;
+  animation: coinpop .9s ease-out forwards; }
+@keyframes coinpop { from { opacity: 1; transform: translate(-50%,-20%) scale(1); }
+  to { opacity: 0; transform: translate(-50%,-160%) scale(1.3); } }
 
-/* ── panels: the content, in real DOM, one per route */
-.panelwrap { position: fixed; top: 64px; right: 16px; bottom: 16px;
-  z-index: 15; width: min(380px, calc(100vw - 32px));
+/* ── panels: story-card style ── */
+.panelwrap { position: fixed; top: 88px; right: 16px; bottom: 16px;
+  z-index: 15; width: min(384px, calc(100vw - 32px));
   overflow: auto; pointer-events: none; }
 .panel { background: var(--paper); color: var(--ink);
-  border: 3px solid var(--ink); box-shadow: 8px 8px 0 rgba(0,0,0,.55);
-  padding: 18px 20px; pointer-events: auto; }
+  border: 3px solid var(--ink); border-radius: 20px;
+  box-shadow: 0 6px 0 var(--shadow); padding: 18px 20px; pointer-events: auto; }
 .panel[hidden] { display: none; }
-.panel h2 { margin: 0 0 2px; font-size: 22px; font-weight: 800; }
-.panel h2:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
-.panel .desc { font-family: ui-monospace, monospace; font-size: 12px;
-  color: #57534a; margin: 0 0 12px; }
+.panel h2 { margin: 0 0 2px; font-size: 24px; font-weight: 900; }
+.panel h2:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
+.panel .desc { font-weight: 700; font-size: 13px; color: #8b7a63;
+  margin: 0 0 12px; }
 .panel p { margin: 0 0 10px; font-size: 14.5px; }
-.panel .cta { display: inline-block; font: 700 13px/1.3 ui-monospace, monospace;
-  background: var(--ink); color: var(--grn); border: 2px solid var(--ink);
-  border-bottom: 5px solid var(--grn); padding: 10px 14px; margin: 4px 6px 6px 0;
-  text-decoration: none; cursor: pointer; }
-.panel .cta:hover, .panel .cta:focus-visible { background: var(--grn); color: var(--ink); }
-.panel .links { font-family: ui-monospace, monospace; font-size: 12.5px;
-  border-top: 2px solid var(--ink); margin-top: 12px; padding-top: 10px; }
-.panel .fine { font-family: ui-monospace, monospace; font-size: 11px;
-  color: #6b675c; }
+.panel .cta { display: inline-block; font: 800 14px/1.2 inherit;
+  background: var(--leaf); color: #fff; border: 3px solid var(--ink);
+  border-radius: 14px; padding: 10px 14px; margin: 4px 6px 6px 0;
+  text-decoration: none; cursor: pointer; box-shadow: 0 3px 0 var(--shadow); }
+.panel .cta.alt { background: var(--sky); }
+.panel .cta.warm { background: var(--honey); color: var(--ink); }
+.panel .cta:hover, .panel .cta:focus-visible { transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--shadow); }
+.panel .links { font-weight: 700; font-size: 12.5px; color: #8b7a63;
+  border-top: 3px dashed var(--line); margin-top: 12px; padding-top: 10px; }
+.panel .fine { font-size: 11.5px; color: #a08c70; font-weight: 600; }
 .panel .ledger { list-style: none; margin: 0 0 8px; padding: 0;
-  font-family: ui-monospace, monospace; font-size: 12.5px; }
+  font-size: 13px; font-weight: 600; }
 .panel .ledger li { display: flex; justify-content: space-between; gap: 10px;
-  border-bottom: 1px dotted #9c968a; padding: 4px 0; }
-.panel .ledger b { font-weight: 700; }
+  border-bottom: 2px dotted var(--line); padding: 4px 0; }
+.panel .ledger b { font-weight: 900; }
 
-/* ── mobile zone dock (thumb reach) ─────────────────────────── */
-#dock { display: none; position: fixed; left: 0; right: 0; bottom: 0;
-  z-index: 20; background: rgba(13,18,15,.94); border-top: 2px solid var(--edge);
+/* ── mobile dock ── */
+#dock { display: none; position: fixed; left: 12px; right: 12px; bottom: 12px;
+  z-index: 20; background: var(--paper); border: 3px solid var(--ink);
+  border-radius: 18px; box-shadow: 0 5px 0 var(--shadow);
   padding: 6px; gap: 4px; }
-#dock a { flex: 1; text-align: center; color: var(--paper); text-decoration: none;
-  font: 700 12px/1.2 ui-monospace, monospace; padding: 10px 4px;
-  border: 2px solid transparent; }
-#dock a[aria-current] { border-color: var(--lime); color: var(--lime); }
+#dock a { flex: 1; text-align: center; color: var(--ink); text-decoration: none;
+  font-weight: 900; font-size: 12.5px; line-height: 1.2; padding: 10px 4px;
+  border-radius: 12px; border: 3px solid transparent; }
+#dock a[aria-current] { border-color: var(--ink); background: var(--honey); }
 @media (max-width: 640px) {
   #dock { display: flex; }
-  .hud nav { display: none; }         /* labels-only dock on phones */
-  .panelwrap { top: auto; right: 8px; left: 8px; bottom: 58px; width: auto;
-    max-height: 52vh; }
+  .hud nav { display: none; }
+  .panelwrap { top: auto; right: 8px; left: 8px; bottom: 84px; width: auto;
+    max-height: 50vh; }
   .till { margin-left: 0; }
 }
 
-/* ── DOM-only shop: reduce-motion / no-WebGL / no-JS ─────────── */
+/* ── 2D shop: reduce / no-WebGL / no-JS ── */
 .dom2d #stage, .dom2d #hots { display: none; }
 .dom2d .panelwrap { position: static; width: auto; max-width: 720px;
-  margin: 84px auto 40px; overflow: visible; pointer-events: auto; }
+  margin: 100px auto 40px; overflow: visible; pointer-events: auto; }
 .dom2d .panel { margin-bottom: 18px; }
-.dom2d .panel[hidden] { display: block; }   /* everything, in flow */
+.dom2d .panel[hidden] { display: block; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
 .skiplink { position: absolute; left: -9999px; }
-.skiplink:focus { left: 8px; top: 8px; z-index: 99; background: var(--lime);
-  color: var(--ink); padding: 8px 12px; font-family: ui-monospace, monospace; }
+.skiplink:focus { left: 16px; top: 16px; z-index: 99; background: var(--honey);
+  color: var(--ink); padding: 10px 14px; font-weight: 800;
+  border: 3px solid var(--ink); border-radius: 12px; }
 </style>
 </head>
 <body>
@@ -123,7 +157,7 @@ a { color: var(--grn); }
 <a class="skiplink" href="#panel-hub">Skip to shop content</a>
 
 <header class="hud">
-  <a class="shop" href="#/">calvin.makes&nbsp;$</a>
+  <a class="shop" href="#/"><span class="star">★</span> calvin.makes</a>
   <nav aria-label="Stalls">
     <a href="#/craft/" data-zone="craft">Crochet<small>Patterns and finished pieces</small></a>
     <a href="#/studio/" data-zone="studio">Studio<small>Blender renders and pipelines</small></a>
@@ -131,9 +165,11 @@ a { color: var(--grn); }
     <a href="#/templates/" data-zone="templates">Templates<small>Party apps, free — get one</small></a>
   </nav>
   <div class="till">
-    <a href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">&gt; get_cv</a>
-    <a href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">&gt; shop_patterns</a>
-    <a href="mailto:dscalvin97@gmail.com">&gt; mail_calvin</a>
+    <span class="score" aria-live="polite">customers served: <b id="score">0</b> ⭐</span>
+    <button id="bell" type="button">🔔 Ring for the next customer</button>
+    <a href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">Get the CV</a>
+    <a href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Buy patterns</a>
+    <a href="mailto:dscalvin97@gmail.com">Email Calvin</a>
   </div>
 </header>
 
@@ -164,8 +200,8 @@ a { color: var(--grn); }
     <p>Hooks, yarn, and slow making. Same curiosity as the 3D work — tension,
        topology, how a curve sits in space. Patterns are digital PDFs on
        Gumroad: front-loaded skill level, short steps, no filler.</p>
-    <a class="cta" href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">&gt; shop_patterns</a>
-    <a class="cta" href="mailto:dscalvin97@gmail.com">&gt; mail_calvin</a>
+    <a class="cta" href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Browse patterns on Gumroad</a>
+    <a class="cta alt" href="mailto:dscalvin97@gmail.com">Email Calvin</a>
     <div class="links">Notice by the till: prices live on Gumroad — they're
       real, and they change when Calvin says so.</div>
   </section>
@@ -176,7 +212,7 @@ a { color: var(--grn); }
     <p>The drying rack holds the prints: Blender assets and scenes live on
        BlendKit; at Fynd, Python/Blender pipelines produced 100,000+ captioned
        training images.</p>
-    <a class="cta" href="https://www.blendkit.com/?query=author_id:908" target="_blank" rel="noopener noreferrer">&gt; view_blendkit</a>
+    <a class="cta" href="https://www.blendkit.com/?query=author_id:908" target="_blank" rel="noopener noreferrer">Browse BlendKit</a>
     <div class="links">Cards on the rack are labeled with real project names;
       empty slots are where new prints hang.</div>
   </section>
@@ -192,8 +228,8 @@ a { color: var(--grn); }
       <li><span><b>HERE Technologies</b> — Map Modeler</span><span>2018–20</span></li>
       <li><span><b>Powerweave</b> — 3D Artist (contract)</span><span>2018</span></li>
     </ul>
-    <a class="cta" href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">&gt; get_cv</a>
-    <a class="cta" href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">&gt; view_github</a>
+    <a class="cta" href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">Get the CV (PDF)</a>
+    <a class="cta" href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">See the code on GitHub</a>
     <div class="links">Drawers stay shut — opening one opens the page, not geometry.</div>
   </section>
 
@@ -203,7 +239,7 @@ a { color: var(--grn); }
     <p>Free things live by the door. Spooky Invite: a Halloween party invite
        that gets spookier as the night approaches — one HTML file, one Node
        server, no dependencies.</p>
-    <a class="cta" href="https://github.com/dscalvin97/spooky-invite" target="_blank" rel="noopener noreferrer">&gt; get_it_free</a>
+    <a class="cta" href="https://github.com/dscalvin97/spooky-invite" target="_blank" rel="noopener noreferrer">Get it free on GitHub</a>
     <div class="links">Free — get it. No price invented here; the repo is the price tag.</div>
   </section>
 
@@ -212,11 +248,11 @@ a { color: var(--grn); }
     <p class="desc">Till · notice board · the man page by the door</p>
     <p>Till's unattended. Everything's on the shelves — take a look. When you
        need Calvin: mail is one click, the CV is one click.</p>
-    <a class="cta" href="mailto:dscalvin97@gmail.com">&gt; mail_calvin</a>
+    <a class="cta" href="mailto:dscalvin97@gmail.com">Email Calvin</a>
     <div class="links">
-      Notice board: <a href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">github(1)</a> ·
-      <a href="https://www.linkedin.com/in/dscalvin" target="_blank" rel="noopener noreferrer">linkedin(1)</a> ·
-      <a href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">gumroad(1)</a><br>
+      Notice board: <a href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+      <a href="https://www.linkedin.com/in/dscalvin" target="_blank" rel="noopener noreferrer">LinkedIn</a> ·
+      <a href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Gumroad</a><br>
       <span class="fine">No cookies. No trackers. No invented numbers. Prototype —
       architecture from the 2026-10-24 group minutes.</span>
     </div>
@@ -308,13 +344,14 @@ function mesh(geo, hex, opt) {
 function signTexture(lines, w = 512, h = 256) {
   const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
   const g = cv.getContext("2d");
-  g.fillStyle = "#14130f"; g.fillRect(0, 0, w, h);
-  g.strokeStyle = "#cdf556"; g.lineWidth = 8; g.strokeRect(8, 8, w - 16, h - 16);
-  g.textAlign = "center"; g.fillStyle = "#f2eee4";
+  g.fillStyle = "#fff6e3"; g.fillRect(0, 0, w, h);       // cream board
+  g.strokeStyle = "#7a5c3e"; g.lineWidth = 14; g.strokeRect(7, 7, w - 14, h - 14);
+  g.textAlign = "center";
   lines.forEach((ln, i) => {
-    g.font = (i === 0 ? "700 " : "400 ") + (i === 0 ? 58 : 34) + "px monospace";
-    g.fillStyle = i === 0 ? "#cdf556" : "#f2eee4";
-    g.fillText(ln, w / 2, 90 + i * 56);
+    g.font = (i === 0 ? "800 " : "600 ") + (i === 0 ? 56 : 32) +
+      "px ui-rounded, system-ui, sans-serif";
+    g.fillStyle = i === 0 ? "#b2560d" : "#3a2c1d";
+    g.fillText(ln, w / 2, 92 + i * 56);
   });
   const t = new THREE.CanvasTexture(cv);
   t.colorSpace = THREE.SRGBColorSpace;
@@ -437,6 +474,7 @@ function startGL(canvas) {
   const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 60);
   camera.position.set(...POSES.hub.p);
   let glide = null, burst = null, dirty = true, raf = null;
+  const cbs = [];
 
   function size() {
     const w = innerWidth, h = innerHeight;
@@ -472,8 +510,10 @@ function startGL(canvas) {
       if (t >= 1) { burst.pool.material.opacity = 0.03; burst = null; }
       dirty = true;
     }
+    let cbActive = false;
+    cbs.forEach(fn => { if (fn(now)) { dirty = true; cbActive = true; } });
     if (dirty) { renderer.render(scene, camera); dirty = false; updateHots(); }
-    if (glide || burst) kick();               // converge → stop (idle = 0 frames)
+    if (glide || burst || cbActive) kick();    // converge → stop (idle = 0 frames)
   }
   addEventListener("resize", size);
   size();
@@ -507,7 +547,10 @@ function startGL(canvas) {
       glide.t0 = performance.now() - glide.dur * 0.86; kick(); } },
     pools,
     camera,
+    scene,
     addBurst(p) { burst = { pool: p, t0: performance.now() }; dirty = true; kick(); },
+    onFrame(fn) { cbs.push(fn); },
+    kickNow() { kick(); },
   };
 }
 
@@ -566,14 +609,14 @@ function makeHot(zone, label, sub) {
   a.addEventListener("click", () => { lastTrigger = a; });
   hotsEl.appendChild(a); hotEls[zone] = a; return a;
 }
-makeHot("craft", "> approach", "crochet — patterns & pieces");
-makeHot("studio", "> approach", "studio — renders & prints");
-makeHot("developer", "> approach", "back office — records");
-makeHot("templates", "> approach", "templates — free, take one");
-makeHot("counter", "> approach", "the counter — till & notices");
+makeHot("craft", "Visit", "crochet — patterns & pieces");
+makeHot("studio", "Visit", "studio — renders & prints");
+makeHot("developer", "Visit", "back office — records");
+makeHot("templates", "Visit", "templates — free, take one");
+makeHot("counter", "Visit", "the counter — say hello");
 const stepBack = document.createElement("a");
 stepBack.className = "hot"; stepBack.href = "#/";
-stepBack.textContent = "< step back to the shop floor";
+stepBack.textContent = "← Back to the shop floor";
 stepBack.addEventListener("click", () => { lastTrigger = stepBack; });
 hotsEl.appendChild(stepBack);
 
@@ -602,9 +645,132 @@ function updateHots() {
     stepBack.style.left = "24px";
     stepBack.style.top = (innerHeight - 120) + "px";
   }
+  updateCustomerDom();
 }
 window.updateHots = updateHots;
 window.onArrive = onArrive;
+
+
+/* ═══════════ THE GAME LOOP ═══════════
+   Ring the bell → a customer walks in (≤2s burst) → waits with a
+   speech bubble naming something Calvin REALLY made → you serve them
+   (hop + coin + the zone's real panel opens) → they leave (≤2s burst)
+   → 0 frames until the next ring. Nothing autoplays; idle-zero holds
+   between turns (minutes: Yuki §B triggered bursts, Sana §D). */
+const DEMANDS = [
+  { zone: "craft",     line: "I'm after a crochet pattern!" },
+  { zone: "studio",    line: "Where can I see the 3D renders?" },
+  { zone: "developer", line: "I need a developer for a project." },
+  { zone: "templates", line: "Got any party invite templates?" },
+];
+const QUEUE = {
+  craft:     [-3.6, 0, -2.6], studio:    [2.6, 0, -2.6],
+  developer: [0.0, 0, -2.2],  templates: [2.6, 0, 3.6],
+};
+const DOOR = [-4.4, 0, 5.2];
+const CUST_COLORS = ["#ff6459", "#5aa9ff", "#b98cff", "#57b85a", "#ffb02e"];
+let customer = null, served = 0;
+
+function bubbleEl(text) {
+  const d = document.createElement("div");
+  d.className = "bubble"; d.textContent = text;
+  document.body.appendChild(d); return d;
+}
+function serveBtn(demand) {
+  const a = document.createElement("a");
+  a.className = "hot serve"; a.href = "#/" + demand.zone + "/";
+  a.innerHTML = "Serve them<small>" + demand.line + "</small>";
+  a.addEventListener("click", () => { lastTrigger = a; serve(demand); });
+  document.body.appendChild(a); return a;
+}
+function coinAt(x, y) {
+  const c = document.createElement("span");
+  c.className = "coin"; c.textContent = "🪙";
+  c.style.left = x + "px"; c.style.top = y + "px";
+  document.body.appendChild(c);
+  setTimeout(() => c.remove(), 950);
+}
+
+function spawnCustomer() {
+  if (!gl || customer) return;
+  const demand = DEMANDS[Math.floor(Math.random() * DEMANDS.length)];
+  const col = CUST_COLORS[Math.floor(Math.random() * CUST_COLORS.length)];
+  const g = new THREE.Group();
+  const body = mesh(new THREE.CapsuleGeometry(0.24, 0.55, 6, 12), col,
+    { floor: 0, maxY: 1.6, win: .5, ao: .15 });
+  body.position.y = 0.52; g.add(body);
+  const head = mesh(new THREE.SphereGeometry(0.19, 14, 12), "#f2c9a0",
+    { floor: 0.3, maxY: 1.6, win: .6, ao: .1 });
+  head.position.y = 1.08; g.add(head);
+  g.position.set(...DOOR);
+  gl.scene.add(g);
+  customer = {
+    g, demand, phase: "walking", t0: performance.now(), dur: 1700,
+    from: DOOR.slice(), to: QUEUE[demand.zone].slice(),
+    bubble: bubbleEl(demand.line), serve: serveBtn(demand),
+  };
+  updateHots();
+  gl.kickNow();
+}
+function serve(demand) {
+  if (!customer || customer.phase !== "waiting") return;
+  customer.phase = "hop"; customer.t0 = performance.now(); customer.dur = 500;
+  const v = customer.g.position.clone(); v.y += 1.9; v.project(gl.camera);
+  coinAt((v.x * .5 + .5) * innerWidth, (-v.y * .5 + .5) * innerHeight);
+  served++; document.getElementById("score").textContent = String(served);
+  customer.bubble.remove(); customer.serve.remove();
+  customer.bubble = null; customer.serve = null;
+  location.hash = "#/" + demand.zone + "/";     // serving = the content (minutes §C: one CTA, act in place)
+}
+function tickCustomer(now) {
+  if (!customer) return false;
+  const c = customer, t = Math.min(1, (now - c.t0) / c.dur);
+  if (c.phase === "walking" || c.phase === "leaving") {
+    const e = t * t * (3 - 2 * t);              // smoothstep
+    c.g.position.set(
+      THREE.MathUtils.lerp(c.from[0], c.to[0], e),
+      Math.abs(Math.sin(now * 0.012)) * 0.05,
+      THREE.MathUtils.lerp(c.from[2], c.to[2], e));
+    if (t >= 1) {
+      if (c.phase === "walking") { c.phase = "waiting"; c.g.position.set(...c.to); }
+      else { gl.scene.remove(c.g); customer = null; }
+    }
+    return true;                                 // frames while moving
+  }
+  if (c.phase === "hop") {                      // one-shot juice, ≤0.5s
+    c.g.position.y = Math.abs(Math.sin(t * Math.PI)) * 0.45;
+    if (t >= 1) { c.g.position.y = 0; c.phase = "leaving";
+      c.from = c.g.position.toArray(); c.to = DOOR.slice();
+      c.t0 = now; c.dur = 1600; }
+    return true;
+  }
+  return false;                                  // waiting: 0 frames (idle)
+}
+
+/* project bubble + serve button over the customer, on dirty frames */
+function updateCustomerDom() {
+  if (!gl || !customer) return;
+  const c = customer.g.position;
+  const put = (el, dy) => {
+    const v = new THREE.Vector3(c.x, c.y + dy, c.z).project(gl.camera);
+    if (v.z > 1) { el.style.opacity = "0"; return; }
+    el.style.opacity = "1";
+    el.style.left = ((v.x * .5 + .5) * innerWidth) + "px";
+    el.style.top = ((-v.y * .5 + .5) * innerHeight) + "px";
+  };
+  const panelOpen = !!document.querySelector(".panel:not([hidden])");
+  const clampPut = (el, dy) => {
+    const prev = { l: el.style.left, t: el.style.top };
+    put(el, dy);
+    const x = parseFloat(el.style.left), y = parseFloat(el.style.top);
+    const rightEdge = innerWidth - (panelOpen && innerWidth > 700 ? 400 : 60);
+    el.style.left = Math.min(Math.max(x, 140), rightEdge) + "px";
+    el.style.top = Math.min(Math.max(y, 120), innerHeight - 140) + "px";
+  };
+  if (customer.bubble) clampPut(customer.bubble, 2.05);
+  if (customer.serve) clampPut(customer.serve, 0.72);
+}
+document.getElementById("bell").addEventListener("click", spawnCustomer);
 
 /* hash routing: hash = prototype stand-in for the production routes.
    deep links land instantly (no glide); walk-in only at the shopfront. */
@@ -663,6 +829,7 @@ function init() {
   const canvas = document.createElement("canvas");
   document.getElementById("stage").appendChild(canvas);
   gl = startGL(canvas);
+  gl.onFrame(tickCustomer);
   /* expose burst/kick into the gl handle used by onArrive */
   const kickRef = gl;
 
