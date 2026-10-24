@@ -3,189 +3,221 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>calvin.makes — the shop (prototype)</title>
+<title>calvin.makes — the shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Short+Stack&display=swap" rel="stylesheet">
 <style>
-/* ══ PLAYFUL GAME SHEET — no terminal anywhere. Warm, chunky,
-   rounded. DOM remains the site (minutes architecture unchanged). ══ */
-:root {
-  --cream: #fff6e3; --paper: #fffdf6; --ink: #3a2c1d; --brown: #7a5c3e;
-  --honey: #ffb02e; --tomato: #ff6459; --leaf: #57b85a; --sky: #5aa9ff;
-  --grape: #b98cff; --line: #e7d7b8; --shadow: rgba(58,44,29,.28);
+/* ══ HAND-DRAWN GAME SHEET — slim HUD, ink-on-color contrast,
+   rough-edge SVG filter, irregular corners, sketch shadows.
+   Spec: board §5 (frontend_dev) + user call: hand-drawn aesthetics. ══ */
+:root{
+  --paper:#fffdf6; --cream:#fff6e3; --ink:#3a2c1d; --brown:#7a5c3e;
+  --honey:#ffb02e; --tomato:#ff6459; --leaf:#57b85a; --sky:#5aa9ff;
+  --grape:#b98cff; --sh:rgba(58,44,29,.30);
+  --hand:"Short Stack", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --body:ui-rounded, "SF Pro Rounded", Nunito, "Segoe UI", system-ui, sans-serif;
+  /* irregular corners = hand-drawn boxes */
+  --r1:14px 22px 16px 24px/22px 15px 24px 16px;
+  --r2:18px 28px 20px 30px/28px 18px 30px 20px;
 }
-* { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; }
-body { background: #ffe9c2; color: var(--ink);
-  font-family: ui-rounded, "SF Pro Rounded", Nunito, "Segoe UI", system-ui,
-  sans-serif; font-size: 16px; line-height: 1.55; }
-a { color: #b2560d; }
-#stage { position: fixed; inset: 0; }
-#stage canvas { display: block; width: 100%; height: 100%; }
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:#ffe9c2;color:var(--ink);font:600 15px/1.55 var(--body)}
+a{color:#b2560d}
+#stage{position:fixed;inset:0;touch-action:none;cursor:grab}
+#stage.dragging{cursor:grabbing}
+#stage canvas{display:block;width:100%;height:100%}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
-/* ── HUD: a friendly floating bar ── */
-.hud { position: fixed; top: 12px; left: 12px; right: 12px; z-index: 20;
-  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center;
-  padding: 10px 16px; background: var(--paper);
-  border: 3px solid var(--ink); border-radius: 18px;
-  box-shadow: 0 5px 0 var(--shadow); }
-.hud .shop { font-weight: 900; font-size: 18px; color: var(--ink);
-  text-decoration: none; letter-spacing: .2px; margin-right: 4px; }
-.hud .shop .star { color: var(--honey); }
-.hud nav { display: flex; flex-wrap: wrap; gap: 4px 2px; }
-.hud nav a { color: var(--ink); text-decoration: none; padding: 6px 12px;
-  border-radius: 12px; font-weight: 800; border: 3px solid transparent; }
-.hud nav a small { display: block; color: #8b7a63; font-weight: 600;
-  font-size: 11.5px; }
-.hud nav a:hover, .hud nav a:focus-visible, .hud nav a[aria-current] {
-  background: var(--honey); border-color: var(--ink); }
-.hud nav a:hover small, .hud nav a:focus-visible small,
-.hud nav a[aria-current] small { color: var(--ink); }
-.till { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap;
-  align-items: center; }
-.till a, .till button { font: 800 14px/1.2 inherit; background: var(--leaf);
-  color: #fff; text-decoration: none; border: 3px solid var(--ink);
-  border-radius: 14px; padding: 9px 14px; cursor: pointer;
-  box-shadow: 0 3px 0 var(--shadow); }
-.till a:nth-of-type(2) { background: var(--sky); }
-.till a:nth-of-type(3) { background: var(--grape); }
-.till button { background: var(--honey); color: var(--ink); }
-.till a:hover, .till a:focus-visible, .till button:hover,
-.till button:focus-visible { transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--shadow); }
-.till .score { font-weight: 900; background: var(--cream);
-  border: 3px solid var(--ink); border-radius: 14px; padding: 8px 12px;
-  color: var(--ink); }
-.till .score b { color: #b2560d; }
-:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+/* ── HUD: ONE compact row ── */
+.hud{position:fixed;top:8px;left:10px;right:10px;z-index:20;
+  display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;
+  padding:5px 10px;background:var(--paper);
+  border:3px solid var(--ink);border-radius:var(--r1);
+  box-shadow:3px 4px 0 var(--sh);filter:url(#rough);font-family:var(--hand)}
+.hud .shop{font:400 15px/1 var(--hand);color:var(--ink);text-decoration:none;
+  padding:5px 6px 5px 2px;white-space:nowrap}
+.hud .shop .star{color:var(--honey);-webkit-text-stroke:1.5px var(--ink)}
+.hud nav{display:flex;flex-wrap:wrap;gap:2px}
+.hud nav a{color:var(--ink);text-decoration:none;padding:5px 8px;
+  border-radius:10px 14px 11px 15px;font:400 13.5px/1.1 var(--hand);
+  border:2px solid transparent}
+.hud nav a:hover,.hud nav a:focus-visible,.hud nav a[aria-current]{
+  background:var(--honey);border-color:var(--ink);outline:none}
+.hud nav a:focus-visible{box-shadow:0 0 0 3px rgba(255,176,46,.55)}
+.till{margin-left:auto;display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.till .score{display:inline-flex;align-items:center;gap:4px;
+  font:400 13px/1 var(--hand);background:var(--cream);border:3px solid var(--ink);
+  border-radius:999px;padding:5px 10px}
+.till .score svg{width:15px;height:15px}
+.till .score.bump{animation:bump .22s ease-out}
+@keyframes bump{50%{transform:scale(1.15);background:var(--honey)}}
+#bell{display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:30px;padding:0;background:var(--honey);
+  border:3px solid var(--ink);border-radius:12px 16px 13px 17px;
+  cursor:pointer;box-shadow:2px 3px 0 var(--sh)}
+#bell:hover,#bell:focus-visible{transform:translateY(-1px);
+  box-shadow:2px 4px 0 var(--sh);outline:none}
+#bell:focus-visible{box-shadow:2px 4px 0 var(--sh),0 0 0 3px rgba(255,176,46,.55)}
+#bell:active{transform:translateY(2px);box-shadow:0 0 0 var(--sh)}
+#bell svg{width:16px;height:16px}
+.till a.mini{font:400 13px/1 var(--hand);text-decoration:none;color:var(--ink);
+  background:var(--leaf);border:3px solid var(--ink);padding:6px 9px;
+  border-radius:11px 16px 12px 17px;box-shadow:2px 3px 0 var(--sh)}
+.till a.mini.b{background:var(--sky)} .till a.mini.c{background:var(--grape)}
+.till a.mini:hover,.till a.mini:focus-visible{transform:translateY(-1px);
+  box-shadow:2px 4px 0 var(--sh);outline:none}
+.till a.mini:focus-visible{box-shadow:2px 4px 0 var(--sh),0 0 0 3px rgba(255,176,46,.55)}
+.till a.mini:active{transform:translateY(3px);box-shadow:0 0 0 var(--sh)}
 
-/* ── hotspots: chunky rounded tags over the scene ── */
-#hots { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
-.hot { position: absolute; transform: translate(-50%, -50%);
-  pointer-events: auto; min-width: 44px; min-height: 44px;
-  font: 800 13.5px/1.25 inherit; text-align: left;
-  background: var(--paper); color: var(--ink);
-  border: 3px solid var(--ink); border-radius: 14px; padding: 8px 12px;
-  cursor: pointer; text-decoration: none;
-  box-shadow: 0 3px 0 var(--shadow); transition: opacity .25s ease,
-    transform .12s ease; }
-.hot small { display: block; color: #8b7a63; font-weight: 600; font-size: 11.5px; }
-.hot:hover, .hot:focus-visible { transform: translate(-50%,-50%) scale(1.05);
-  background: var(--honey); }
-.hot.serve { background: var(--tomato); color: #fff; z-index: 14; }
-.hot.serve small { color: #ffe3df; }
-.hot.serve:hover, .hot.serve:focus-visible { background: var(--honey);
-  color: var(--ink); }
-.hot[hidden] { display: none; }
-.bubble { position: absolute; transform: translate(-50%, -100%);
-  pointer-events: none; z-index: 11; max-width: 240px;
-  background: #fff; color: var(--ink); font-weight: 800; font-size: 13.5px;
-  border: 3px solid var(--ink); border-radius: 16px; padding: 8px 12px;
-  box-shadow: 0 3px 0 var(--shadow); }
-.bubble::after { content: ""; position: absolute; left: 18px; bottom: -12px;
-  width: 0; height: 0; border: 8px solid transparent;
-  border-top-color: var(--ink); }
-.dom2d #bell, .dom2d .bubble { display: none; }
-.coin { position: absolute; transform: translate(-50%, -50%);
-  font-size: 26px; pointer-events: none; z-index: 12;
-  animation: coinpop .9s ease-out forwards; }
-@keyframes coinpop { from { opacity: 1; transform: translate(-50%,-20%) scale(1); }
-  to { opacity: 0; transform: translate(-50%,-160%) scale(1.3); } }
+/* ── hotspots / bubble / coin ── */
+#hots{position:fixed;inset:0;z-index:10;pointer-events:none}
+.hot{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;
+  min-width:44px;min-height:44px;font:400 13.5px/1.25 var(--hand);text-align:left;
+  background:var(--paper);color:var(--ink);border:3px solid var(--ink);
+  border-radius:var(--r1);padding:7px 11px;cursor:pointer;text-decoration:none;
+  box-shadow:3px 4px 0 var(--sh);filter:url(#rough);
+  transition:transform .12s ease-out,box-shadow .12s ease-out}
+.hot small{display:block;color:var(--brown);font-size:11.5px}
+.hot:hover,.hot:focus-visible{transform:translate(-50%,-50%) translateY(-2px);
+  box-shadow:3px 5px 0 var(--sh);outline:none}
+.hot:focus-visible{box-shadow:3px 5px 0 var(--sh),0 0 0 3px rgba(255,176,46,.55)}
+.hot.serve{background:var(--tomato);z-index:14}
+.hot.serve small{color:#5c1712}
+.hot.serve:hover,.hot.serve:focus-visible{background:var(--honey)}
+.hot[hidden]{display:none}
+.bubble{position:absolute;transform:translate(-50%,-100%);pointer-events:none;
+  z-index:11;max-width:230px;background:var(--cream);color:var(--ink);
+  font:400 13.5px/1.35 var(--hand);border:3px solid var(--ink);
+  border-radius:18px 18px 18px 6px;box-shadow:inset 0 0 0 2px var(--paper),
+  3px 4px 0 var(--sh);padding:8px 12px;filter:url(#rough)}
+.bubble::after{content:"";position:absolute;left:16px;bottom:-11px;
+  width:0;height:0;border:8px solid transparent;border-top-color:var(--ink)}
+.bubble::before{content:"";position:absolute;left:18px;bottom:-4px;
+  width:0;height:0;border:5px solid transparent;border-top-color:var(--cream);z-index:1}
+.bubble.pop{animation:pop .16s ease-out both}
+@keyframes pop{from{transform:translate(-50%,-100%) scale(.85)}}
+.coin{position:absolute;transform:translate(-50%,-50%);font-size:24px;
+  pointer-events:none;z-index:12;animation:coinarc .7s cubic-bezier(.22,.61,.36,1) forwards}
+@keyframes coinarc{
+  0%{opacity:1;transform:translate(-50%,-30%) rotate(-15deg) scale(1)}
+  60%{opacity:1;transform:translate(-20%,-150%) rotate(15deg) scale(1.25)}
+  100%{opacity:0;transform:translate(-40%,-190%) rotate(18deg) scale(.9)}}
 
-/* ── panels: story-card style ── */
-.panelwrap { position: fixed; top: 88px; right: 16px; bottom: 16px;
-  z-index: 15; width: min(384px, calc(100vw - 32px));
-  overflow: auto; pointer-events: none; }
-.panel { background: var(--paper); color: var(--ink);
-  border: 3px solid var(--ink); border-radius: 20px;
-  box-shadow: 0 6px 0 var(--shadow); padding: 18px 20px; pointer-events: auto; }
-.panel[hidden] { display: none; }
-.panel h2 { margin: 0 0 2px; font-size: 24px; font-weight: 900; }
-.panel h2:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; }
-.panel .desc { font-weight: 700; font-size: 13px; color: #8b7a63;
-  margin: 0 0 12px; }
-.panel p { margin: 0 0 10px; font-size: 14.5px; }
-.panel .cta { display: inline-block; font: 800 14px/1.2 inherit;
-  background: var(--leaf); color: #fff; border: 3px solid var(--ink);
-  border-radius: 14px; padding: 10px 14px; margin: 4px 6px 6px 0;
-  text-decoration: none; cursor: pointer; box-shadow: 0 3px 0 var(--shadow); }
-.panel .cta.alt { background: var(--sky); }
-.panel .cta.warm { background: var(--honey); color: var(--ink); }
-.panel .cta:hover, .panel .cta:focus-visible { transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--shadow); }
-.panel .links { font-weight: 700; font-size: 12.5px; color: #8b7a63;
-  border-top: 3px dashed var(--line); margin-top: 12px; padding-top: 10px; }
-.panel .fine { font-size: 11.5px; color: #a08c70; font-weight: 600; }
-.panel .ledger { list-style: none; margin: 0 0 8px; padding: 0;
-  font-size: 13px; font-weight: 600; }
-.panel .ledger li { display: flex; justify-content: space-between; gap: 10px;
-  border-bottom: 2px dotted var(--line); padding: 4px 0; }
-.panel .ledger b { font-weight: 900; }
+/* ── story-card panels ── */
+.panelwrap{position:fixed;top:64px;right:14px;bottom:14px;z-index:15;
+  width:min(370px,calc(100vw - 28px));overflow:auto;pointer-events:none}
+.panel{background:var(--paper);color:var(--ink);border:3px solid var(--ink);
+  border-radius:var(--r2);box-shadow:5px 6px 0 var(--sh);padding:15px 17px;
+  pointer-events:auto;transform:rotate(-.35deg)}
+.panel[hidden]{display:none}
+.panel.in{animation:cardin .18s ease-out both}
+@keyframes cardin{from{opacity:0;transform:rotate(-.35deg) translateY(10px)}}
+.panel h2{margin:0 0 2px;font:400 23px/1.15 var(--hand)}
+.panel h2:focus-visible{outline:3px solid var(--ink);outline-offset:3px;
+  box-shadow:0 0 0 6px rgba(255,176,46,.55)}
+.panel .desc{color:var(--brown);font:400 13px/1.3 var(--hand);margin:0 0 10px}
+.panel p{margin:0 0 9px;font-size:14.5px}
+.panel .cta{display:inline-block;font:400 14px/1.2 var(--hand);text-decoration:none;
+  background:var(--honey);color:var(--ink);border:3px solid var(--ink);
+  border-radius:12px 17px 13px 18px;padding:9px 13px;margin:4px 6px 6px 0;
+  cursor:pointer;box-shadow:2px 3px 0 var(--sh)}
+.panel .cta.alt{background:var(--sky)}
+.panel .cta:hover,.panel .cta:focus-visible{transform:translateY(-1px);
+  box-shadow:2px 4px 0 var(--sh);outline:none}
+.panel .cta:focus-visible{box-shadow:2px 4px 0 var(--sh),0 0 0 3px rgba(255,176,46,.55)}
+.panel .cta:active{transform:translateY(3px);box-shadow:0 0 0 var(--sh)}
+.panel .links{font-size:12.5px;color:var(--brown);border-top:2px dotted #d9c39a;
+  margin-top:11px;padding-top:9px}
+.panel .links a{text-decoration:underline wavy var(--tomato);text-underline-offset:3px}
+.panel .fine{font-size:11.5px;color:var(--brown)}
+.panel .ledger{list-style:none;margin:0 0 8px;padding:0;font-size:13px}
+.panel .ledger li{display:flex;justify-content:space-between;gap:10px;
+  border-bottom:2px dotted #d9c39a;padding:4px 0}
+.panel .ledger b{font-weight:700;font-family:var(--hand)}
 
 /* ── mobile dock ── */
-#dock { display: none; position: fixed; left: 12px; right: 12px; bottom: 12px;
-  z-index: 20; background: var(--paper); border: 3px solid var(--ink);
-  border-radius: 18px; box-shadow: 0 5px 0 var(--shadow);
-  padding: 6px; gap: 4px; }
-#dock a { flex: 1; text-align: center; color: var(--ink); text-decoration: none;
-  font-weight: 900; font-size: 12.5px; line-height: 1.2; padding: 10px 4px;
-  border-radius: 12px; border: 3px solid transparent; }
-#dock a[aria-current] { border-color: var(--ink); background: var(--honey); }
-@media (max-width: 640px) {
-  #dock { display: flex; }
-  .hud nav { display: none; }
-  .panelwrap { top: auto; right: 8px; left: 8px; bottom: 84px; width: auto;
-    max-height: 50vh; }
-  .till { margin-left: 0; }
+#dock{display:none;position:fixed;left:10px;right:10px;bottom:10px;z-index:20;
+  background:var(--paper);border:3px solid var(--ink);border-radius:var(--r2);
+  box-shadow:3px 4px 0 var(--sh);padding:5px;gap:3px;filter:url(#rough)}
+#dock a{flex:1;text-align:center;color:var(--ink);text-decoration:none;
+  font:400 12.5px/1.2 var(--hand);padding:9px 4px;border-radius:11px 15px 12px 16px;
+  border:2px solid transparent}
+#dock a[aria-current]{border-color:var(--ink);background:var(--honey)}
+@media (max-width:640px){
+  #dock{display:flex}
+  .hud nav{display:none}
+  .panelwrap{top:auto;right:6px;left:6px;bottom:74px;width:auto;max-height:46vh}
 }
 
 /* ── 2D shop: reduce / no-WebGL / no-JS ── */
-.dom2d #stage, .dom2d #hots { display: none; }
-.dom2d .panelwrap { position: static; width: auto; max-width: 720px;
-  margin: 100px auto 40px; overflow: visible; pointer-events: auto; }
-.dom2d .panel { margin-bottom: 18px; }
-.dom2d .panel[hidden] { display: block; }
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+.dom2d #stage,.dom2d #hots,.dom2d #bell{display:none}
+.dom2d .panelwrap{position:static;width:auto;max-width:720px;margin:86px auto 40px;
+  overflow:visible;pointer-events:auto}
+.dom2d .panel{margin-bottom:18px}
+.dom2d .panel[hidden]{display:block}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
 }
-.skiplink { position: absolute; left: -9999px; }
-.skiplink:focus { left: 16px; top: 16px; z-index: 99; background: var(--honey);
-  color: var(--ink); padding: 10px 14px; font-weight: 800;
-  border: 3px solid var(--ink); border-radius: 12px; }
+.skiplink{position:absolute;left:-9999px}
+.skiplink:focus{left:14px;top:14px;z-index:99;background:var(--honey);
+  color:var(--ink);padding:9px 13px;font-family:var(--hand);font-weight:400;
+  border:3px solid var(--ink);border-radius:var(--r1)}
 </style>
 </head>
 <body>
+<!-- hand-drawn roughen filter (static turbulence — rasterizes once) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="rough" x="-4%" y="-8%" width="108%" height="116%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.4"
+      xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs></svg>
+
 <div id="stage" aria-hidden="true"></div>
 <a class="skiplink" href="#panel-hub">Skip to shop content</a>
 
 <header class="hud">
   <a class="shop" href="#/"><span class="star">★</span> calvin.makes</a>
   <nav aria-label="Stalls">
-    <a href="#/craft/" data-zone="craft">Crochet<small>Patterns and finished pieces</small></a>
-    <a href="#/studio/" data-zone="studio">Studio<small>Blender renders and pipelines</small></a>
-    <a href="#/developer/" data-zone="developer">Back office<small>Work history &amp; the CV</small></a>
-    <a href="#/templates/" data-zone="templates">Templates<small>Party apps, free — get one</small></a>
+    <a href="#/craft/" data-zone="craft">Crochet<span class="sr-only"> — patterns and finished pieces</span></a>
+    <a href="#/studio/" data-zone="studio">Studio<span class="sr-only"> — blender renders and pipelines</span></a>
+    <a href="#/developer/" data-zone="developer">Back office<span class="sr-only"> — work history and the CV</span></a>
+    <a href="#/templates/" data-zone="templates">Templates<span class="sr-only"> — free party apps</span></a>
   </nav>
   <div class="till">
-    <span class="score" aria-live="polite">customers served: <b id="score">0</b> ⭐</span>
-    <button id="bell" type="button">🔔 Ring for the next customer</button>
-    <a href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">Get the CV</a>
-    <a href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Buy patterns</a>
-    <a href="mailto:dscalvin97@gmail.com">Email Calvin</a>
+    <span class="score" id="scorechip" aria-live="polite" aria-label="customers served">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.5l-5.9 3.2 1.3-6.6L2.5 9.5l6.6-.8z"
+        fill="#ffb02e" stroke="#3a2c1d" stroke-width="2" stroke-linejoin="round"/></svg>
+      <b id="score">0</b>
+    </span>
+    <button id="bell" type="button" aria-label="Ring for the next customer">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#3a2c1d"
+        stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 16v-5a6 6 0 0 1 11.5-2.5"/><path d="M6 16h12l-1.5-2h-9z"/>
+        <path d="M10.5 19a1.8 1.8 0 0 0 3 0"/><path d="M18 6.5l1.8-1.8"/>
+      </svg>
+    </button>
+    <a class="mini" href="/calvin-dsouza-resume.pdf" download>CV</a>
+    <a class="mini b" href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Patterns</a>
+    <a class="mini c" href="mailto:dscalvin97@gmail.com">Email</a>
   </div>
 </header>
 
-<div id="hots" aria-hidden="false"></div>
+<div id="hots"></div>
 
 <div class="panelwrap">
-  <!-- Panels are the site. Prerendered in real HTML; the scene is
-       enhancement. Every panel carries real links (minutes §Synthesis 2). -->
   <section class="panel" id="panel-hub" data-zone="hub" hidden>
     <h2 tabindex="-1">The shop</h2>
     <p class="desc">calvin.makes — software · 3D · crochet · Mumbai</p>
-    <p>Calvin Dsouza makes software, 3D renders, and crochet patterns from
-       Mumbai. This whole site is his shop: walk up to a stall, or use the
-       menu — both work, both are real links.</p>
-    <p class="fine">Prototype note: pattern names &amp; prices don't exist yet —
-       tags read name-only until Calvin decides them (Marcus, minutes C-4).</p>
+    <p>Calvin Dsouza makes software, 3D renders, and crochet patterns from Mumbai.
+       This whole site is his shop: walk up to a stall, or use the menu — both work,
+       both are real links.</p>
+    <p class="fine">Prototype note: pattern names &amp; prices don't exist yet — tags
+       read name-only until Calvin decides them.</p>
     <div class="links">
       <a href="#/craft/">→ the crochet stall</a> ·
       <a href="#/studio/">→ the studio wall</a> ·
@@ -198,23 +230,22 @@ a { color: #b2560d; }
     <h2 tabindex="-1">Crochet</h2>
     <p class="desc">Patterns and finished pieces</p>
     <p>Hooks, yarn, and slow making. Same curiosity as the 3D work — tension,
-       topology, how a curve sits in space. Patterns are digital PDFs on
-       Gumroad: front-loaded skill level, short steps, no filler.</p>
-    <a class="cta" href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Browse patterns on Gumroad</a>
+       topology, how a curve sits in space. Patterns are digital PDFs on Gumroad:
+       front-loaded skill level, short steps, no filler.</p>
+    <a class="cta" href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Browse patterns</a>
     <a class="cta alt" href="mailto:dscalvin97@gmail.com">Email Calvin</a>
-    <div class="links">Notice by the till: prices live on Gumroad — they're
-      real, and they change when Calvin says so.</div>
+    <div class="links">Prices live on Gumroad — they're real, and they change when
+      Calvin says so.</div>
   </section>
 
   <section class="panel" id="panel-studio" data-zone="studio" hidden>
     <h2 tabindex="-1">Studio</h2>
     <p class="desc">Blender renders and pipelines</p>
-    <p>The drying rack holds the prints: Blender assets and scenes live on
-       BlendKit; at Fynd, Python/Blender pipelines produced 100,000+ captioned
-       training images.</p>
+    <p>The drying rack holds the prints: Blender assets and scenes live on BlendKit;
+       at Fynd, Python/Blender pipelines produced 100,000+ captioned training images.</p>
     <a class="cta" href="https://www.blendkit.com/?query=author_id:908" target="_blank" rel="noopener noreferrer">Browse BlendKit</a>
-    <div class="links">Cards on the rack are labeled with real project names;
-      empty slots are where new prints hang.</div>
+    <div class="links">Cards on the rack carry real project names; empty slots are
+      where new prints hang.</div>
   </section>
 
   <section class="panel" id="panel-developer" data-zone="developer" hidden>
@@ -228,33 +259,32 @@ a { color: #b2560d; }
       <li><span><b>HERE Technologies</b> — Map Modeler</span><span>2018–20</span></li>
       <li><span><b>Powerweave</b> — 3D Artist (contract)</span><span>2018</span></li>
     </ul>
-    <a class="cta" href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">Get the CV (PDF)</a>
-    <a class="cta" href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">See the code on GitHub</a>
+    <a class="cta" href="/calvin-dsouza-resume.pdf" download="Calvin-Dsouza-Resume.pdf">Get the CV</a>
+    <a class="cta alt" href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">See the code</a>
     <div class="links">Drawers stay shut — opening one opens the page, not geometry.</div>
   </section>
 
   <section class="panel" id="panel-templates" data-zone="templates" hidden>
     <h2 tabindex="-1">Templates</h2>
     <p class="desc">Party apps you can deploy in a minute</p>
-    <p>Free things live by the door. Spooky Invite: a Halloween party invite
-       that gets spookier as the night approaches — one HTML file, one Node
-       server, no dependencies.</p>
-    <a class="cta" href="https://github.com/dscalvin97/spooky-invite" target="_blank" rel="noopener noreferrer">Get it free on GitHub</a>
+    <p>Free things live by the door. Spooky Invite: a Halloween party invite that
+       gets spookier as the night approaches — one HTML file, one Node server,
+       no dependencies.</p>
+    <a class="cta" href="https://github.com/dscalvin97/spooky-invite" target="_blank" rel="noopener noreferrer">Get it free</a>
     <div class="links">Free — get it. No price invented here; the repo is the price tag.</div>
   </section>
 
   <section class="panel" id="panel-counter" data-zone="counter" hidden>
     <h2 tabindex="-1">The counter</h2>
-    <p class="desc">Till · notice board · the man page by the door</p>
-    <p>Till's unattended. Everything's on the shelves — take a look. When you
-       need Calvin: mail is one click, the CV is one click.</p>
+    <p class="desc">Till · notices · say hello</p>
+    <p>Till's unattended. Everything's on the shelves — take a look. When you need
+       Calvin: mail is one click, the CV is one click.</p>
     <a class="cta" href="mailto:dscalvin97@gmail.com">Email Calvin</a>
     <div class="links">
       Notice board: <a href="https://github.com/dscalvin97" target="_blank" rel="noopener noreferrer">GitHub</a> ·
       <a href="https://www.linkedin.com/in/dscalvin" target="_blank" rel="noopener noreferrer">LinkedIn</a> ·
       <a href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Gumroad</a><br>
-      <span class="fine">No cookies. No trackers. No invented numbers. Prototype —
-      architecture from the 2026-10-24 group minutes.</span>
+      <span class="fine">No cookies. No trackers. No invented numbers.</span>
     </div>
   </section>
 </div>
@@ -273,590 +303,648 @@ a { color: #b2560d; }
 <script type="module">
 import * as THREE from "three";
 
-/* ═══════════════ STATE + ROUTING (hash = prototype stand-in for
-   the production pathname routes; minutes: Farid §A) ═══════════ */
-const ZONES = ["hub", "craft", "studio", "developer", "templates", "counter"];
+/* ═════════ STATE + ROUTING (hash = stand-in for production routes) ═════════ */
+const ZONES = ["hub","craft","studio","developer","templates","counter"];
 const reduce = matchMedia("(prefers-reduced-motion: reduce)");
-let current = "hub";
-let gl = null;                 // scene handle, null in DOM-only mode
-let lastTrigger = null;        // activating control, for focus restore (Elena R2)
+let current = "hub", gl = null, walking = false, lastTrigger = null, booted = false;
 
-/* camera poses: Sana §B — one per zone, fov per pose */
 const POSES = {
-  hub:       { p: [0, 2.0, 10.2],  l: [0, 1.2, -0.5], fov: 46 },
-  craft:     { p: [-2.6, 1.55, 2.9], l: [-5.1, 1.35, -4.6], fov: 33 },
-  studio:    { p: [3.2, 1.55, 2.9],  l: [5.6, 1.45, -4.6],  fov: 33 },
-  developer: { p: [0, 1.75, 1.9],  l: [0, 1.25, -5.2], fov: 35 },
-  templates: { p: [3.4, 1.5, 6.4], l: [5.0, 1.05, 3.0],  fov: 33 },
-  counter:   { p: [0.4, 1.5, 4.6], l: [0, 1.05, 1.8],  fov: 36 },
+  hub:       { p:[0,7.25,10.33], l:[0,1.0,-0.5], fov:40 },   // overview: pitch 30°, d 12.5 (Leo rig)
+  craft:     { p:[-2.6,1.55,2.9],  l:[-5.1,1.35,-4.6], fov:33 },
+  studio:    { p:[3.2,1.55,2.9],   l:[5.6,1.45,-4.6],  fov:33 },
+  developer: { p:[0,1.75,1.9],    l:[0,1.25,-5.2],   fov:35 },
+  templates: { p:[3.4,1.5,6.4],   l:[5.0,1.05,3.0],  fov:33 },
+  counter:   { p:[0.4,1.5,4.6],   l:[0,1.05,1.8],    fov:36 },
 };
-const DOLLY_IN = { p: [0, 2.1, 15.5], l: [0, 1.4, 0], fov: 50 }; // walk-in start (= poster frame)
+const DOLLY_IN = { p:[0,2.1,15.5], l:[0,1.4,0], fov:50 };
 
-function zoneFromHash() {
-  const m = (location.hash || "").match(/^#\/(\w*)\/?$/);
-  const z = m ? m[1] : "";
-  if (z === "studio") return "studio";
-  if (z === "craft") return "craft";
-  if (z === "developer") return "developer";
-  if (z === "templates") return "templates";
-  if (z === "counter") return "counter";
-  return "hub";
+function zoneFromHash(){
+  const m=(location.hash||"").match(/^#\/(\w*)\/?$/); const z=m?m[1]:"";
+  return ZONES.includes(z)?z:"hub";
 }
-function panelFor(z) { return document.getElementById("panel-" + z); }
-
-/* ═══════════ DOM-ONLY SHOP (reduce / no-WebGL): everything in flow ══ */
-function enterDomMode() {
+function panelFor(z){ return document.getElementById("panel-"+z); }
+function enterDomMode(){
   document.body.classList.add("dom2d");
-  document.querySelectorAll(".panel").forEach(p => (p.hidden = false));
-  document.getElementById("hots").style.display = "none";
+  document.querySelectorAll(".panel").forEach(p=>p.hidden=false);
+  document.getElementById("hots").style.display="none";
 }
 
-/* ═══════════ SCENE (Sana §C: primitives, vertex-color bake, zero lights) */
-function vertexBake(geo, hex, opt = {}) {
+/* ═════════ PAINTERLY VERTEX BAKE — zero lights (Sana board §2) ═════════ */
+function vertexBake(geo, hex, opt={}){
   geo.computeVertexNormals();
-  const pos = geo.attributes.position, nor = geo.attributes.normal;
-  const base = new THREE.Color(hex);
-  const amb = opt.amb ?? 0.55, bounce = opt.bounce ?? 0.35,
-        win = opt.win ?? 0.3, floor = opt.floor ?? 0, ao = opt.ao ?? 0.25;
-  const winDir = new THREE.Vector3(-0.5, 0.6, 1).normalize();
-  const col = new Float32Array(pos.count * 3);
-  const v = new THREE.Vector3(), n = new THREE.Vector3(), c = new THREE.Color();
-  const maxY = opt.maxY ?? 3;
-  for (let i = 0; i < pos.count; i++) {
-    v.fromBufferAttribute(pos, i); n.fromBufferAttribute(nor, i);
-    const h = THREE.MathUtils.clamp((v.y - floor) / (maxY - floor), 0, 1);
-    const up = 0.5 + 0.5 * n.y;                       // fake bounce (Bruno)
-    const d = Math.max(0, n.dot(winDir));
-    const corner = 1 - ao * (1 - h) * (1 - Math.abs(n.z));
-    let k = amb + bounce * up * (1 - h) + win * d + 0.06 * (1 - up);
-    k = THREE.MathUtils.clamp(k * corner, 0.15, 1.25);
-    c.copy(base).multiplyScalar(k);
-    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+  const pos=geo.attributes.position, nor=geo.attributes.normal;
+  const base=new THREE.Color(hex);
+  const band=opt.band?new THREE.Color(opt.band):null;
+  const amb=opt.amb??0.62, bounce=opt.bounce??0.30, win=opt.win??0.40,
+        ao=opt.ao??0.16, floor=opt.floor??0, maxY=opt.maxY??3;
+  const winDir=new THREE.Vector3(-0.5,0.6,1).normalize();
+  const COOL=new THREE.Color("#cfd8ee"), WARM=new THREE.Color("#fff1d6"),
+        RIM=new THREE.Color("#ffd9a0");
+  const col=new Float32Array(pos.count*3);
+  const v=new THREE.Vector3(), n=new THREE.Vector3(),
+        c=new THREE.Color(), tint=new THREE.Color(), cb=new THREE.Color(),
+        keep=new THREE.Color();
+  function shade(target, color, h, n){
+    const up=0.5+0.5*n.y;
+    let d=THREE.MathUtils.clamp((n.dot(winDir)+0.45)/1.45,0,1);
+    d=d*d*(3-2*d);                                   // wrap + smoothstep: no terminator
+    let k=amb+bounce*up*(1-h)+win*d+0.06*(1-up);
+    k*=1-ao*Math.pow(1-h,2);                         // tight contact AO
+    k=THREE.MathUtils.clamp(k,0.26,1.10);            // lifted blacks, compressed highs
+    const t=THREE.MathUtils.clamp((k-0.25)/0.75,0,1);
+    tint.lerpColors(COOL,WARM,t);                    // cool shadows → warm lights
+    target.copy(color).multiplyScalar(0.34+0.96*t).multiply(tint);
+    const L=0.2126*target.r+0.7152*target.g+0.0722*target.b;
+    keep.copy(target);                               // saturation guard: grey → color ×1.12
+    target.setRGB(L,L,L).lerp(keep,1.12);
+    const rim=Math.pow(1-Math.abs(n.dot(winDir)),3);
+    target.lerp(RIM,Math.min(0.15,rim*0.15*(win/0.4)));
+    return target;
   }
-  geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+  for(let i=0;i<pos.count;i++){
+    v.fromBufferAttribute(pos,i); n.fromBufferAttribute(nor,i);
+    const h=THREE.MathUtils.clamp((v.y-floor)/(maxY-floor),0,1);
+    shade(c,base,h,n);
+    if(band){ shade(cb,band,h,n); c.lerp(cb,THREE.MathUtils.smoothstep(h,0.0,0.35)); }
+    col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b;
+  }
+  geo.setAttribute("color",new THREE.BufferAttribute(col,3));
   return geo;
 }
-function mesh(geo, hex, opt) {
-  return new THREE.Mesh(vertexBake(geo, hex, opt),
-    new THREE.MeshBasicMaterial({ vertexColors: true }));
+function mesh(geo,hex,opt){
+  return new THREE.Mesh(vertexBake(geo,hex,opt),
+    new THREE.MeshBasicMaterial({vertexColors:true}));
 }
 
-function signTexture(lines, w = 512, h = 256) {
-  const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
-  const g = cv.getContext("2d");
-  g.fillStyle = "#fff6e3"; g.fillRect(0, 0, w, h);       // cream board
-  g.strokeStyle = "#7a5c3e"; g.lineWidth = 14; g.strokeRect(7, 7, w - 14, h - 14);
-  g.textAlign = "center";
-  lines.forEach((ln, i) => {
-    g.font = (i === 0 ? "800 " : "600 ") + (i === 0 ? 56 : 32) +
-      "px ui-rounded, system-ui, sans-serif";
-    g.fillStyle = i === 0 ? "#b2560d" : "#3a2c1d";
-    g.fillText(ln, w / 2, 92 + i * 56);
+/* signage: warm hand-drawn boards (Short Stack when loaded) */
+function signTexture(lines,w=512,h=256){
+  const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+  const g=cv.getContext("2d");
+  g.fillStyle="#fff6e3"; g.fillRect(0,0,w,h);
+  g.strokeStyle="#7a5c3e"; g.lineWidth=13; g.strokeRect(7,7,w-14,h-14);
+  g.textAlign="center";
+  lines.forEach((ln,i)=>{
+    g.font=(i===0?"400 54px":"400 30px")+' "Short Stack", system-ui, sans-serif';
+    g.fillStyle=i===0?"#b2560d":"#3a2c1d";
+    g.fillText(ln,w/2,92+i*56);
   });
-  const t = new THREE.CanvasTexture(cv);
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
+  const t=new THREE.CanvasTexture(cv); t.colorSpace=THREE.SRGBColorSpace; return t;
 }
-function sign(lines, w, h, pos, rotY = 0) {
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h),
-    new THREE.MeshBasicMaterial({ map: signTexture(lines) }));
-  m.position.set(...pos); m.rotation.y = rotY;
-  return m;
+function sign(lines,w,h,pos,rotY=0){
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),
+    new THREE.MeshBasicMaterial({map:signTexture(lines),side:THREE.DoubleSide}));
+  m.position.set(...pos); m.rotation.y=rotY; return m;
 }
 
-function buildShop() {
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#0d120f");
-  scene.fog = new THREE.Fog("#0d120f", 9, 17);
+/* ═════════ THE SHOP — palette + props (Sana board §1–3) ═════════ */
+function buildShop(){
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color("#5a4636");            // warm haze, not black void
+  scene.fog=new THREE.Fog("#5a4636",14,40);               // fix: was 9/17 → back wall 90% fogged
+  const W=14,D=12,H=3.4;
+  const floor=mesh(new THREE.BoxGeometry(W,0.2,D),"#c08a54",{floor:-0.1,maxY:H,ao:.16});
+  floor.position.y=-0.1; scene.add(floor);
+  const back=mesh(new THREE.BoxGeometry(W,H,0.2),"#ebcfa6",{floor:0,maxY:H,band:"#d6a470",win:.35});
+  back.position.set(0,H/2,-D/2); scene.add(back);
+  const left=mesh(new THREE.BoxGeometry(0.2,H,D),"#ebcfa6",{floor:0,maxY:H,band:"#d6a470",win:.5,ao:.14});
+  left.position.set(-W/2,H/2,0); scene.add(left);
+  const right=mesh(new THREE.BoxGeometry(0.2,H,D),"#80849a",{floor:0,maxY:H,win:.12,ao:.18}); // the ONE cool relief zone
+  right.position.set(W/2,H/2,0); scene.add(right);
+  /* no ceiling — the overarching camera sits above the room (manager-game standard) */
 
-  const room = new THREE.Group(); scene.add(room);
-  const W = 14, D = 12, H = 3.4;
-  const floor = mesh(new THREE.BoxGeometry(W, 0.2, D), "#3c3128", { floor: -0.1, amb: .6, ao: .1 });
-  floor.position.y = -0.1; room.add(floor);
-  const back = mesh(new THREE.BoxGeometry(W, H, 0.2), "#6d5f4e", { floor: 0, maxY: H, ao: .35 });
-  back.position.set(0, H / 2, -D / 2); room.add(back);
-  const left = mesh(new THREE.BoxGeometry(0.2, H, D), "#5d5244", { floor: 0, maxY: H, ao: .4, win: .42 });
-  left.position.set(-W / 2, H / 2, 0); room.add(left);
-  const right = mesh(new THREE.BoxGeometry(0.2, H, D), "#5d5244", { floor: 0, maxY: H, ao: .4, win: .18 });
-  right.position.set(W / 2, H / 2, 0); room.add(right);
+  /* window — the key light gets a visible source (fix #6) */
+  const wf=mesh(new THREE.BoxGeometry(1.4,1.2,0.1),"#6b4423",{floor:0,maxY:H,win:.3});
+  wf.position.set(-3.6,2.3,-5.86); scene.add(wf);
+  const wp=new THREE.Mesh(new THREE.PlaneGeometry(1.15,0.95),
+    new THREE.MeshBasicMaterial({color:"#f9eca6"}));      // hottest highlight
+  wp.position.set(-3.6,2.3,-5.79); scene.add(wp);
+  const mull=mesh(new THREE.BoxGeometry(0.07,0.95,0.04),"#6b4423",{floor:0,maxY:H,win:.4});
+  mull.position.set(-3.6,2.3,-5.77); scene.add(mull);
+  const mull2=mesh(new THREE.BoxGeometry(1.15,0.07,0.04),"#6b4423",{floor:0,maxY:H,win:.4});
+  mull2.position.set(-3.6,2.3,-5.77); scene.add(mull2);
+  const awn=mesh(new THREE.BoxGeometry(1.5,0.4,0.5),"#e1835b",{floor:0,maxY:H,win:.5});
+  awn.position.set(-3.6,3.15,-5.6); awn.rotation.x=0.35; scene.add(awn);
 
-  /* counter + till + clipboard (till/notice zone) */
-  const counter = mesh(new THREE.BoxGeometry(5.2, 1.05, 1.1), "#7a5c3e", { floor: 0, maxY: 1.1, ao: .3 });
-  counter.position.set(0, 0.525, 1.9); room.add(counter);
-  const till = mesh(new THREE.BoxGeometry(0.55, 0.4, 0.45), "#232019", { floor: 0.9, maxY: 1.6 });
-  till.position.set(1.7, 1.26, 1.9); room.add(till);
-  const clipboard = mesh(new THREE.BoxGeometry(0.5, 0.7, 0.04), "#d8d2c2", { floor: 0.9, maxY: 1.8, win: .5 });
-  clipboard.position.set(-1.6, 1.45, 1.35); clipboard.rotation.x = -0.12; room.add(clipboard);
+  /* counter + till + bell + fabric stacks + clipboard */
+  const counter=mesh(new THREE.BoxGeometry(5.2,1.05,1.1),"#a5703d",{floor:0,maxY:1.1,ao:.16,band:"#8a5c31"});
+  counter.position.set(0,0.525,1.9); scene.add(counter);
+  const till=mesh(new THREE.BoxGeometry(0.5,0.38,0.42),"#3e2c1d",{floor:.9,maxY:1.6,win:.5});
+  till.position.set(1.7,1.25,1.9); scene.add(till);
+  const bellBase=mesh(new THREE.CylinderGeometry(0.13,0.15,0.04,14),"#8a5c31",{floor:.9,maxY:1.6});
+  bellBase.position.set(1.15,1.07,1.75); scene.add(bellBase);
+  const bellDome=mesh(new THREE.SphereGeometry(0.11,14,8,0,Math.PI*2,0,Math.PI/2),"#d8b04a",{floor:.9,maxY:1.6,win:.7});
+  bellDome.position.set(1.15,1.09,1.75); scene.add(bellDome);
+  const bellKnob=mesh(new THREE.SphereGeometry(0.032,10,8),"#3e2c1d",{floor:.9,maxY:1.6});
+  bellKnob.position.set(1.15,1.22,1.75); scene.add(bellKnob);
+  [["#c34c7c",2.25,1.12,0.06],["#3e6fb0",2.25,1.26,-0.04],["#c9a227",-2.3,1.12,0.1]].forEach(([c,x,y,r])=>{
+    const f=mesh(new THREE.BoxGeometry(0.55,0.14,0.4),c,{floor:.9,maxY:1.6,win:.5,ao:.1});
+    f.position.set(x,y,1.75); f.rotation.y=r; scene.add(f);
+  });
+  const clipboard=mesh(new THREE.BoxGeometry(0.5,0.7,0.04),"#f2dec0",{floor:.9,maxY:1.8,win:.7});
+  clipboard.position.set(-1.6,1.45,1.35); clipboard.rotation.x=-0.12; scene.add(clipboard);
 
-  /* menu board — the literal menu (Leo §B: diegetic alias of the HUD) */
-  room.add(sign(["MENU", "crochet · studio", "back office · templates"], 3.6, 1.5, [0, 2.4, -5.55]));
+  /* rug (prop #1) + foreground table with mugs (occluders) */
+  const rug=mesh(new THREE.CylinderGeometry(2.1,2.1,0.05,26),"#b6542f",{floor:0,maxY:H,win:.3,ao:.1});
+  rug.position.set(0,0.03,3.9); scene.add(rug);
+  const rugIn=mesh(new THREE.CylinderGeometry(1.5,1.5,0.052,26),"#e1835b",{floor:0,maxY:H,win:.3,ao:.1});
+  rugIn.position.set(0,0.04,3.9); scene.add(rugIn);
+  const table=mesh(new THREE.BoxGeometry(1.5,0.85,0.85),"#6b4423",{floor:0,maxY:1.2,win:.35});
+  table.position.set(-4.3,0.43,5.2); scene.add(table);
+  [["#fff6e3",-4.6],["#e1835b",-4.05]].forEach(([c,x])=>{
+    const mug=mesh(new THREE.CylinderGeometry(0.09,0.11,0.24,12),c,{floor:.85,maxY:1.4,win:.6,ao:.1});
+    mug.position.set(x,1.0,5.2); scene.add(mug);
+  });
 
-  /* yarn cubby wall — crochet zone */
-  const cubby = new THREE.Group();
-  const shelf = mesh(new THREE.BoxGeometry(3.6, 2.4, 0.5), "#6d4f33", { floor: 0, maxY: 2.6, ao: .3, win: .4 });
-  shelf.position.set(-5.1, 1.4, -5.5); cubby.add(shelf);
-  const yarnColors = ["#b6542f", "#3e6fb0", "#c9a227", "#7da05a", "#a44d7c", "#5f8f7c"];
-  for (let r = 0; r < 3; r++) for (let c = 0; c < 5; c++) {
-    const y = mesh(new THREE.SphereGeometry(0.19, 12, 10), yarnColors[(r * 5 + c) % 6],
-      { floor: 0.3, maxY: 2.4, win: .5, ao: .15 });
-    y.position.set(-6.35 + c * 0.62, 0.75 + r * 0.68, -5.15); cubby.add(y);
+  /* menu board — the literal menu */
+  scene.add(sign(["MENU","crochet · studio","back office · templates"],3.6,1.5,[0,2.4,-5.55]));
+
+  /* yarn cubby — crochet hero silhouette (pink joins the palette) */
+  const shelf=mesh(new THREE.BoxGeometry(3.6,2.4,0.5),"#a5703d",{floor:0,maxY:2.6,ao:.16,band:"#8a5c31"});
+  shelf.position.set(-5.1,1.4,-5.5); scene.add(shelf);
+  const yarnColors=["#c34c7c","#3e6fb0","#c9a227","#7da05a","#e1835b","#5f8f7c"];
+  for(let r=0;r<3;r++) for(let c=0;c<5;c++){
+    const y=mesh(new THREE.SphereGeometry(0.19,12,10),yarnColors[(r*5+c)%6],
+      {floor:.3,maxY:2.4,win:.5,ao:.12});
+    y.position.set(-6.35+c*0.62,0.75+r*0.68,-5.15); scene.add(y);
   }
-  room.add(cubby);
-  room.add(sign(["CROCHET", "patterns & finished pieces"], 2.4, 1.0, [-5.1, 2.85, -5.55]));
+  scene.add(sign(["CROCHET","patterns & finished pieces"],2.4,1.0,[-5.1,2.85,-5.55]));
 
-  /* drying rack + cards — studio zone (empty slots = honest gallery) */
-  const rack = new THREE.Group();
-  [5.0, 7.4].forEach(x => {
-    const post = mesh(new THREE.BoxGeometry(0.12, 2.6, 0.12), "#4a4238", { floor: 0, maxY: 2.6, win: .35 });
-    post.position.set(x, 1.3, -5.4); rack.add(post);
+  /* drying rack + cards — studio */
+  [5.0,7.4].forEach(x=>{
+    const post=mesh(new THREE.BoxGeometry(0.12,2.6,0.12),"#6b4423",{floor:0,maxY:2.6,win:.4});
+    post.position.set(x,1.3,-5.4); scene.add(post);
   });
-  for (let i = 0; i < 4; i++) {
-    const wire = mesh(new THREE.BoxGeometry(2.5, 0.04, 0.04), "#8b8375", { floor: 0, maxY: 2.6, win: .5 });
-    wire.position.set(6.2, 0.9 + i * 0.55, -5.4); rack.add(wire);
-    if (i < 2) { // two printed cards; empty slots stay empty (Sana §C)
-      const card = mesh(new THREE.BoxGeometry(0.62, 0.8, 0.02),
-        ["#2f4a86", "#86352f"][i], { floor: 0.5, maxY: 2.2, win: .7, ao: .1 });
-      card.position.set(5.7 + i * 0.9, 0.9 + i * 0.55 - 0.42, -5.38); rack.add(card);
+  for(let i=0;i<4;i++){
+    const wire=mesh(new THREE.BoxGeometry(2.5,0.04,0.04),"#8a5c31",{floor:0,maxY:2.6,win:.5});
+    wire.position.set(6.2,0.9+i*0.55,-5.4); scene.add(wire);
+    if(i<2){
+      const card=mesh(new THREE.BoxGeometry(0.62,0.8,0.02),["#3e6fb0","#c34c7c"][i],
+        {floor:.5,maxY:2.2,win:.7,ao:.1});
+      card.position.set(5.7+i*0.9,0.9+i*0.55-0.42,-5.38); scene.add(card);
     }
   }
-  room.add(rack);
-  room.add(sign(["STUDIO", "blender renders"], 2.2, 0.95, [6.2, 2.8, -5.55]));
+  scene.add(sign(["STUDIO","blender renders"],2.2,0.95,[6.2,2.8,-5.55]));
 
-  /* back office: desk + ledger + drawer wall (developer zone) */
-  const desk = mesh(new THREE.BoxGeometry(3.4, 0.9, 1.2), "#6d4f33", { floor: 0, maxY: 1.2, ao: .3, win: .4 });
-  desk.position.set(0, 0.45, -4.4); room.add(desk);
-  const ledger = mesh(new THREE.BoxGeometry(0.8, 0.06, 0.6), "#d8d2c2", { floor: 0.8, maxY: 1.4, win: .7 });
-  ledger.position.set(-0.4, 0.93, -4.3); room.add(ledger);
-  for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) {
-    const dr = mesh(new THREE.BoxGeometry(0.42, 0.3, 0.3), "#7d6a52",
-      { floor: 0, maxY: 3, ao: .3, win: .25 });
-    dr.position.set(-1.35 + c * 0.54, 1.45 + r * 0.38, -5.72); room.add(dr);
+  /* back office: desk + ledger + drawer wall 3×4 varied (fix #6: was 4×6 identical) */
+  const desk=mesh(new THREE.BoxGeometry(3.4,0.9,1.2),"#a5703d",{floor:0,maxY:1.2,ao:.16,band:"#6b4423"});
+  desk.position.set(0,0.45,-4.4); scene.add(desk);
+  const ledger=mesh(new THREE.BoxGeometry(0.8,0.06,0.6),"#f2dec0",{floor:.8,maxY:1.4,win:.7});
+  ledger.position.set(-0.4,0.93,-4.3); scene.add(ledger);
+  const tones=["#6b4423","#8a5c31","#a5703d","#5a4a2a"];
+  for(let r=0;r<4;r++) for(let c=0;c<4;c++){
+    const w=0.46+((r*4+c)%3)*0.05, hgt=0.28+((r+c)%2)*0.05;
+    const dr=mesh(new THREE.BoxGeometry(w,hgt,0.3),tones[(r*4+c)%4],
+      {floor:0,maxY:3,ao:.16,win:.25});
+    dr.position.set(-0.95+c*0.63,1.45+r*0.4,-5.72); scene.add(dr);
   }
-  room.add(sign(["BACK OFFICE", "the records live here"], 2.6, 1.05, [0, 3.15, -5.85]));
+  scene.add(sign(["BACK OFFICE","the records live here"],2.6,1.05,[0,3.15,-5.85]));
 
-  /* pamphlet rack — templates, near the door */
-  const pr = mesh(new THREE.BoxGeometry(1.4, 2.0, 0.14), "#4a4238", { floor: 0, maxY: 2.2, win: .3 });
-  pr.position.set(4.9, 1.0, 3.1); pr.rotation.y = -0.5; room.add(pr);
-  for (let i = 0; i < 3; i++) {
-    const pam = mesh(new THREE.BoxGeometry(0.4, 0.55, 0.03), ["#33412a", "#3a2f4d", "#4d3a2f"][i],
-      { floor: 0.2, maxY: 2, win: .6 });
-    pam.position.set(4.65 - i * 0.02, 0.7 + (i % 2) * 0.7, 3.22 + i * 0.05);
-    pam.rotation.y = -0.5; room.add(pam);
-  }
-  room.add(sign(["TEMPLATES", "free — take one"], 1.9, 0.85, [5.15, 2.4, 2.3], -0.5));
-
-  /* door + out-link signs */
-  const door = mesh(new THREE.BoxGeometry(1.6, 2.6, 0.12), "#33291f", { floor: 0, maxY: 2.8, win: .35 });
-  door.position.set(-4.5, 1.3, 5.85); room.add(door);
-  room.add(sign(["calvin.makes", "open to interesting work"], 1.5, 0.75, [-4.5, 2.7, 5.78]));
-
-  /* one light-pool quad per zone arrival (Sana §B.4, additive, one-shot lerp) */
-  const pools = {};
-  ["craft", "studio", "developer", "templates"].forEach(z => {
-    const q = new THREE.Mesh(new THREE.CircleGeometry(1.4, 24),
-      new THREE.MeshBasicMaterial({ color: "#cdf556", transparent: true, opacity: 0,
-        blending: THREE.AdditiveBlending, depthWrite: false }));
-    const pos = { craft: [-5.1, 0.02, -4.6], studio: [6.2, 0.02, -4.6],
-                  developer: [0, 0.02, -4.2], templates: [6.2, 0.02, 2.2] }[z];
-    q.rotation.x = -Math.PI / 2; q.position.set(...pos); scene.add(q); pools[z] = q;
+  /* frames (swap slots for real WebPs) + crates + plants + OPEN sign */
+  [[2.7,2.1,-5.9,0.6,0.8],[3.8,1.85,-5.9,0.5,0.65]].forEach(([x,y,z,w,h])=>{
+    const fr=mesh(new THREE.BoxGeometry(w,h,0.06),"#6b4423",{floor:0,maxY:H,win:.45,ao:.1});
+    fr.position.set(x,y,z); scene.add(fr);
+    const face=mesh(new THREE.BoxGeometry(w-0.12,h-0.12,0.02),"#f2dec0",{floor:0,maxY:H,win:.7});
+    face.position.set(x,y,z+0.045); scene.add(face);
   });
-  return { scene, pools };
+  const fr3=mesh(new THREE.BoxGeometry(0.6,0.8,0.06),"#6b4423",{floor:0,maxY:H,win:.35,ao:.1});
+  fr3.position.set(-6.87,2.0,0.6); fr3.rotation.y=Math.PI/2; scene.add(fr3);
+  [[5.7,0.32,5.0,0.08,"#a5703d"],[5.7,0.94,5.0,-0.12,"#8a5c31"],[4.95,0.32,5.3,0.2,"#6b4423"]].forEach(([x,y,z,r,c])=>{
+    const cr=mesh(new THREE.BoxGeometry(0.62,0.6,0.62),c,{floor:0,maxY:1.4,win:.35,ao:.16});
+    cr.position.set(x,y,z); cr.rotation.y=r; scene.add(cr);
+  });
+  const pot=mesh(new THREE.CylinderGeometry(0.2,0.15,0.3,12),"#b6542f",{floor:0,maxY:H,win:.4});
+  pot.position.set(-6.3,0.15,4.9); scene.add(pot);
+  [[0.3,0.55],[0.18,0.85],[0.2,0.72]].forEach(([r,y],i)=>{
+    const leaf=mesh(new THREE.SphereGeometry(r,10,8),"#57b85a",{floor:0,maxY:H,win:.5,ao:.12});
+    leaf.position.set(-6.3+(i-1)*0.18,y,4.9+(i%2?0.12:-0.1));
+    leaf.scale.y=0.55; scene.add(leaf);
+  });
+  scene.add(sign(["OPEN","to interesting work"],1.3,0.65,[-6.8,2.15,3.4],Math.PI/2));
+
+  /* pennant banner — fills the empty upper third (prop #2) */
+  const string=mesh(new THREE.BoxGeometry(11.4,0.03,0.03),"#3e2c1d",{floor:0,maxY:H,win:.3});
+  string.position.set(0,2.95,-2.2); scene.add(string);
+  const penn=["#ff6459","#ffb02e","#5aa9ff","#57b85a","#b98cff","#ff6459","#ffb02e","#57b85a"];
+  penn.forEach((c,i)=>{
+    const pc=mesh(new THREE.ConeGeometry(0.14,0.3,3),c,{floor:0,maxY:H,win:.5,ao:.08});
+    pc.position.set(-5+i*1.43,2.78,-2.2); pc.rotation.z=Math.PI; pc.rotation.y=(i%2?0.4:-0.4);
+    scene.add(pc);
+  });
+
+  /* templates rack + pamphlets + door */
+  const pr=mesh(new THREE.BoxGeometry(1.4,2.0,0.14),"#6b4423",{floor:0,maxY:2.2,win:.3});
+  pr.position.set(4.9,1.0,3.1); pr.rotation.y=-0.5; scene.add(pr);
+  for(let i=0;i<3;i++){
+    const pam=mesh(new THREE.BoxGeometry(0.4,0.55,0.03),["#57b85a","#b98cff","#ff6459"][i],
+      {floor:.2,maxY:2,win:.6});
+    pam.position.set(4.65-i*0.02,0.7+(i%2)*0.7,3.22+i*0.05);
+    pam.rotation.y=-0.5; scene.add(pam);
+  }
+  scene.add(sign(["TEMPLATES","free — take one"],1.9,0.85,[5.15,2.4,2.3],-0.5));
+  const door=mesh(new THREE.BoxGeometry(1.6,2.6,0.12),"#5a4a2a",{floor:0,maxY:2.8,win:.35});
+  door.position.set(-4.5,1.3,5.85); scene.add(door);
+  scene.add(sign(["calvin.makes","open to interesting work"],1.5,0.75,[-4.5,2.7,5.78]));
+
+  /* arrival light-pool: floor-tinted, never lime (fix #5) */
+  const pools={};
+  ["craft","studio","developer","templates"].forEach(z=>{
+    const q=new THREE.Mesh(new THREE.CircleGeometry(1.4,24),
+      new THREE.MeshBasicMaterial({color:"#ffe3a8",transparent:true,opacity:0,
+        blending:THREE.AdditiveBlending,depthWrite:false}));
+    const pos={craft:[-5.1,0.02,-4.4],studio:[6.2,0.02,-4.6],
+      developer:[0,0.02,-4.2],templates:[4.6,0.02,3.4]}[z];
+    q.rotation.x=-Math.PI/2; q.position.set(...pos); scene.add(q); pools[z]=q;
+  });
+  return {scene,pools};
 }
 
-/* ═══════════ RENDER LOOP — demand only: runs during glides/bursts,
-   stops dead at rest (Yuki idle-zero; prototype proof) ═══════════ */
-function startGL(canvas) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false,
-    powerPreference: "default" });
-  const dpr = Math.min(devicePixelRatio || 1, 1.5);
-  renderer.setPixelRatio(dpr);
-  const { scene, pools } = buildShop();
-  const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 60);
-  camera.position.set(...POSES.hub.p);
-  let glide = null, burst = null, dirty = true, raf = null;
-  const cbs = [];
+/* ═════════ CAMERA RIG v2 — overview + pan/zoom + authored focus (Leo board §4) ═════════
+   pose state {pos, look, fov}; pan shifts target on the floor (clamped to room+0.5,
+   center-locked when the view is wider than the room); zoom = distance to target,
+   hard clamps [4.5, maxD], NO inertia — release = 0 frames. Focus frames are
+   authored: reset pan/zoom, shift the lookAt so the subject lands left of the
+   right-hand panel (35% screen-x; above the bottom sheet on portrait). */
+function startGL(canvas){
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:"default"});
+  const dpr=Math.min(devicePixelRatio||1,1.5); renderer.setPixelRatio(dpr);
+  const {scene,pools}=buildShop();
+  const camera=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,0.1,90);
 
-  function size() {
-    const w = innerWidth, h = innerHeight;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h; camera.updateProjectionMatrix();
-    dirty = true; kick();
-  }
-  function kick() { if (!raf) raf = requestAnimationFrame(frame); }
-  function frame() {
-    raf = null;
-    const now = performance.now();
-    if (glide) {
-      let t = Math.min(1, (now - glide.t0) / glide.dur);
-      const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; // easeInOutCubic
-      const a = glide.from, b = glide.to;
-      camera.position.set(
-        THREE.MathUtils.lerp(a.p[0], b.p[0], e) + Math.sin(e * Math.PI) * glide.arc,
-        THREE.MathUtils.lerp(a.p[1], b.p[1], e),
-        THREE.MathUtils.lerp(a.p[2], b.p[2], e));
-      camera.lookAt(
-        THREE.MathUtils.lerp(a.l[0], b.l[0], e),
-        THREE.MathUtils.lerp(a.l[1], b.l[1], e),
-        THREE.MathUtils.lerp(a.l[2], b.l[2], e));
-      camera.fov = THREE.MathUtils.lerp(a.fov, b.fov, e);
-      camera.updateProjectionMatrix();
-      if (t >= 1) { glide = null; onArrive(current); }
-      dirty = true;
-    }
-    if (burst) { // arrival light-pool one-shot, ≤2s then 0 frames (Sana §D)
-      const t = Math.min(1, (now - burst.t0) / 900);
-      const k = t < 0.6 ? t / 0.6 : 1 - (t - 0.6) / 0.4 * 0.85;
-      burst.pool.material.opacity = 0.22 * k;
-      if (t >= 1) { burst.pool.material.opacity = 0.03; burst = null; }
-      dirty = true;
-    }
-    let cbActive = false;
-    cbs.forEach(fn => { if (fn(now)) { dirty = true; cbActive = true; } });
-    if (dirty) { renderer.render(scene, camera); dirty = false; updateHots(); }
-    if (glide || burst || cbActive) kick();    // converge → stop (idle = 0 frames)
-  }
-  addEventListener("resize", size);
-  size();
+  let glide=null,burst=null,dirty=true,raf=null; const cbs=[];
+  const pan={x:0,z:0}; let zoomK=1;
+  let pos=new THREE.Vector3(...POSES.hub.p),
+      look=new THREE.Vector3(...POSES.hub.l),
+      fov=POSES.hub.fov;
 
-  return {
-    goTo(zone, instant) {
-      const to = POSES[zone] || POSES.hub;
-      const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd); fwd.add(camera.position);
-      const from = { p: camera.position.toArray(),
-        l: [fwd.x, fwd.y, fwd.z], fov: camera.fov };
-      if (glide) { from.p = camera.position.toArray(); }
-      if (instant || reduce.matches) {
-        camera.position.set(...to.p);
-        camera.lookAt(...to.l); camera.fov = to.fov; camera.updateProjectionMatrix();
-        onArrive(zone); dirty = true; kick(); return;
-      }
-      const dist = Math.hypot(to.p[0] - from.p[0], to.p[2] - from.p[2]);
-      glide = { t0: performance.now(), dur: Math.min(900, 420 + dist * 95),
-                from, to, arc: 0.35 };
-      camera.lookAt(...(from.l || to.l)); kick();
-    },
-    walkIn() {                              // Elena Ruling 1: ≤3s, authored, once
-      camera.position.set(...DOLLY_IN.p);
-      camera.lookAt(...DOLLY_IN.l); camera.fov = DOLLY_IN.fov;
-      camera.updateProjectionMatrix();
-      glide = { t0: performance.now(), dur: 2800, from: DOLLY_IN,
-                to: POSES.hub, arc: 0.6 };
-      dirty = true; kick();
-    },
-    skipWalkIn() { if (glide && glide.dur > 1000) { glide.to = POSES.hub;
-      glide.t0 = performance.now() - glide.dur * 0.86; kick(); } },
-    pools,
-    camera,
-    scene,
-    addBurst(p) { burst = { pool: p, t0: performance.now() }; dirty = true; kick(); },
-    onFrame(fn) { cbs.push(fn); },
-    kickNow() { kick(); },
-  };
+  function maxDist(){ return (innerWidth/innerHeight<1)?12:12.5; }
+  function distEff(){ return pos.distanceTo(look)*zoomK; }
+  function applyRig(){
+    const L=look.clone(); L.x+=pan.x; L.z+=pan.z;
+    const P=pos.clone().add(L.clone().sub(look));      // rigid pan
+    P.sub(L).multiplyScalar(zoomK).add(L);             // zoom toward target
+    camera.position.copy(P); camera.lookAt(L);
+    camera.fov=fov; camera.updateProjectionMatrix();
+  }
+  function clampPan(){
+    if(current!=="hub") return;          // focus frames are authored — never clamped
+    const d=distEff();
+    const vh=2*Math.tan(fov*Math.PI/360)*d, vw=vh*camera.aspect;
+    const lo=(-7.5+vw/2)-look.x, hi=(7.5-vw/2)-look.x;
+    pan.x=lo>hi?0:Math.min(Math.max(pan.x,lo),hi);
+    const loz=(-6.5+vh/2)-look.z, hiz=(6.5-vh/2)-look.z;
+    pan.z=loz>hiz?0:Math.min(Math.max(pan.z,loz),hiz);
+  }
+  function zoomBy(f){
+    if(current!=="hub"||walking) return;
+    const raw=Math.max(0.001,pos.distanceTo(look));
+    zoomK=Math.min(Math.max(zoomK*f,4.5/raw),maxDist()/raw);
+    clampPan(); dirty=true; kick();
+  }
+
+  function size(){
+    renderer.setSize(innerWidth,innerHeight,false);
+    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    clampPan(); dirty=true; kick();
+  }
+  function kick(){ if(!raf) raf=requestAnimationFrame(frame); }
+  function frame(){
+    raf=null; const now=performance.now();
+    if(glide){
+      let t=Math.min(1,(now-glide.t0)/glide.dur);
+      const e=t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+      const a=glide.from,b=glide.to;
+      pos.set(THREE.MathUtils.lerp(a.p[0],b.p[0],e)+Math.sin(e*Math.PI)*glide.arc,
+              THREE.MathUtils.lerp(a.p[1],b.p[1],e),
+              THREE.MathUtils.lerp(a.p[2],b.p[2],e));
+      look.set(THREE.MathUtils.lerp(a.l[0],b.l[0],e),
+               THREE.MathUtils.lerp(a.l[1],b.l[1],e),
+               THREE.MathUtils.lerp(a.l[2],b.l[2],e));
+      fov=THREE.MathUtils.lerp(a.fov,b.fov,e);
+      if(t>=1){ glide=null; if(current==="hub") clampPan(); onArrive(current); }
+      dirty=true;
+    }
+    if(burst){
+      const t=Math.min(1,(now-burst.t0)/900);
+      const k=t<0.6?t/0.6:1-(t-0.6)/0.4*0.85;
+      burst.pool.material.opacity=0.18*k;
+      if(t>=1){ burst.pool.material.opacity=0.03; burst=null; }
+      dirty=true;
+    }
+    let cbActive=false;
+    cbs.forEach(fn=>{ if(fn(now)){dirty=true;cbActive=true;} });
+    if(dirty){ applyRig(); renderer.render(scene,camera); dirty=false; updateHots(); }
+    if(glide||burst||cbActive) kick();                 // converge → 0 frames at rest
+  }
+  addEventListener("resize",size); size();
+
+  /* pan (drag) + zoom (wheel/pinch): overview only, no inertia */
+  const pointers=new Map(); let drag=null, pinchDist=0;
+  const stage=document.getElementById("stage");
+  function twoDist(){
+    const a=[...pointers.values()]; return a.length<2?0:
+      Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);
+  }
+  stage.addEventListener("pointerdown",e=>{
+    if(current!=="hub"||walking) return;
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===1){ drag={x:e.clientX,y:e.clientY}; stage.classList.add("dragging"); }
+    else if(pointers.size===2){ drag=null; pinchDist=twoDist(); }
+  });
+  stage.addEventListener("pointermove",e=>{
+    if(!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===2&&pinchDist){
+      const nd=twoDist(); if(nd>10) zoomBy(pinchDist/nd); pinchDist=nd; return;
+    }
+    if(drag){
+      const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+      drag={x:e.clientX,y:e.clientY};
+      const vh=2*Math.tan(fov*Math.PI/360)*distEff();
+      const wpp=vh/innerHeight;
+      pan.x+=dx*wpp; pan.z+=dy*wpp; clampPan();
+      dirty=true; kick();
+    }
+  });
+  ["pointerup","pointercancel"].forEach(ev=>stage.addEventListener(ev,e=>{
+    pointers.delete(e.pointerId);
+    if(pointers.size<2) pinchDist=0;
+    if(pointers.size===0){ drag=null; stage.classList.remove("dragging"); }
+  }));
+  addEventListener("wheel",e=>{
+    if(e.target.closest(".panelwrap,.hud,#dock")) return;
+    e.preventDefault(); zoomBy(e.deltaY>0?1/1.1:1.1);
+  },{passive:false});
+
+  function goTo(zone,instant){
+    const to=POSES[zone]||POSES.hub;
+    const focus=zone!=="hub";
+    if(focus){ pan.x=0; pan.z=0; zoomK=1; }           // focus = authored frame
+    const l=[...to.l];
+    if(focus){                                         // panel-offset baked into lookAt
+      const dist=Math.hypot(to.p[0]-l[0],to.p[1]-l[1],to.p[2]-l[2]);
+      const vh=2*Math.tan(to.fov*Math.PI/360)*dist, vw=vh*camera.aspect;
+      if(camera.aspect>=1){
+        const fwd=new THREE.Vector3(l[0]-to.p[0],l[1]-to.p[1],l[2]-to.p[2]).normalize();
+        const right=new THREE.Vector3().crossVectors(fwd,new THREE.Vector3(0,1,0)).normalize();
+        l[0]+=right.x*0.15*vw; l[1]+=right.y*0.15*vw; l[2]+=right.z*0.15*vw;
+      } else l[1]+=0.15*vh;
+    }
+    if(instant||reduce.matches){
+      pos.set(...to.p); look.set(...l); fov=to.fov;
+      clampPan(); onArrive(zone); dirty=true; kick(); return;
+    }
+    const from={p:pos.toArray(),l:look.toArray(),fov};
+    const d=Math.hypot(to.p[0]-from.p[0],to.p[2]-from.p[2]);
+    glide={t0:performance.now(),dur:Math.min(900,420+d*95),from,
+           to:{p:to.p,l,fov:to.fov},arc:0.35};
+    kick();
+  }
+  function walkIn(){                                   // Elena R1: ≤3s, authored, once
+    pos.set(...DOLLY_IN.p); look.set(...DOLLY_IN.l); fov=DOLLY_IN.fov;
+    glide={t0:performance.now(),dur:2800,
+           from:{p:DOLLY_IN.p,l:DOLLY_IN.l,fov:DOLLY_IN.fov},
+           to:{p:POSES.hub.p,l:POSES.hub.l,fov:40},arc:0.6};
+    dirty=true; kick();
+  }
+  function skipWalkIn(){ if(glide&&glide.dur>1000){ glide.to={p:POSES.hub.p,l:POSES.hub.l,fov:40};
+    glide.t0=performance.now()-glide.dur*0.86; kick(); } }
+
+  return { goTo, walkIn, skipWalkIn, pools, camera, scene,
+    addBurst(p){ burst={pool:p,t0:performance.now()}; dirty=true; kick(); },
+    onFrame(fn){ cbs.push(fn); },
+    kickNow(){ kick(); },
+    debug(){ return { posePos:[+pos.x.toFixed(2),+pos.y.toFixed(2),+pos.z.toFixed(2)],
+      poseLook:[+look.x.toFixed(2),+look.y.toFixed(2),+look.z.toFixed(2)],
+      pan:[+pan.x.toFixed(2),+pan.z.toFixed(2)], zoomK:+zoomK.toFixed(3),
+      camPos:[+camera.position.x.toFixed(2),+camera.position.y.toFixed(2),+camera.position.z.toFixed(2)] }; } };
 }
 
-/* ═══════════ WIRING: routing, panels, hotspots, focus (Elena R2), walk-in ══ */
-const zoneHotAnchors = {
-  craft:     new THREE.Vector3(-5.1, 1.7, -5.1),
-  studio:    new THREE.Vector3(6.2, 1.8, -5.1),
-  developer: new THREE.Vector3(0, 1.8, -5.5),
-  templates: new THREE.Vector3(4.9, 1.25, 3.1),
-  counter:   new THREE.Vector3(0.2, 1.25, 1.9),
+/* ═════════ HOTSPOTS + FOCUS + ROUTING (Elena R2 rulings) ═════════ */
+const zoneHotAnchors={
+  craft:new THREE.Vector3(-5.1,1.7,-5.1), studio:new THREE.Vector3(6.2,1.8,-5.1),
+  developer:new THREE.Vector3(0,1.8,-5.5), templates:new THREE.Vector3(4.9,1.25,3.1),
+  counter:new THREE.Vector3(0.2,1.25,1.9),
 };
-let walking = false;
-const hotsEl = document.getElementById("hots");
+const hotsEl=document.getElementById("hots");
+const hotEls={};
+function makeHot(zone,label,sub){
+  const a=document.createElement("a");
+  a.className="hot"; a.href="#/"+(zone==="counter"?"counter":zone+"/");
+  a.dataset.zone=zone; a.innerHTML=label+(sub?"<small>"+sub+"</small>":"");
+  a.addEventListener("click",()=>{ lastTrigger=a; });
+  hotsEl.appendChild(a); hotEls[zone]=a; return a;
+}
+makeHot("craft","Visit","crochet — patterns & pieces");
+makeHot("studio","Visit","studio — renders & prints");
+makeHot("developer","Visit","back office — records");
+makeHot("templates","Visit","templates — free, take one");
+makeHot("counter","Visit","the counter — say hello");
+const stepBack=document.createElement("a");
+stepBack.className="hot"; stepBack.href="#/";
+stepBack.textContent="← Back to the shop floor";
+stepBack.addEventListener("click",()=>{ lastTrigger=stepBack; });
+hotsEl.appendChild(stepBack);
 
-function setAriaCurrent(zone) {
-  document.querySelectorAll(".hud nav a, #dock a").forEach(a => {
-    if (a.dataset.zone === zone) a.setAttribute("aria-current", "page");
+function updateHotVisibility(zone){
+  Object.values(hotEls).forEach(a=>a.hidden=!(zone==="hub"||zone==="counter"));
+  if(hotEls.counter) hotEls.counter.hidden=zone!=="hub";
+  stepBack.hidden=zone==="hub";
+}
+function updateHots(){
+  if(!gl||!gl.camera) return;
+  const v=new THREE.Vector3();
+  Object.entries(zoneHotAnchors).forEach(([z,anchor])=>{
+    const el=hotEls[z]; if(!el||el.hidden) return;
+    v.copy(anchor).project(gl.camera);
+    if(v.z>1){ el.style.opacity="0"; el.style.pointerEvents="none"; return; }
+    el.style.opacity="1"; el.style.pointerEvents="auto";
+    const panelOpen=!!document.querySelector(".panel:not([hidden])");
+    const rightEdge=innerWidth-(panelOpen&&innerWidth>700?420:110);
+    el.style.left=Math.min(Math.max((v.x*.5+.5)*innerWidth,110),rightEdge)+"px";
+    el.style.top=Math.min(Math.max((-v.y*.5+.5)*innerHeight,110),innerHeight-150)+"px";
+  });
+  if(!stepBack.hidden){ stepBack.style.left="24px"; stepBack.style.top=(innerHeight-120)+"px"; }
+  updateCustomerDom();
+}
+
+/* ═════════ THE GAME LOOP (board: triggered bursts, idle-zero) ═════════ */
+const DEMANDS=[
+  {zone:"craft",line:"I'm after a crochet pattern!"},
+  {zone:"studio",line:"Where can I see the 3D renders?"},
+  {zone:"developer",line:"I need a developer for a project."},
+  {zone:"templates",line:"Got any party invite templates?"},
+];
+const QUEUE={craft:[-3.4,0,-2.6],studio:[2.6,0,-2.6],
+             developer:[0,0,-2.2],templates:[2.6,0,3.6]};
+const DOOR=[-4.4,0,5.2];
+const CUST_COLORS=["#ff6459","#5aa9ff","#b98cff","#57b85a","#ffb02e"];
+let customer=null,served=0;
+
+function bubbleEl(text){
+  const d=document.createElement("div"); d.className="bubble"; d.textContent=text;
+  document.body.appendChild(d); return d;
+}
+function serveBtn(demand){
+  const a=document.createElement("a");
+  a.className="hot serve"; a.href="#/"+demand.zone+"/";
+  a.innerHTML="Serve them<small>"+demand.line+"</small>";
+  a.addEventListener("click",()=>{ lastTrigger=a; serve(demand); });
+  document.body.appendChild(a); return a;
+}
+function coinAt(x,y){
+  const c=document.createElement("span"); c.className="coin"; c.textContent="🪙";
+  c.style.left=x+"px"; c.style.top=y+"px";
+  document.body.appendChild(c); setTimeout(()=>c.remove(),750);
+}
+function spawnCustomer(){
+  if(!gl||customer) return;
+  const demand=DEMANDS[Math.floor(Math.random()*DEMANDS.length)];
+  const col=CUST_COLORS[Math.floor(Math.random()*CUST_COLORS.length)];
+  const g=new THREE.Group();
+  const body=mesh(new THREE.CapsuleGeometry(0.24,0.55,6,12),col,
+    {floor:0,maxY:1.6,win:.5,ao:.12});
+  body.position.y=0.52; g.add(body);
+  const head=mesh(new THREE.SphereGeometry(0.19,14,12),"#f2dec0",
+    {floor:.3,maxY:1.6,win:.6,ao:.1});
+  head.position.y=1.08; g.add(head);
+  g.position.set(...DOOR);
+  gl.scene.add(g);
+  customer={g,demand,phase:"walking",t0:performance.now(),dur:1700,
+            from:DOOR.slice(),to:QUEUE[demand.zone].slice(),
+            bubble:bubbleEl(demand.line),serve:serveBtn(demand)};
+  updateHots(); gl.kickNow();
+}
+function serve(demand){
+  if(!customer||customer.phase!=="waiting") return;
+  customer.phase="hop"; customer.t0=performance.now(); customer.dur=500;
+  const v=customer.g.position.clone(); v.y+=1.9; v.project(gl.camera);
+  coinAt((v.x*.5+.5)*innerWidth,(-v.y*.5+.5)*innerHeight);
+  served++;
+  document.getElementById("score").textContent=String(served);
+  const chip=document.getElementById("scorechip");
+  chip.classList.remove("bump"); void chip.offsetWidth; chip.classList.add("bump");
+  if(customer.bubble){ customer.bubble.remove(); customer.bubble=null; }
+  if(customer.serve){ customer.serve.remove(); customer.serve=null; }
+  location.hash="#/"+demand.zone+"/";   // serving = the real content
+}
+function tickCustomer(now){
+  if(!customer) return false;
+  const c=customer, t=Math.min(1,(now-c.t0)/c.dur);
+  if(c.phase==="walking"||c.phase==="leaving"){
+    const e=t*t*(3-2*t);
+    c.g.position.set(
+      THREE.MathUtils.lerp(c.from[0],c.to[0],e),
+      Math.abs(Math.sin(now*0.012))*0.05,
+      THREE.MathUtils.lerp(c.from[2],c.to[2],e));
+    if(t>=1){
+      if(c.phase==="walking"){ c.phase="waiting"; c.g.position.set(...c.to); }
+      else { gl.scene.remove(c.g); customer=null; }
+    }
+    return true;
+  }
+  if(c.phase==="hop"){
+    c.g.position.y=Math.abs(Math.sin(t*Math.PI))*0.45;
+    if(t>=1){ c.g.position.y=0; c.phase="leaving";
+      c.from=c.g.position.toArray(); c.to=DOOR.slice(); c.t0=now; c.dur=1600; }
+    return true;
+  }
+  return false;
+}
+function updateCustomerDom(){
+  if(!gl||!customer) return;
+  const c=customer.g.position;
+  const put=(el,dy)=>{
+    const v=new THREE.Vector3(c.x,c.y+dy,c.z).project(gl.camera);
+    if(v.z>1){ el.style.opacity="0"; return; }
+    el.style.opacity="1";
+    el.style.left=((v.x*.5+.5)*innerWidth)+"px";
+    el.style.top=((-v.y*.5+.5)*innerHeight)+"px";
+  };
+  if(customer.bubble) put(customer.bubble,2.05);
+  if(customer.serve) put(customer.serve,0.72);
+}
+document.getElementById("bell").addEventListener("click",spawnCustomer);
+
+/* ═════════ ROUTING + PANELS + FOCUS ═════════ */
+function setAriaCurrent(zone){
+  document.querySelectorAll(".hud nav a,#dock a").forEach(a=>{
+    if(a.dataset.zone===zone) a.setAttribute("aria-current","page");
     else a.removeAttribute("aria-current");
   });
 }
-
-function showPanel(zone, focusMode) {
-  document.querySelectorAll(".panel").forEach(p => (p.hidden = p.dataset.zone !== zone));
-  const panel = panelFor(zone);
-  if (panel && focusMode) {
-    /* Elena Ruling 2: mounted + focusable at activation; heading gets focus
-       immediately, ahead of the glide. */
-    panel.querySelector("h2").focus({ preventScroll: false });
+function showPanel(zone,focus){
+  document.querySelectorAll(".panel").forEach(p=>{ p.hidden=p.dataset.zone!==zone; });
+  const panel=panelFor(zone);
+  if(panel){
+    panel.classList.remove("in"); void panel.offsetWidth; panel.classList.add("in");
+    if(focus) panel.querySelector("h2").focus({preventScroll:false});
   }
 }
-
-function onArrive(zone) {
-  if (walking) { walking = false; try { sessionStorage.setItem("walked", "1"); } catch (e) {} }
-  if (gl && gl.pools && gl.pools[zone]) gl.addBurst(gl.pools[zone]); // ≤2s one-shot
+function onArrive(zone){
+  if(walking){ walking=false; try{sessionStorage.setItem("walked","1");}catch(e){} }
+  if(gl&&gl.pools&&gl.pools[zone]) gl.addBurst(gl.pools[zone]);
   setAriaCurrent(zone);
-  document.title = zone === "hub" ? "calvin.makes — the shop (prototype)"
-    : zone + " — calvin.makes (prototype)";
+  document.title=zone==="hub"?"calvin.makes — the shop":zone+" — calvin.makes";
 }
-
-function setZone(zone, opts) {
-  opts = opts || {};
-  current = zone;
-  showPanel(zone, opts.focus !== false);
-  if (gl) gl.goTo(zone, opts.instant);
-  else onArrive(zone);
+function setZone(zone,opts){
+  opts=opts||{}; current=zone;
+  showPanel(zone,opts.focus!==false);
+  if(gl) gl.goTo(zone,opts.instant); else onArrive(zone);
   updateHotVisibility(zone);
 }
-
-/* hotspots: real anchors over the canvas, projected per render (Sana §B) */
-const hotEls = {};
-function makeHot(zone, label, sub) {
-  const a = document.createElement("a");
-  a.className = "hot"; a.href = "#/" + (zone === "counter" ? "counter" : zone + "/");
-  a.dataset.zone = zone;
-  a.innerHTML = label + (sub ? "<small>" + sub + "</small>" : "");
-  a.addEventListener("click", () => { lastTrigger = a; });
-  hotsEl.appendChild(a); hotEls[zone] = a; return a;
-}
-makeHot("craft", "Visit", "crochet — patterns & pieces");
-makeHot("studio", "Visit", "studio — renders & prints");
-makeHot("developer", "Visit", "back office — records");
-makeHot("templates", "Visit", "templates — free, take one");
-makeHot("counter", "Visit", "the counter — say hello");
-const stepBack = document.createElement("a");
-stepBack.className = "hot"; stepBack.href = "#/";
-stepBack.textContent = "← Back to the shop floor";
-stepBack.addEventListener("click", () => { lastTrigger = stepBack; });
-hotsEl.appendChild(stepBack);
-
-function updateHotVisibility(zone) {
-  Object.values(hotEls).forEach(a => (a.hidden = zone !== "hub" && zone !== "counter"));
-  if (hotEls.counter) hotEls.counter.hidden = !(zone === "hub");
-  stepBack.hidden = zone === "hub";
-}
-
-function updateHots() {
-  if (!gl || !gl.camera) return;
-  const v = new THREE.Vector3();
-  Object.entries(zoneHotAnchors).forEach(([z, anchor]) => {
-    const el = hotEls[z]; if (!el || el.hidden) return;
-    v.copy(anchor).project(gl.camera);
-    if (v.z > 1) { el.style.opacity = "0"; el.style.pointerEvents = "none"; return; }
-    el.style.opacity = "1"; el.style.pointerEvents = "auto";
-    const px = (v.x * 0.5 + 0.5) * innerWidth;
-    const py = (-v.y * 0.5 + 0.5) * innerHeight;
-    const panelOpen = !!document.querySelector(".panel:not([hidden])");
-    const rightEdge = innerWidth - (panelOpen && innerWidth > 700 ? 420 : 110);
-    el.style.left = Math.min(Math.max(px, 110), rightEdge) + "px";
-    el.style.top = Math.min(Math.max(py, 110), innerHeight - 150) + "px";
-  });
-  if (!stepBack.hidden) {
-    stepBack.style.left = "24px";
-    stepBack.style.top = (innerHeight - 120) + "px";
-  }
-  updateCustomerDom();
-}
-window.updateHots = updateHots;
-window.onArrive = onArrive;
-
-
-/* ═══════════ THE GAME LOOP ═══════════
-   Ring the bell → a customer walks in (≤2s burst) → waits with a
-   speech bubble naming something Calvin REALLY made → you serve them
-   (hop + coin + the zone's real panel opens) → they leave (≤2s burst)
-   → 0 frames until the next ring. Nothing autoplays; idle-zero holds
-   between turns (minutes: Yuki §B triggered bursts, Sana §D). */
-const DEMANDS = [
-  { zone: "craft",     line: "I'm after a crochet pattern!" },
-  { zone: "studio",    line: "Where can I see the 3D renders?" },
-  { zone: "developer", line: "I need a developer for a project." },
-  { zone: "templates", line: "Got any party invite templates?" },
-];
-const QUEUE = {
-  craft:     [-3.6, 0, -2.6], studio:    [2.6, 0, -2.6],
-  developer: [0.0, 0, -2.2],  templates: [2.6, 0, 3.6],
-};
-const DOOR = [-4.4, 0, 5.2];
-const CUST_COLORS = ["#ff6459", "#5aa9ff", "#b98cff", "#57b85a", "#ffb02e"];
-let customer = null, served = 0;
-
-function bubbleEl(text) {
-  const d = document.createElement("div");
-  d.className = "bubble"; d.textContent = text;
-  document.body.appendChild(d); return d;
-}
-function serveBtn(demand) {
-  const a = document.createElement("a");
-  a.className = "hot serve"; a.href = "#/" + demand.zone + "/";
-  a.innerHTML = "Serve them<small>" + demand.line + "</small>";
-  a.addEventListener("click", () => { lastTrigger = a; serve(demand); });
-  document.body.appendChild(a); return a;
-}
-function coinAt(x, y) {
-  const c = document.createElement("span");
-  c.className = "coin"; c.textContent = "🪙";
-  c.style.left = x + "px"; c.style.top = y + "px";
-  document.body.appendChild(c);
-  setTimeout(() => c.remove(), 950);
-}
-
-function spawnCustomer() {
-  if (!gl || customer) return;
-  const demand = DEMANDS[Math.floor(Math.random() * DEMANDS.length)];
-  const col = CUST_COLORS[Math.floor(Math.random() * CUST_COLORS.length)];
-  const g = new THREE.Group();
-  const body = mesh(new THREE.CapsuleGeometry(0.24, 0.55, 6, 12), col,
-    { floor: 0, maxY: 1.6, win: .5, ao: .15 });
-  body.position.y = 0.52; g.add(body);
-  const head = mesh(new THREE.SphereGeometry(0.19, 14, 12), "#f2c9a0",
-    { floor: 0.3, maxY: 1.6, win: .6, ao: .1 });
-  head.position.y = 1.08; g.add(head);
-  g.position.set(...DOOR);
-  gl.scene.add(g);
-  customer = {
-    g, demand, phase: "walking", t0: performance.now(), dur: 1700,
-    from: DOOR.slice(), to: QUEUE[demand.zone].slice(),
-    bubble: bubbleEl(demand.line), serve: serveBtn(demand),
-  };
-  updateHots();
-  gl.kickNow();
-}
-function serve(demand) {
-  if (!customer || customer.phase !== "waiting") return;
-  customer.phase = "hop"; customer.t0 = performance.now(); customer.dur = 500;
-  const v = customer.g.position.clone(); v.y += 1.9; v.project(gl.camera);
-  coinAt((v.x * .5 + .5) * innerWidth, (-v.y * .5 + .5) * innerHeight);
-  served++; document.getElementById("score").textContent = String(served);
-  customer.bubble.remove(); customer.serve.remove();
-  customer.bubble = null; customer.serve = null;
-  location.hash = "#/" + demand.zone + "/";     // serving = the content (minutes §C: one CTA, act in place)
-}
-function tickCustomer(now) {
-  if (!customer) return false;
-  const c = customer, t = Math.min(1, (now - c.t0) / c.dur);
-  if (c.phase === "walking" || c.phase === "leaving") {
-    const e = t * t * (3 - 2 * t);              // smoothstep
-    c.g.position.set(
-      THREE.MathUtils.lerp(c.from[0], c.to[0], e),
-      Math.abs(Math.sin(now * 0.012)) * 0.05,
-      THREE.MathUtils.lerp(c.from[2], c.to[2], e));
-    if (t >= 1) {
-      if (c.phase === "walking") { c.phase = "waiting"; c.g.position.set(...c.to); }
-      else { gl.scene.remove(c.g); customer = null; }
-    }
-    return true;                                 // frames while moving
-  }
-  if (c.phase === "hop") {                      // one-shot juice, ≤0.5s
-    c.g.position.y = Math.abs(Math.sin(t * Math.PI)) * 0.45;
-    if (t >= 1) { c.g.position.y = 0; c.phase = "leaving";
-      c.from = c.g.position.toArray(); c.to = DOOR.slice();
-      c.t0 = now; c.dur = 1600; }
-    return true;
-  }
-  return false;                                  // waiting: 0 frames (idle)
-}
-
-/* project bubble + serve button over the customer, on dirty frames */
-function updateCustomerDom() {
-  if (!gl || !customer) return;
-  const c = customer.g.position;
-  const put = (el, dy) => {
-    const v = new THREE.Vector3(c.x, c.y + dy, c.z).project(gl.camera);
-    if (v.z > 1) { el.style.opacity = "0"; return; }
-    el.style.opacity = "1";
-    el.style.left = ((v.x * .5 + .5) * innerWidth) + "px";
-    el.style.top = ((-v.y * .5 + .5) * innerHeight) + "px";
-  };
-  const panelOpen = !!document.querySelector(".panel:not([hidden])");
-  const clampPut = (el, dy) => {
-    const prev = { l: el.style.left, t: el.style.top };
-    put(el, dy);
-    const x = parseFloat(el.style.left), y = parseFloat(el.style.top);
-    const rightEdge = innerWidth - (panelOpen && innerWidth > 700 ? 400 : 60);
-    el.style.left = Math.min(Math.max(x, 140), rightEdge) + "px";
-    el.style.top = Math.min(Math.max(y, 120), innerHeight - 140) + "px";
-  };
-  if (customer.bubble) clampPut(customer.bubble, 2.05);
-  if (customer.serve) clampPut(customer.serve, 0.72);
-}
-document.getElementById("bell").addEventListener("click", spawnCustomer);
-
-/* hash routing: hash = prototype stand-in for the production routes.
-   deep links land instantly (no glide); walk-in only at the shopfront. */
-let booted = false;
-function onRoute(fromPop) {
-  const zone = zoneFromHash();
-  if (zone === current && booted) return;
-  booted = true;
-  const deep = location.hash && location.hash !== "#/";
-  setZone(zone, { instant: deep || !gl, focus: true });
-  if (!gl && zone === "hub") document.querySelectorAll(".panel").forEach(p => (p.hidden = false));
-}
-addEventListener("hashchange", () => {
-  /* Elena R2b: any route transition lands focus somewhere named —
-     clicks restore to their activating control; Back/Forward (popstate
-     via hashchange with no trigger) lands on the HUD item for the zone. */
-  const zone = zoneFromHash();
-  current = zone;
-  showPanel(zone, false);
-  if (gl) gl.goTo(zone, false);
-  updateHotVisibility(zone);
-  setAriaCurrent(zone);
-  if (!lastTrigger || !document.contains(lastTrigger) || lastTrigger.offsetParent === null) {
-    const hud = document.querySelector('.hud nav a[data-zone="' + (zone === "hub" ? "craft" : zone) + '"]')
-      || document.querySelector(".hud .shop");
-    if (hud) hud.focus({ preventScroll: true });
-  } else { lastTrigger.focus({ preventScroll: true }); lastTrigger = null; }
-  booted = true;
+document.addEventListener("click",e=>{
+  const a=e.target.closest('a[href^="#/"]');
+  if(a) lastTrigger=a;
 });
-
-/* delegated trigger capture (Elena R2: restore to the activating control) */
-document.addEventListener("click", e => {
-  const a = e.target.closest('a[href^="#/"]');
-  if (a) lastTrigger = a;
-});
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") {
-    if (current !== "hub") { location.hash = "#/"; }
-  }
-});
-
-/* ═══════════ INIT ═══════════ */
-function init() {
-  const canWebGL = (() => {
-    try { const c = document.createElement("canvas");
-      return !!(c.getContext("webgl2") || c.getContext("webgl")); }
-    catch (e) { return false; }
-  })();
-
-  if (reduce.matches || !canWebGL) {           // Elena: reduce = the 2D shop
-    enterDomMode();
-    setAriaCurrent(zoneFromHash());
-    return;
-  }
-
-  const canvas = document.createElement("canvas");
-  document.getElementById("stage").appendChild(canvas);
-  gl = startGL(canvas);
-  gl.onFrame(tickCustomer);
-  /* expose burst/kick into the gl handle used by onArrive */
-  const kickRef = gl;
-
-  let walked = false;
-  try { walked = sessionStorage.getItem("walked") === "1"; } catch (e) {}
-
-  const zone = zoneFromHash();
-  current = zone;
-  showPanel(zone, false);                      // content usable from frame one
-  updateHotVisibility(zone);
-  setAriaCurrent(zone);
-  booted = true;
-
-  if (zone === "hub" && !walked) {
-    /* walk-in one-shot (Elena Ruling 1): ≤3s, authored arc, once per
-       session; ANY input skips; end pose = entry pose; skip on reduce
-       (we're not here) or no-WebGL (we're not here). */
-    walking = true;
-    gl.walkIn();
-    const skip = () => { gl.skipWalkIn(); walking = false;
-      try { sessionStorage.setItem("walked", "1"); } catch (e) {} };
-    addEventListener("pointerdown", skip, { once: true });
-    addEventListener("keydown", skip, { once: true });
+addEventListener("hashchange",()=>{
+  const zone=zoneFromHash(); current=zone;
+  if(gl) gl.goTo(zone,false); else onArrive(zone);
+  updateHotVisibility(zone); setAriaCurrent(zone);
+  if(zone!=="hub"){
+    showPanel(zone,true);              // Elena R2 open: heading gets focus, ahead of the glide
   } else {
-    gl.goTo(zone, true);                       // deep link / return visit: instant
+    showPanel("hub",false);            // close: focus returns to the activating control…
+    if(!lastTrigger||!document.contains(lastTrigger)||lastTrigger.offsetParent===null){
+      const hud=document.querySelector(".hud nav a[data-zone=\"craft\"]")
+        ||document.querySelector(".hud .shop");
+      if(hud) hud.focus({preventScroll:true});   // …or the HUD (Elena R2b)
+    } else { lastTrigger.focus({preventScroll:true}); lastTrigger=null; }
   }
+  booted=true;
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&current!=="hub") location.hash="#/";
+});
 
+/* ═════════ INIT ═════════ */
+async function init(){
+  const canWebGL=(()=>{
+    try{ const c=document.createElement("canvas");
+      return !!(c.getContext("webgl2")||c.getContext("webgl")); }
+    catch(e){ return false; }
+  })();
+  if(reduce.matches||!canWebGL){ enterDomMode(); setAriaCurrent(zoneFromHash()); return; }
+
+  try{ await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2000))]); }catch(e){}
+
+  const canvas=document.createElement("canvas");
+  document.getElementById("stage").appendChild(canvas);
+  gl=startGL(canvas);
+  window.__rig=gl.debug;
+  gl.onFrame(tickCustomer);
+
+  let walked=false; try{ walked=sessionStorage.getItem("walked")==="1"; }catch(e){}
+  const zone=zoneFromHash(); current=zone;
+  showPanel(zone,false);                 // content usable from frame one
+  updateHotVisibility(zone); setAriaCurrent(zone); booted=true;
+
+  if(zone==="hub"&&!walked){
+    walking=true; gl.walkIn();
+    const skip=()=>{ gl.skipWalkIn(); walking=false;
+      try{sessionStorage.setItem("walked","1");}catch(e){} };
+    addEventListener("pointerdown",skip,{once:true});
+    addEventListener("keydown",skip,{once:true});
+  } else gl.goTo(zone,true);             // deep link / return visit: instant
 }
 init();
 </script>
