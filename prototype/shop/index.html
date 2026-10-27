@@ -1046,7 +1046,7 @@ async function init(){
 
   let walked=false; try{ walked=sessionStorage.getItem("walked")==="1"; }catch(e){}
   const zone=zoneFromHash(); current=zone;
-  openCard(zone,false);                  // content usable from frame one (no focus steal on load)
+  /* no card by default (user ruling): scene first, read on demand */
   updateHotVisibility(zone); setAriaCurrent(zone); booted=true;
 
   if(zone==="hub"&&!walked){
