@@ -171,6 +171,50 @@ a{color:#b2560d}
   .panelwrap{top:auto;right:6px;left:6px;bottom:74px;width:auto;max-height:46vh}
 }
 
+/* ── ORDER ASSEMBLY (Rush v2 · Cake Mania mechanics) ── */
+.tray{display:inline-flex;gap:3px;align-items:center;background:var(--cream);
+  border:3px solid var(--ink);border-radius:999px;padding:4px 8px}
+.tray .slot{width:18px;height:18px;border:2px dashed rgba(122,92,62,.55);
+  border-radius:7px 10px 8px 11px;font-size:11px;line-height:14px;text-align:center;
+  background:transparent;transition:transform .16s ease-out}
+.tray .slot.filled{border:2px solid var(--ink);background:var(--paper);font-style:normal}
+.tray.full{animation:traypulse .18s ease-out}
+@keyframes traypulse{50%{transform:scale(1.09)}}
+.tray.drain .slot.filled{animation:slotout .16s ease-in both}
+.tray.drain .slot.filled:nth-child(2){animation-delay:.06s}
+.tray.drain .slot.filled:nth-child(3){animation-delay:.12s}
+@keyframes slotout{to{transform:translateY(-14px) rotate(8deg);opacity:0}}
+.fly{position:fixed;z-index:17;font-size:20px;pointer-events:none;
+  transform:translate(-50%,-50%);
+  transition:transform .18s cubic-bezier(.22,.61,.36,1),opacity .18s ease-out}
+.hot .prog{position:absolute;left:7px;right:7px;bottom:5px;height:5px;
+  background:#e7d7b8;border:1px solid var(--ink);border-radius:6px;overflow:hidden}
+.hot .prog i{display:block;height:100%;width:0;background:var(--honey)}
+.hot.busy .prog i{animation:progrun var(--prep,3s) linear forwards}
+@keyframes progrun{to{width:100%}}
+.hot.ready .prog i{width:100%;background:var(--leaf)}
+.hot.shake{animation:shake .16s ease-in-out 2}
+@keyframes shake{25%{transform:translate(-50%,-50%) translateX(-4px)}
+  75%{transform:translate(-50%,-50%) translateX(4px)}}
+.bubble.order{padding:7px 9px}
+.bubble.order .ordrows{list-style:none;margin:0;padding:0}
+.bubble.order .row{display:flex;align-items:center;gap:7px;font-size:13px;
+  height:23px;padding:0 4px;border-radius:7px;transition:background .12s ease-out}
+.bubble.order .row .nm{flex:1;text-align:left;white-space:nowrap}
+.bubble.order .tick{width:14px;font-weight:700;color:#2e7d32;visibility:hidden}
+.bubble.order .row.got{background:var(--honey)}
+.bubble.order .row.got .tick{visibility:visible}
+.bubble .need{display:block;font-size:12px;color:#b2302a;font-weight:700;margin-top:3px}
+.qbar{position:absolute;transform:translate(-50%,-100%);width:46px;height:7px;
+  background:var(--paper);border:2px solid var(--ink);border-radius:6px;overflow:hidden;
+  pointer-events:none;z-index:16}
+.qbar i{display:block;height:100%;width:100%;
+  animation:patience var(--pat,30s) linear forwards}
+@keyframes patience{0%{width:100%;background:var(--honey)}
+  33%{background:var(--honey)}34%{background:var(--tomato)}
+  100%{width:0%;background:var(--tomato)}}
+.serve .need{color:#5c1712}
+
 /* ── 2D shop: reduce / no-WebGL / no-JS ── */
 .dom2d #stage,.dom2d #hots,.dom2d #bell,.dom2d .panel .close{display:none}
 .dom2d .panelwrap{position:static;width:auto;max-width:720px;margin:86px auto 40px;
@@ -208,11 +252,12 @@ a{color:#b2560d}
     <a href="#/templates/" data-zone="templates">Templates<span class="sr-only"> — free party apps</span></a>
   </nav>
   <div class="till">
-    <span class="score" id="scorechip" aria-live="polite" aria-label="customers served">
+    <span class="score" id="scorechip" aria-label="customers served this run">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.5l-5.9 3.2 1.3-6.6L2.5 9.5l6.6-.8z"
         fill="#ffb02e" stroke="#3a2c1d" stroke-width="2" stroke-linejoin="round"/></svg>
       <b id="score">0</b>
     </span>
+    <span class="tray" id="tray" aria-hidden="true"><i class="slot"></i><i class="slot"></i><i class="slot"></i></span>
     <button id="bell" type="button" aria-label="Ring for the next customer">
       <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#3a2c1d"
         stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -226,6 +271,8 @@ a{color:#b2560d}
     <a class="mini c" href="mailto:dscalvin97@gmail.com">Email</a>
   </div>
 </header>
+
+<div id="game-status" role="status" class="sr-only"></div>
 
 <div id="hots"></div>
 
@@ -821,37 +868,134 @@ function updateHots(){
 }
 
 /* ═════════ THE GAME LOOP (board: triggered bursts, idle-zero) ═════════ */
-const DEMANDS=[
-  {zone:"craft",line:"I'm after a crochet pattern!"},
-  {zone:"studio",line:"Where can I see the 3D renders?"},
-  {zone:"developer",line:"I need a developer for a project."},
-  {zone:"templates",line:"Got any party invite templates?"},
-];
-const QUEUE={craft:[-3.4,0,-2.6],studio:[2.6,0,-2.6],
-             developer:[0,0,-2.2],templates:[2.6,0,3.6]};
+/* ═════════ THE ORDER — Rush v2, Cake Mania mechanics ═════════
+   Customers queue at the counter with a ticket (1–3 goods). Stall
+   hotspots = prep stations ("ovens"): click starts a timed prep, ready
+   → click takes it into the 3-slot HUD tray, hand over at the counter
+   when the tray matches the head ticket. Placeholder goods until the
+   content-injection pass (user ruling: game first, work content later).
+   Timers are pure CSS animations, paused on visibilitychange — no game
+   clock on the main thread, idle-zero preserved. */
+const GOODS={
+  yarn:{stall:"craft",prep:3000,icon:"🧶",label:"yarn ball",verb:"Wind yarn"},
+  printcard:{stall:"studio",prep:4000,icon:"🖼",label:"print card",verb:"Develop print"},
+  ledger:{stall:"developer",prep:2000,icon:"📋",label:"ledger copy",verb:"Stamp copy"},
+  invite:{stall:"templates",prep:0,icon:"✉️",label:"invite kit",verb:"Grab kit"},
+};
+const STALL_GOODS={craft:["yarn"],studio:["printcard"],developer:["ledger"],templates:["invite"]};
+const COUNTER_SPOTS=[[-1.1,0,3.3],[0.4,0,3.5],[1.9,0,3.3]];
 const DOOR=[-4.4,0,5.2];
 const CUST_COLORS=["#ff6459","#5aa9ff","#b98cff","#57b85a","#ffb02e"];
-let customer=null,served=0;
+const MAXTRAY=3;
+let customer=null, served=0, tray=[];
 
-function bubbleEl(text){
-  const d=document.createElement("div"); d.className="bubble"; d.textContent=text;
-  document.body.appendChild(d); return d;
+function say(msg){ const el=document.getElementById("game-status"); if(el) el.textContent=msg; }
+function genTicket(){
+  const ids=Object.keys(GOODS);
+  const n=1+Math.floor(Math.random()*3);
+  return [...ids].sort(()=>Math.random()-0.5).slice(0,n);
 }
-function serveBtn(demand){
-  const a=document.createElement("a");
-  a.className="hot serve"; a.href="#/"+demand.zone+"/";
-  a.innerHTML="Serve them<small>"+demand.line+"</small>";
-  a.addEventListener("click",()=>{ lastTrigger=a; serve(demand); });
-  document.body.appendChild(a); return a;
+function trayHas(id){ return tray.filter(t=>t===id).length; }
+function trayMatches(){ return customer && customer.ticket.every(g=>trayHas(g)>0); }
+function trayMissing(){
+  if(!customer) return [];
+  const miss=[];
+  customer.ticket.forEach(g=>{ if(trayHas(g)===0 && !miss.includes(g)) miss.push(g); });
+  return miss;
+}
+function renderTray(){
+  const trayEl=document.getElementById("tray");
+  if(!trayEl) return;
+  const wasFull=trayEl.classList.contains("full");
+  trayEl.querySelectorAll(".slot").forEach((sl,i)=>{
+    const g=tray[i];
+    if(g){ sl.textContent=GOODS[g].icon; sl.classList.add("filled"); }
+    else { sl.textContent=""; sl.classList.remove("filled"); }
+  });
+  trayEl.classList.toggle("full",tray.length>=MAXTRAY);
+  if(!wasFull&&tray.length>=MAXTRAY){
+    trayEl.classList.remove("full"); void trayEl.offsetWidth; trayEl.classList.add("full");
+    setTimeout(()=>trayEl.classList.remove("full"),400);
+  }
+}
+function fly(fromEl,icon,toEl,done){
+  if(!toEl){ done&&done(); return; }
+  const a=fromEl.getBoundingClientRect(), b=toEl.getBoundingClientRect();
+  const el=document.createElement("span"); el.className="fly"; el.textContent=icon;
+  el.style.left=(a.left+a.width/2)+"px"; el.style.top=(a.top+a.height/2)+"px";
+  document.body.appendChild(el);
+  const dx=(b.left+b.width/2)-(a.left+a.width/2);
+  const dy=(b.top+b.height/2)-(a.top+a.height/2);
+  requestAnimationFrame(()=>{
+    el.style.transform="translate(-50%,-50%) translate("+dx+"px,"+dy+"px)";
+    el.style.opacity="0";
+  });
+  setTimeout(()=>{ el.remove(); done&&done(); },210);
 }
 function coinAt(x,y){
   const c=document.createElement("span"); c.className="coin"; c.textContent="🪙";
   c.style.left=x+"px"; c.style.top=y+"px";
   document.body.appendChild(c); setTimeout(()=>c.remove(),750);
 }
+function setHot(h,main,small){
+  h.innerHTML=main+(small?'<small>'+small+'</small>':"");
+}
+function restoreHot(h){
+  if(h.dataset.orig){ h.innerHTML=h.dataset.orig; delete h.dataset.orig; }
+  h.classList.remove("busy","ready");
+  const pr=h.querySelector(".prog"); if(pr) pr.remove();
+  delete h.dataset.good;
+}
+function restoreHotLabels(){
+  document.querySelectorAll(".hot[data-zone]").forEach(h=>{
+    if(h.dataset.orig) restoreHot(h);
+  });
+}
+function markRow(goodId){
+  if(!customer||!customer.bubble) return;
+  const row=customer.bubble.querySelector('.row[data-good="'+goodId+'"]');
+  if(row) row.classList.add("got");
+}
+function orderBubble(ticket){
+  const d=document.createElement("div");
+  d.className="bubble order"; d.setAttribute("aria-hidden","true");
+  const ul=document.createElement("ul"); ul.className="ordrows";
+  ticket.forEach(g=>{
+    const li=document.createElement("li"); li.className="row"; li.dataset.good=g;
+    li.innerHTML="<span>"+GOODS[g].icon+'</span><span class="nm">'+GOODS[g].label+
+      '</span><span class="tick">✓</span>';
+    ul.appendChild(li);
+  });
+  d.appendChild(ul); document.body.appendChild(d); return d;
+}
+function qbarEl(patience){
+  const d=document.createElement("div");
+  d.className="qbar"; d.setAttribute("aria-hidden","true");
+  d.style.setProperty("--pat",(patience/1000)+"s");
+  d.innerHTML="<i></i>";
+  d.addEventListener("animationend",e=>{ if(e.target.tagName==="I") customerLeave(); });
+  document.body.appendChild(d); return d;
+}
+function updateHandover(){
+  if(!customer||!customer.serve) return;
+  if(customer.phase!=="waiting"){ customer.serve.hidden=true; return; }
+  customer.serve.hidden=false;
+  if(trayMatches()){
+    customer.serve.innerHTML="Hand over<small>✓ tray matches</small>";
+  } else {
+    const miss=trayMissing().map(g=>GOODS[g].label);
+    customer.serve.innerHTML="Hand over<small>needs: "+miss.join(", ")+"</small>";
+  }
+}
+function handoverBtn(){
+  const a=document.createElement("button");
+  a.type="button"; a.className="hot serve";
+  a.addEventListener("click",()=>tryHandover(a));
+  document.body.appendChild(a); return a;
+}
 function spawnCustomer(){
   if(!gl||customer) return;
-  const demand=DEMANDS[Math.floor(Math.random()*DEMANDS.length)];
+  const ticket=genTicket();
   const col=CUST_COLORS[Math.floor(Math.random()*CUST_COLORS.length)];
   const g=new THREE.Group();
   const body=mesh(new THREE.CapsuleGeometry(0.24,0.55,6,12),col,
@@ -862,23 +1006,106 @@ function spawnCustomer(){
   head.position.y=1.08; g.add(head);
   g.position.set(...DOOR);
   gl.scene.add(g);
-  customer={g,demand,phase:"walking",t0:performance.now(),dur:1700,
-            from:DOOR.slice(),to:QUEUE[demand.zone].slice(),
-            bubble:bubbleEl(demand.line),serve:serveBtn(demand)};
-  updateHots(); gl.kickNow();
+  customer={g,ticket,phase:"walking",t0:performance.now(),dur:1700,
+    from:DOOR.slice(),to:COUNTER_SPOTS[0].slice(),
+    bubble:orderBubble(ticket),qbar:qbarEl(30000),serve:handoverBtn()};
+  updateHandover(); updateHots(); gl.kickNow();
 }
-function serve(demand){
+/* gather interception: stall hotspots are gather stations while a ticket
+   needs them; otherwise they navigate as before (Visit) */
+function tryGather(hot,e){
+  if(!customer||customer.phase!=="waiting") return false;
+  const goods=STALL_GOODS[hot.dataset.zone];
+  if(!goods) return false;
+  if(hot.classList.contains("ready")){
+    e.preventDefault();
+    const g=hot.dataset.good;
+    if(!g||tray.length>=MAXTRAY) return true;
+    const slots=document.querySelectorAll("#tray .slot");
+    fly(hot,GOODS[g].icon,slots[tray.length],()=>{
+      tray.push(g); renderTray(); markRow(g); restoreHot(hot); updateHandover();
+    });
+    return true;
+  }
+  const need=goods.find(g=>customer.ticket.includes(g)&&trayHas(g)===0);
+  if(!need) return false;
+  e.preventDefault();
+  if(hot.classList.contains("busy")) return true;
+  if(tray.length>=MAXTRAY) return true;
+  const good=GOODS[need];
+  hot.dataset.good=need;
+  if(!hot.dataset.orig) hot.dataset.orig=hot.innerHTML;
+  if(good.prep<=0){
+    const slots=document.querySelectorAll("#tray .slot");
+    setHot(hot,good.verb+" ✓",good.icon+" "+good.label+" · taken");
+    fly(hot,good.icon,slots[tray.length],()=>{
+      tray.push(need); renderTray(); markRow(need); updateHandover();
+    });
+    setTimeout(()=>restoreHot(hot),900);
+    return true;
+  }
+  hot.classList.add("busy");
+  hot.style.setProperty("--prep",(good.prep/1000)+"s");
+  setHot(hot,good.verb+"…",good.icon+" "+good.label+" · "+(good.prep/1000)+"s");
+  /* setHot replaces innerHTML — the bar must be appended AFTER the label */
+  const pr=document.createElement("span"); pr.className="prog"; pr.innerHTML="<i></i>";
+  hot.appendChild(pr);
+  const bar=pr.querySelector("i");
+  const onEnd=()=>{
+    bar.removeEventListener("animationend",onEnd);
+    hot.classList.remove("busy"); hot.classList.add("ready");
+    setHot(hot,"Ready — take",good.icon+" "+good.label+" · tap to tray");
+    const pr2=document.createElement("span"); pr2.className="prog";
+    pr2.innerHTML='<i style="width:100%"></i>'; hot.appendChild(pr2);
+  };
+  bar.addEventListener("animationend",onEnd);
+  return true;
+}
+function tryHandover(btn){
   if(!customer||customer.phase!=="waiting") return;
-  customer.phase="hop"; customer.t0=performance.now(); customer.dur=500;
-  const v=customer.g.position.clone(); v.y+=1.9; v.project(gl.camera);
+  if(!trayMatches()){
+    btn.classList.remove("shake"); void btn.offsetWidth; btn.classList.add("shake");
+    return;
+  }
+  /* the beat (frontend_dev B4, ≤900ms) */
+  const v=customer.g.position.clone(); v.y+=1.5; v.project(gl.camera);
   coinAt((v.x*.5+.5)*innerWidth,(-v.y*.5+.5)*innerHeight);
+  document.querySelectorAll("#tray .slot.filled").forEach((sl,i)=>{
+    setTimeout(()=>fly(sl,sl.textContent,btn,null),i*60);
+  });
+  setTimeout(()=>{
+    const trayEl=document.getElementById("tray");
+    trayEl.classList.add("drain");
+    setTimeout(()=>{
+      customer.ticket.forEach(g=>{ const i=tray.indexOf(g); if(i>=0) tray.splice(i,1); });
+      trayEl.classList.remove("drain"); renderTray(); updateHandover();
+    },380);
+  },260);
+  customer.bubble&&customer.bubble.remove(); customer.bubble=null;
+  customer.qbar&&customer.qbar.remove(); customer.qbar=null;
+  const servedBtn=customer.serve;
+  setTimeout(()=>{ if(servedBtn){ servedBtn.remove(); } if(customer&&customer.serve===servedBtn) customer.serve=null; },420);
+  customer.phase="hop"; customer.t0=performance.now(); customer.dur=500;
   served++;
   document.getElementById("score").textContent=String(served);
   const chip=document.getElementById("scorechip");
   chip.classList.remove("bump"); void chip.offsetWidth; chip.classList.add("bump");
-  if(customer.bubble){ customer.bubble.remove(); customer.bubble=null; }
-  if(customer.serve){ customer.serve.remove(); customer.serve=null; }
-  location.hash="#/"+demand.zone+"/";   // serving = the real content
+  say("Served. Customers served: "+served+".");
+  restoreHotLabels();
+  /* serving = the content moment: glide to the first ticket's zone, card opens (read intent) */
+  const zone=GOODS[customer.ticket[0]].stall;
+  setTimeout(()=>{ navIntent="open"; location.hash="#/"+zone+"/"; },550);
+  if(gl) gl.kickNow();
+}
+function customerLeave(){
+  if(!customer||customer.phase!=="waiting") return;
+  say("The customer left.");
+  customer.phase="leaving"; customer.t0=performance.now(); customer.dur=1600;
+  customer.from=customer.g.position.toArray(); customer.to=DOOR.slice();
+  [customer.bubble,customer.qbar,customer.serve].forEach(el=>el&&el.remove());
+  customer.bubble=customer.qbar=customer.serve=null;
+  restoreHotLabels();
+  if(gl) gl.kickNow();
 }
 function tickCustomer(now){
   if(!customer) return false;
@@ -890,8 +1117,12 @@ function tickCustomer(now){
       Math.abs(Math.sin(now*0.012))*0.05,
       THREE.MathUtils.lerp(c.from[2],c.to[2],e));
     if(t>=1){
-      if(c.phase==="walking"){ c.phase="waiting"; c.g.position.set(...c.to); }
-      else { gl.scene.remove(c.g); customer=null; }
+      if(c.phase==="walking"){
+        c.phase="waiting"; c.g.position.set(...c.to);
+        say("A customer is waiting."); updateHandover();
+      } else {
+        gl.scene.remove(c.g); customer=null; restoreHotLabels();
+      }
     }
     return true;
   }
@@ -907,17 +1138,25 @@ function updateCustomerDom(){
   if(!gl||!customer) return;
   const c=customer.g.position;
   const put=(el,dy)=>{
+    if(!el||el.hidden) return;
     const v=new THREE.Vector3(c.x,c.y+dy,c.z).project(gl.camera);
     if(v.z>1){ el.style.opacity="0"; return; }
     el.style.opacity="1";
     const rb=cardOpen?cardRightEdge:innerWidth-110;
-    const x=Math.min(Math.max((v.x*.5+.5)*innerWidth,140),Math.max(150,rb));
-    const y=Math.min(Math.max((-v.y*.5+.5)*innerHeight,120),innerHeight-100);
-    el.style.left=x+"px"; el.style.top=y+"px";
+    el.style.left=Math.min(Math.max((v.x*.5+.5)*innerWidth,140),Math.max(150,rb))+"px";
+    el.style.top=Math.min(Math.max((-v.y*.5+.5)*innerHeight,130),innerHeight-90)+"px";
   };
-  if(customer.bubble) put(customer.bubble,2.05);
-  if(customer.serve) put(customer.serve,0.72);
+  if(customer.bubble) put(customer.bubble,2.45);
+  if(customer.qbar) put(customer.qbar,1.62);
+  if(customer.serve) put(customer.serve,0.95);
 }
+/* timers pause, never expire, while hidden (Yuki gate 15) */
+document.addEventListener("visibilitychange",()=>{
+  const st=document.hidden?"paused":"running";
+  document.querySelectorAll(".qbar i,.hot .prog i").forEach(el=>{
+    el.style.animationPlayState=st;
+  });
+});
 document.getElementById("bell").addEventListener("click",spawnCustomer);
 
 /* ═════════ ROUTING + PANELS + FOCUS ═════════ */
@@ -999,6 +1238,8 @@ document.getElementById("stage").addEventListener("pointerdown",()=>{
 });
 
 document.addEventListener("click",e=>{
+  const hot=e.target.closest(".hot");
+  if(hot&&hot.dataset.zone&&tryGather(hot,e)) return;   // gather beats navigate
   const a=e.target.closest('a[href^="#/"]');
   if(a){
     lastTrigger=a;
