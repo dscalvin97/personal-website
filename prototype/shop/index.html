@@ -54,6 +54,13 @@ a{color:#b2560d}
 .till .score svg{width:15px;height:15px}
 .till .score.bump{animation:bump .22s ease-out}
 @keyframes bump{50%{transform:scale(1.15);background:var(--honey)}}
+#readbtn{font:400 13px/1 var(--hand);background:var(--honey);color:var(--ink);
+  border:3px solid var(--ink);padding:7px 10px;cursor:pointer;
+  border-radius:11px 16px 12px 17px;box-shadow:2px 3px 0 var(--sh)}
+#readbtn:hover,#readbtn:focus-visible{transform:translateY(-1px);
+  box-shadow:2px 4px 0 var(--sh);outline:none}
+#readbtn:focus-visible{box-shadow:2px 4px 0 var(--sh),0 0 0 3px rgba(255,176,46,.55)}
+#readbtn:active{transform:translateY(3px);box-shadow:0 0 0 var(--sh)}
 #bell{display:inline-flex;align-items:center;justify-content:center;
   width:32px;height:30px;padding:0;background:var(--honey);
   border:3px solid var(--ink);border-radius:12px 16px 13px 17px;
@@ -84,12 +91,12 @@ a{color:#b2560d}
 .hot:hover,.hot:focus-visible{transform:translate(-50%,-50%) translateY(-2px);
   box-shadow:3px 5px 0 var(--sh);outline:none}
 .hot:focus-visible{box-shadow:3px 5px 0 var(--sh),0 0 0 3px rgba(255,176,46,.55)}
-.hot.serve{background:var(--tomato);z-index:14}
+.hot.serve{background:var(--tomato);z-index:18}
 .hot.serve small{color:#5c1712}
 .hot.serve:hover,.hot.serve:focus-visible{background:var(--honey)}
 .hot[hidden]{display:none}
 .bubble{position:absolute;transform:translate(-50%,-100%);pointer-events:none;
-  z-index:11;max-width:230px;background:var(--cream);color:var(--ink);
+  z-index:16;max-width:230px;background:var(--cream);color:var(--ink);
   font:400 13.5px/1.35 var(--hand);border:3px solid var(--ink);
   border-radius:18px 18px 18px 6px;box-shadow:inset 0 0 0 2px var(--paper),
   3px 4px 0 var(--sh);padding:8px 12px;filter:url(#rough)}
@@ -100,19 +107,31 @@ a{color:#b2560d}
 .bubble.pop{animation:pop .16s ease-out both}
 @keyframes pop{from{transform:translate(-50%,-100%) scale(.85)}}
 .coin{position:absolute;transform:translate(-50%,-50%);font-size:24px;
-  pointer-events:none;z-index:12;animation:coinarc .7s cubic-bezier(.22,.61,.36,1) forwards}
+  pointer-events:none;z-index:17;animation:coinarc .7s cubic-bezier(.22,.61,.36,1) forwards}
 @keyframes coinarc{
   0%{opacity:1;transform:translate(-50%,-30%) rotate(-15deg) scale(1)}
   60%{opacity:1;transform:translate(-20%,-150%) rotate(15deg) scale(1.25)}
   100%{opacity:0;transform:translate(-40%,-190%) rotate(18deg) scale(.9)}}
 
 /* ── story-card panels ── */
-.panelwrap{position:fixed;top:64px;right:14px;bottom:14px;z-index:15;
-  width:min(370px,calc(100vw - 28px));overflow:auto;pointer-events:none}
+.panelwrap{position:fixed;top:64px;right:14px;bottom:auto;z-index:15;
+  width:min(340px,calc(100vw - 28px));max-height:calc(100vh - 84px);
+  overflow:auto;pointer-events:none}
 .panel{background:var(--paper);color:var(--ink);border:3px solid var(--ink);
   border-radius:var(--r2);box-shadow:5px 6px 0 var(--sh);padding:15px 17px;
   pointer-events:auto;transform:rotate(-.35deg)}
+.panel{position:relative}
 .panel[hidden]{display:none}
+.panel .close{position:absolute;top:6px;right:6px;width:44px;height:44px;
+  background:var(--paper);border:3px solid var(--ink);border-radius:13px 18px 14px 19px;
+  box-shadow:2px 3px 0 var(--sh);font:400 17px/1 var(--hand);cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.panel .close:hover,.panel .close:focus-visible{transform:translateY(-1px);
+  box-shadow:2px 4px 0 var(--sh);outline:none}
+.panel .close:focus-visible{box-shadow:2px 4px 0 var(--sh),0 0 0 3px rgba(255,176,46,.55)}
+.panel h2{padding-right:44px}
+.panel.out{animation:cardout .14s ease-in both}
+@keyframes cardout{to{opacity:0;transform:rotate(-.35deg) translateY(6px) scale(.98)}}
 .panel.in{animation:cardin .18s ease-out both}
 @keyframes cardin{from{opacity:0;transform:rotate(-.35deg) translateY(10px)}}
 .panel h2{margin:0 0 2px;font:400 23px/1.15 var(--hand)}
@@ -153,7 +172,7 @@ a{color:#b2560d}
 }
 
 /* ── 2D shop: reduce / no-WebGL / no-JS ── */
-.dom2d #stage,.dom2d #hots,.dom2d #bell{display:none}
+.dom2d #stage,.dom2d #hots,.dom2d #bell,.dom2d .panel .close{display:none}
 .dom2d .panelwrap{position:static;width:auto;max-width:720px;margin:86px auto 40px;
   overflow:visible;pointer-events:auto}
 .dom2d .panel{margin-bottom:18px}
@@ -201,6 +220,7 @@ a{color:#b2560d}
         <path d="M10.5 19a1.8 1.8 0 0 0 3 0"/><path d="M18 6.5l1.8-1.8"/>
       </svg>
     </button>
+    <button id="readbtn" type="button">Read: the shop</button>
     <a class="mini" href="/calvin-dsouza-resume.pdf" download>CV</a>
     <a class="mini b" href="https://dscalvin.gumroad.com/" target="_blank" rel="noopener noreferrer">Patterns</a>
     <a class="mini c" href="mailto:dscalvin97@gmail.com">Email</a>
@@ -302,6 +322,7 @@ a{color:#b2560d}
 </script>
 <script type="module">
 import * as THREE from "three";
+import { mergeGeometries } from "https://esm.sh/three@0.186.1/examples/jsm/utils/BufferGeometryUtils.js";
 
 /* ═════════ STATE + ROUTING (hash = stand-in for production routes) ═════════ */
 const ZONES = ["hub","craft","studio","developer","templates","counter"];
@@ -371,9 +392,9 @@ function vertexBake(geo, hex, opt={}){
   geo.setAttribute("color",new THREE.BufferAttribute(col,3));
   return geo;
 }
+const SHARED = new THREE.MeshBasicMaterial({ vertexColors: true }); // slice 0: ONE material
 function mesh(geo,hex,opt){
-  return new THREE.Mesh(vertexBake(geo,hex,opt),
-    new THREE.MeshBasicMaterial({vertexColors:true}));
+  return new THREE.Mesh(vertexBake(geo,hex,opt), SHARED);
 }
 
 /* signage: warm hand-drawn boards (Short Stack when loaded) */
@@ -555,6 +576,26 @@ function buildShop(){
       developer:[0,0.02,-4.2],templates:[4.6,0.02,3.4]}[z];
     q.rotation.x=-Math.PI/2; q.position.set(...pos); scene.add(q); pools[z]=q;
   });
+  /* slice 0: merge every static vertex-baked mesh into ONE draw call.
+     Signs keep their atlas materials; pools keep additive; customers are
+     created later and never join the batch. (Yuki gate: ≤12 calls/frame.) */
+  scene.updateMatrixWorld(true);
+  const batch=[];
+  scene.traverse(o=>{ if(o.isMesh && o.material===SHARED) batch.push(o); });
+  if(batch.length>1){
+    const geos=batch.map(m=>{
+      let g=m.geometry.clone();
+      if(g.index) g=g.toNonIndexed();          // uniform attrs across primitives
+      g.applyMatrix4(m.matrixWorld);
+      return g;
+    });
+    const merged=mergeGeometries(geos,false);
+    if(merged){
+      batch.forEach(m=>{ m.parent.remove(m); m.geometry.dispose(); });
+      geos.forEach(g=>g.dispose());
+      scene.add(new THREE.Mesh(merged,SHARED));
+    } else geos.forEach(g=>g.dispose());        // attribute mismatch: keep originals
+  }
   return {scene,pools};
 }
 
@@ -572,6 +613,9 @@ function startGL(canvas){
 
   let glide=null,burst=null,dirty=true,raf=null; const cbs=[];
   const pan={x:0,z:0}; let zoomK=1;
+  const nudgeV=new THREE.Vector3(), nudgeFrom=new THREE.Vector3(),
+        nudgeTgt=new THREE.Vector3(), ZERO=new THREE.Vector3();
+  let nudgeT0=0, nudging=false;
   let pos=new THREE.Vector3(...POSES.hub.p),
       look=new THREE.Vector3(...POSES.hub.l),
       fov=POSES.hub.fov;
@@ -579,7 +623,7 @@ function startGL(canvas){
   function maxDist(){ return (innerWidth/innerHeight<1)?12:12.5; }
   function distEff(){ return pos.distanceTo(look)*zoomK; }
   function applyRig(){
-    const L=look.clone(); L.x+=pan.x; L.z+=pan.z;
+    const L=look.clone().add(nudgeV); L.x+=pan.x; L.z+=pan.z;
     const P=pos.clone().add(L.clone().sub(look));      // rigid pan
     P.sub(L).multiplyScalar(zoomK).add(L);             // zoom toward target
     camera.position.copy(P); camera.lookAt(L);
@@ -628,6 +672,13 @@ function startGL(canvas){
       const k=t<0.6?t/0.6:1-(t-0.6)/0.4*0.85;
       burst.pool.material.opacity=0.18*k;
       if(t>=1){ burst.pool.material.opacity=0.03; burst=null; }
+      dirty=true;
+    }
+    if(nudging){
+      const t=Math.min(1,(now-nudgeT0)/180);
+      const e=1-Math.pow(1-t,3);
+      nudgeV.lerpVectors(nudgeFrom,nudgeTgt,e);
+      if(t>=1) nudging=false;
       dirty=true;
     }
     let cbActive=false;
@@ -679,16 +730,8 @@ function startGL(canvas){
     const to=POSES[zone]||POSES.hub;
     const focus=zone!=="hub";
     if(focus){ pan.x=0; pan.z=0; zoomK=1; }           // focus = authored frame
+    nudgeV.copy(ZERO); nudging=false;                  // fresh pose, no stale read-offset
     const l=[...to.l];
-    if(focus){                                         // panel-offset baked into lookAt
-      const dist=Math.hypot(to.p[0]-l[0],to.p[1]-l[1],to.p[2]-l[2]);
-      const vh=2*Math.tan(to.fov*Math.PI/360)*dist, vw=vh*camera.aspect;
-      if(camera.aspect>=1){
-        const fwd=new THREE.Vector3(l[0]-to.p[0],l[1]-to.p[1],l[2]-to.p[2]).normalize();
-        const right=new THREE.Vector3().crossVectors(fwd,new THREE.Vector3(0,1,0)).normalize();
-        l[0]+=right.x*0.15*vw; l[1]+=right.y*0.15*vw; l[2]+=right.z*0.15*vw;
-      } else l[1]+=0.15*vh;
-    }
     if(instant||reduce.matches){
       pos.set(...to.p); look.set(...l); fov=to.fov;
       clampPan(); onArrive(zone); dirty=true; kick(); return;
@@ -713,7 +756,18 @@ function startGL(canvas){
     addBurst(p){ burst={pool:p,t0:performance.now()}; dirty=true; kick(); },
     onFrame(fn){ cbs.push(fn); },
     kickNow(){ kick(); },
-    debug(){ return { posePos:[+pos.x.toFixed(2),+pos.y.toFixed(2),+pos.z.toFixed(2)],
+    setReadOffset(open){
+      if(glide) return;                       // mid-glide: authored frame wins, skip
+      const fwd=new THREE.Vector3().subVectors(look,pos).normalize();
+      const right=new THREE.Vector3().crossVectors(fwd,new THREE.Vector3(0,1,0)).normalize();
+      const d=pos.distanceTo(look);
+      const vw=2*Math.tan(fov*Math.PI/360)*d*camera.aspect;
+      nudgeFrom.copy(nudgeV);
+      if(open) nudgeTgt.copy(right).multiplyScalar(0.15*vw);
+      else nudgeTgt.copy(ZERO);
+      nudgeT0=performance.now(); nudging=true; kick();
+    },
+    debug(){ return { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, posePos:[+pos.x.toFixed(2),+pos.y.toFixed(2),+pos.z.toFixed(2)],
       poseLook:[+look.x.toFixed(2),+look.y.toFixed(2),+look.z.toFixed(2)],
       pan:[+pan.x.toFixed(2),+pan.z.toFixed(2)], zoomK:+zoomK.toFixed(3),
       camPos:[+camera.position.x.toFixed(2),+camera.position.y.toFixed(2),+camera.position.z.toFixed(2)] }; } };
@@ -758,12 +812,11 @@ function updateHots(){
     v.copy(anchor).project(gl.camera);
     if(v.z>1){ el.style.opacity="0"; el.style.pointerEvents="none"; return; }
     el.style.opacity="1"; el.style.pointerEvents="auto";
-    const panelOpen=!!document.querySelector(".panel:not([hidden])");
-    const rightEdge=innerWidth-(panelOpen&&innerWidth>700?420:110);
+    const rightEdge=cardOpen?cardRightEdge:innerWidth-110;   // closed: margin from right edge
     el.style.left=Math.min(Math.max((v.x*.5+.5)*innerWidth,110),rightEdge)+"px";
     el.style.top=Math.min(Math.max((-v.y*.5+.5)*innerHeight,110),innerHeight-150)+"px";
   });
-  if(!stepBack.hidden){ stepBack.style.left="24px"; stepBack.style.top=(innerHeight-120)+"px"; }
+  if(!stepBack.hidden){ stepBack.style.left="140px"; stepBack.style.top=(innerHeight-120)+"px"; }
   updateCustomerDom();
 }
 
@@ -857,8 +910,10 @@ function updateCustomerDom(){
     const v=new THREE.Vector3(c.x,c.y+dy,c.z).project(gl.camera);
     if(v.z>1){ el.style.opacity="0"; return; }
     el.style.opacity="1";
-    el.style.left=((v.x*.5+.5)*innerWidth)+"px";
-    el.style.top=((-v.y*.5+.5)*innerHeight)+"px";
+    const rb=cardOpen?cardRightEdge:innerWidth-110;
+    const x=Math.min(Math.max((v.x*.5+.5)*innerWidth,140),Math.max(150,rb));
+    const y=Math.min(Math.max((-v.y*.5+.5)*innerHeight,120),innerHeight-100);
+    el.style.left=x+"px"; el.style.top=y+"px";
   };
   if(customer.bubble) put(customer.bubble,2.05);
   if(customer.serve) put(customer.serve,0.72);
@@ -871,49 +926,105 @@ function setAriaCurrent(zone){
     if(a.dataset.zone===zone) a.setAttribute("aria-current","page");
     else a.removeAttribute("aria-current");
   });
+  const rn={hub:"the shop",craft:"crochet",studio:"studio",
+            developer:"back office",templates:"templates",counter:"the counter"};
+  const rb=document.getElementById("readbtn");
+  if(rb) rb.textContent="Read: "+(rn[zone]||zone);
 }
-function showPanel(zone,focus){
+
+/* ── summoned card (frontend_dev spec): content-height, read-intent only,
+   four close affordances, focus per Elena R2. No permanent panel. ── */
+let cardOpen=false, cardRightEdge=0, navIntent="open";
+const READ={hub:"the shop",craft:"crochet",studio:"studio",
+            developer:"back office",templates:"templates",counter:"the counter"};
+
+function openCard(zone,focus){
   document.querySelectorAll(".panel").forEach(p=>{ p.hidden=p.dataset.zone!==zone; });
   const panel=panelFor(zone);
-  if(panel){
-    panel.classList.remove("in"); void panel.offsetWidth; panel.classList.add("in");
-    if(focus) panel.querySelector("h2").focus({preventScroll:false});
+  if(!panel){ return; }
+  panel.classList.remove("out");
+  void panel.offsetWidth;
+  panel.classList.add("in");
+  if(!cardOpen){
+    cardOpen=true;
+    const w=panel.getBoundingClientRect().width;
+    cardRightEdge=innerWidth>700?innerWidth-(w+38):innerWidth-110; // right bound while open
+    if(gl) gl.setReadOffset(true);
   }
+  if(focus) panel.querySelector("h2").focus({preventScroll:false});
 }
+function closeCard(reason){
+  if(!cardOpen) return;
+  const panel=document.querySelector(".panel:not([hidden])");
+  cardOpen=false;
+  cardRightEdge=0;
+  if(gl) gl.setReadOffset(false);
+  const finish=()=>{
+    if(!panel) return;
+    panel.classList.remove("out","in");
+    panel.hidden=true;
+    /* dismiss reasons restore focus (Elena R2/R2b); nav reasons leave it
+       where the user's click already put it */
+    if(reason==="escape"||reason==="toggle"||reason==="away"){
+      if(lastTrigger&&document.contains(lastTrigger)&&lastTrigger.offsetParent!==null)
+        lastTrigger.focus({preventScroll:true});
+      else {
+        const rb=document.getElementById("readbtn");
+        if(rb&&rb.offsetParent!==null) rb.focus({preventScroll:true});
+      }
+    }
+  };
+  if(reduce.matches) finish();
+  else { panel.classList.add("out"); setTimeout(finish,140); }
+}
+document.querySelectorAll(".panel").forEach(p=>{
+  const x=document.createElement("button");
+  x.type="button"; x.className="close"; x.setAttribute("aria-label","Close");
+  x.textContent="\u2715";
+  x.addEventListener("click",()=>closeCard("toggle"));
+  p.insertBefore(x,p.querySelector("h2"));
+});
 function onArrive(zone){
   if(walking){ walking=false; try{sessionStorage.setItem("walked","1");}catch(e){} }
-  if(gl&&gl.pools&&gl.pools[zone]) gl.addBurst(gl.pools[zone]);
+  if(gl&&gl.pools&&gl.pools[zone]) gl.addBurst(gl.pools[zone]);   // arrival one-shot
   setAriaCurrent(zone);
   document.title=zone==="hub"?"calvin.makes — the shop":zone+" — calvin.makes";
 }
-function setZone(zone,opts){
-  opts=opts||{}; current=zone;
-  showPanel(zone,opts.focus!==false);
-  if(gl) gl.goTo(zone,opts.instant); else onArrive(zone);
-  updateHotVisibility(zone);
-}
+document.getElementById("readbtn").addEventListener("click",()=>{
+  if(cardOpen) closeCard("toggle"); else openCard(current,true);
+});
+/* click-away: pointerdown on the scene closes the card */
+document.getElementById("stage").addEventListener("pointerdown",()=>{
+  if(cardOpen) closeCard("away");
+});
+
 document.addEventListener("click",e=>{
   const a=e.target.closest('a[href^="#/"]');
-  if(a) lastTrigger=a;
+  if(a){
+    lastTrigger=a;
+    /* HUD/dock/shop travel = scene only; everything else (hotspots,
+       back-marker, in-card links) = read intent → opens the card */
+    navIntent=(a.closest(".hud nav,#dock")||a.classList.contains("shop"))
+      ? "skip" : "open";
+  }
 });
 addEventListener("hashchange",()=>{
   const zone=zoneFromHash(); current=zone;
   if(gl) gl.goTo(zone,false); else onArrive(zone);
   updateHotVisibility(zone); setAriaCurrent(zone);
-  if(zone!=="hub"){
-    showPanel(zone,true);              // Elena R2 open: heading gets focus, ahead of the glide
+  if(navIntent==="skip"){
+    closeCard("nav");                       // travel = scene only (focus stays on the clicked link)
+  } else if(zone!=="hub"){
+    openCard(zone,true);                    // read intent: heading focus ahead of the glide (Elena R2)
   } else {
-    showPanel("hub",false);            // close: focus returns to the activating control…
-    if(!lastTrigger||!document.contains(lastTrigger)||lastTrigger.offsetParent===null){
-      const hud=document.querySelector(".hud nav a[data-zone=\"craft\"]")
-        ||document.querySelector(".hud .shop");
-      if(hud) hud.focus({preventScroll:true});   // …or the HUD (Elena R2b)
-    } else { lastTrigger.focus({preventScroll:true}); lastTrigger=null; }
+    closeCard("nav");                       // back to shopfront: card closes, focus restores (R2b)
   }
+  navIntent="open";
   booted=true;
 });
+
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"&&current!=="hub") location.hash="#/";
+  if(e.key==="Escape"&&cardOpen){ e.preventDefault(); closeCard("escape"); }
 });
 
 /* ═════════ INIT ═════════ */
@@ -935,7 +1046,7 @@ async function init(){
 
   let walked=false; try{ walked=sessionStorage.getItem("walked")==="1"; }catch(e){}
   const zone=zoneFromHash(); current=zone;
-  showPanel(zone,false);                 // content usable from frame one
+  openCard(zone,false);                  // content usable from frame one (no focus steal on load)
   updateHotVisibility(zone); setAriaCurrent(zone); booted=true;
 
   if(zone==="hub"&&!walked){
