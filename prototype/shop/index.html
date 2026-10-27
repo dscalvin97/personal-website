@@ -380,9 +380,9 @@ const POSES = {
   hub:       { p:[0,7.25,10.33], l:[0,1.0,-0.5], fov:40 },   // overview: pitch 30°, d 12.5 (Leo rig)
   craft:     { p:[-2.6,1.55,2.9],  l:[-5.1,1.35,-4.6], fov:33 },
   studio:    { p:[3.2,1.55,2.9],   l:[5.6,1.45,-4.6],  fov:33 },
-  developer: { p:[0,1.75,1.9],    l:[0,1.25,-5.2],   fov:35 },
-  templates: { p:[3.4,1.5,6.4],   l:[5.0,1.05,3.0],  fov:33 },
-  counter:   { p:[0.4,1.5,4.6],   l:[0,1.05,1.8],    fov:36 },
+  developer: { p:[0,1.95,2.1],    l:[0,1.5,-5.0],    fov:35 },
+  templates: { p:[-1.0,1.5,7.7],  l:[-2.6,1.05,4.75], fov:34 },
+  counter:   { p:[0.6,1.5,4.9],   l:[2.2,1.05,0.9],  fov:36 },
 };
 const DOLLY_IN = { p:[0,2.1,15.5], l:[0,1.4,0], fov:50 };
 
@@ -467,24 +467,46 @@ function sign(lines,w,h,pos,rotY=0){
 /* ═════════ THE SHOP — palette + props (Sana board §1–3) ═════════ */
 function buildShop(){
   const scene=new THREE.Scene();
-  scene.background=new THREE.Color("#5a4636");            // warm haze, not black void
-  scene.fog=new THREE.Fog("#5a4636",14,40);               // fix: was 9/17 → back wall 90% fogged
+  scene.background=new THREE.Color("#5a4636");
+  scene.fog=new THREE.Fog("#5a4636",14,40);
   const W=14,D=12,H=3.4;
+
+  /* ── FLOOR ZONING (the floor IS the map at god's-eye) ── */
   const floor=mesh(new THREE.BoxGeometry(W,0.2,D),"#c08a54",{floor:-0.1,maxY:H,ao:.16});
   floor.position.y=-0.1; scene.add(floor);
+  /* staff spine (behind the counter = staff tone) */
+  const staff=mesh(new THREE.BoxGeometry(6.2,0.03,1.3),"#5a4a2a",{floor:0,maxY:H,win:.2,ao:.1});
+  staff.position.set(0.2,0.015,0.45); scene.add(staff);
+  /* entrance doormat */
+  const mat=mesh(new THREE.BoxGeometry(2.0,0.03,1.2),"#3e2c1d",{floor:0,maxY:H,ao:.1});
+  mat.position.set(-4.3,0.015,4.9); mat.rotation.y=-0.25; scene.add(mat);
+  /* runner: door → counter (the flow cue) */
+  const runner=mesh(new THREE.BoxGeometry(1.15,0.028,4.1),"#8a5c31",{floor:0,maxY:H,win:.3,ao:.1});
+  runner.position.set(-2.6,0.014,3.82); runner.rotation.y=2.12; scene.add(runner);
+  /* queue marks — the 3 customer spots at the counter front */
+  [[-0.9,2.75],[0.5,2.95],[1.9,2.75]].forEach(([x,z])=>{
+    const q=mesh(new THREE.BoxGeometry(0.5,0.03,0.5),"#6b4423",{floor:0,maxY:H,win:.4,ao:.1});
+    q.position.set(x,0.016,z); scene.add(q);
+  });
+  /* rug — off the walk path, front-right of the customer floor */
+  const rug=mesh(new THREE.CylinderGeometry(2.0,2.0,0.05,26),"#b6542f",{floor:0,maxY:H,win:.3,ao:.1});
+  rug.position.set(1.4,0.03,4.3); scene.add(rug);
+  const rugIn=mesh(new THREE.CylinderGeometry(1.42,1.42,0.052,26),"#e1835b",{floor:0,maxY:H,win:.3,ao:.1});
+  rugIn.position.set(1.4,0.04,4.3); scene.add(rugIn);
+
+  /* ── WALLS ── */
   const back=mesh(new THREE.BoxGeometry(W,H,0.2),"#ebcfa6",{floor:0,maxY:H,band:"#d6a470",win:.35});
   back.position.set(0,H/2,-D/2); scene.add(back);
   const left=mesh(new THREE.BoxGeometry(0.2,H,D),"#ebcfa6",{floor:0,maxY:H,band:"#d6a470",win:.5,ao:.14});
   left.position.set(-W/2,H/2,0); scene.add(left);
-  const right=mesh(new THREE.BoxGeometry(0.2,H,D),"#80849a",{floor:0,maxY:H,win:.12,ao:.18}); // the ONE cool relief zone
+  const right=mesh(new THREE.BoxGeometry(0.2,H,D),"#80849a",{floor:0,maxY:H,win:.12,ao:.18});
   right.position.set(W/2,H/2,0); scene.add(right);
-  /* no ceiling — the overarching camera sits above the room (manager-game standard) */
 
-  /* window — the key light gets a visible source (fix #6) */
+  /* window + awning (the key light gets a visible source) */
   const wf=mesh(new THREE.BoxGeometry(1.4,1.2,0.1),"#6b4423",{floor:0,maxY:H,win:.3});
   wf.position.set(-3.6,2.3,-5.86); scene.add(wf);
   const wp=new THREE.Mesh(new THREE.PlaneGeometry(1.15,0.95),
-    new THREE.MeshBasicMaterial({color:"#f9eca6"}));      // hottest highlight
+    new THREE.MeshBasicMaterial({color:"#f9eca6"}));
   wp.position.set(-3.6,2.3,-5.79); scene.add(wp);
   const mull=mesh(new THREE.BoxGeometry(0.07,0.95,0.04),"#6b4423",{floor:0,maxY:H,win:.4});
   mull.position.set(-3.6,2.3,-5.77); scene.add(mull);
@@ -493,40 +515,67 @@ function buildShop(){
   const awn=mesh(new THREE.BoxGeometry(1.5,0.4,0.5),"#e1835b",{floor:0,maxY:H,win:.5});
   awn.position.set(-3.6,3.15,-5.6); awn.rotation.x=0.35; scene.add(awn);
 
-  /* counter + till + bell + fabric stacks + clipboard */
-  const counter=mesh(new THREE.BoxGeometry(5.2,1.05,1.1),"#a5703d",{floor:0,maxY:1.1,ao:.16,band:"#8a5c31"});
-  counter.position.set(0,0.525,1.9); scene.add(counter);
+  /* ── L-COUNTER: the service line, the one off-grid diagonal (Sana §C) ── */
+  const counterG=new THREE.Group();
+  counterG.position.set(0.1,0,1.0); counterG.rotation.y=-0.18;
+  const run=mesh(new THREE.BoxGeometry(5.0,1.05,1.1),"#a5703d",{floor:0,maxY:1.1,ao:.16,band:"#8a5c31"});
+  run.position.set(0,0.525,0.6); counterG.add(run);
+  const leg=mesh(new THREE.BoxGeometry(1.1,1.05,1.8),"#a5703d",{floor:0,maxY:1.1,ao:.16,band:"#8a5c31"});
+  leg.position.set(2.5,0.525,-0.3); counterG.add(leg);
+  /* service corner: till + bell + fabric stacks + clipboard */
   const till=mesh(new THREE.BoxGeometry(0.5,0.38,0.42),"#3e2c1d",{floor:.9,maxY:1.6,win:.5});
-  till.position.set(1.7,1.25,1.9); scene.add(till);
+  till.position.set(2.5,1.25,-0.45); counterG.add(till);
   const bellBase=mesh(new THREE.CylinderGeometry(0.13,0.15,0.04,14),"#8a5c31",{floor:.9,maxY:1.6});
-  bellBase.position.set(1.15,1.07,1.75); scene.add(bellBase);
+  bellBase.position.set(2.1,1.07,0.35); counterG.add(bellBase);
   const bellDome=mesh(new THREE.SphereGeometry(0.11,14,8,0,Math.PI*2,0,Math.PI/2),"#d8b04a",{floor:.9,maxY:1.6,win:.7});
-  bellDome.position.set(1.15,1.09,1.75); scene.add(bellDome);
+  bellDome.position.set(2.1,1.09,0.35); counterG.add(bellDome);
   const bellKnob=mesh(new THREE.SphereGeometry(0.032,10,8),"#3e2c1d",{floor:.9,maxY:1.6});
-  bellKnob.position.set(1.15,1.22,1.75); scene.add(bellKnob);
-  [["#c34c7c",2.25,1.12,0.06],["#3e6fb0",2.25,1.26,-0.04],["#c9a227",-2.3,1.12,0.1]].forEach(([c,x,y,r])=>{
+  bellKnob.position.set(2.1,1.22,0.35); counterG.add(bellKnob);
+  [["#c34c7c",2.15,1.12,0.06],["#3e6fb0",2.15,1.26,-0.04],["#c9a227",-2.4,1.12,0.1]].forEach(([c,x,y,r])=>{
     const f=mesh(new THREE.BoxGeometry(0.55,0.14,0.4),c,{floor:.9,maxY:1.6,win:.5,ao:.1});
-    f.position.set(x,y,1.75); f.rotation.y=r; scene.add(f);
+    f.position.set(x,y,0.6); f.rotation.y=r; counterG.add(f);
   });
   const clipboard=mesh(new THREE.BoxGeometry(0.5,0.7,0.04),"#f2dec0",{floor:.9,maxY:1.8,win:.7});
-  clipboard.position.set(-1.6,1.45,1.35); clipboard.rotation.x=-0.12; scene.add(clipboard);
+  clipboard.position.set(-1.7,1.45,0.9); clipboard.rotation.x=-0.12; counterG.add(clipboard);
+  /* static window-light pool on the counter top (idle-zero legal: static mesh) */
+  const cpool=new THREE.Mesh(new THREE.CircleGeometry(1.5,24),
+    new THREE.MeshBasicMaterial({color:"#ffe3a8",transparent:true,opacity:.14,
+      blending:THREE.AdditiveBlending,depthWrite:false}));
+  cpool.rotation.x=-Math.PI/2; cpool.position.set(0.4,1.06,0.55); counterG.add(cpool);
+  scene.add(counterG);
 
-  /* rug (prop #1) + foreground table with mugs (occluders) */
-  const rug=mesh(new THREE.CylinderGeometry(2.1,2.1,0.05,26),"#b6542f",{floor:0,maxY:H,win:.3,ao:.1});
-  rug.position.set(0,0.03,3.9); scene.add(rug);
-  const rugIn=mesh(new THREE.CylinderGeometry(1.5,1.5,0.052,26),"#e1835b",{floor:0,maxY:H,win:.3,ao:.1});
-  rugIn.position.set(0,0.04,3.9); scene.add(rugIn);
-  const table=mesh(new THREE.BoxGeometry(1.5,0.85,0.85),"#6b4423",{floor:0,maxY:1.2,win:.35});
-  table.position.set(-4.3,0.43,5.2); scene.add(table);
-  [["#fff6e3",-4.6],["#e1835b",-4.05]].forEach(([c,x])=>{
-    const mug=mesh(new THREE.CylinderGeometry(0.09,0.11,0.24,12),c,{floor:.85,maxY:1.4,win:.6,ao:.1});
-    mug.position.set(x,1.0,5.2); scene.add(mug);
+  /* customer-floor light pool from the window (static) */
+  const fpool=new THREE.Mesh(new THREE.CircleGeometry(2.3,26),
+    new THREE.MeshBasicMaterial({color:"#ffe3a8",transparent:true,opacity:.15,
+      blending:THREE.AdditiveBlending,depthWrite:false}));
+  fpool.rotation.x=-Math.PI/2; fpool.position.set(-3.4,0.02,3.1); scene.add(fpool);
+
+  /* ── MENU BOARD hung on cables over the counter (the literal menu) ── */
+  [-1.5,1.5].forEach(x=>{
+    const cab=mesh(new THREE.BoxGeometry(0.05,1.6,0.05),"#3e2c1d",{floor:0,maxY:H,win:.2});
+    cab.position.set(x,4.0,1.5); scene.add(cab);   // runs up out of frame (no ceiling)
   });
+  scene.add(sign(["MENU","crochet · studio","back office · templates"],3.6,1.5,[0,2.55,1.5]));
 
-  /* menu board — the literal menu */
-  scene.add(sign(["MENU","crochet · studio","back office · templates"],3.6,1.5,[0,2.4,-5.55]));
+  /* ── BACK OFFICE: raised platform (height change = zone change) ── */
+  const plat=mesh(new THREE.BoxGeometry(5.0,0.15,2.6),"#5a4a2a",{floor:0,maxY:H,win:.25,ao:.14});
+  plat.position.set(0,0.075,-4.5); scene.add(plat);
+  const desk=mesh(new THREE.BoxGeometry(3.4,0.9,1.2),"#a5703d",{floor:0,maxY:1.2,ao:.16,band:"#6b4423"});
+  desk.position.set(0,0.6,-4.4); scene.add(desk);
+  const ledger=mesh(new THREE.BoxGeometry(0.8,0.06,0.6),"#f2dec0",{floor:.8,maxY:1.4,win:.7});
+  ledger.position.set(-0.4,1.08,-4.3); scene.add(ledger);
+  const gate=mesh(new THREE.BoxGeometry(0.85,0.75,0.08),"#6b4423",{floor:0,maxY:1.4,win:.4,ao:.1});
+  gate.position.set(-2.2,0.53,-3.15); scene.add(gate);
+  const tones=["#6b4423","#8a5c31","#a5703d","#5a4a2a"];
+  for(let r=0;r<4;r++) for(let c=0;c<4;c++){
+    const w=0.46+((r*4+c)%3)*0.05, hgt=0.28+((r+c)%2)*0.05;
+    const dr=mesh(new THREE.BoxGeometry(w,hgt,0.3),tones[(r*4+c)%4],
+      {floor:0,maxY:3,ao:.16,win:.25});
+    dr.position.set(-0.95+c*0.63,1.45+r*0.4,-5.72); scene.add(dr);
+  }
+  scene.add(sign(["BACK OFFICE","the records live here"],2.6,1.05,[0,3.15,-5.85]));
 
-  /* yarn cubby — crochet hero silhouette (pink joins the palette) */
+  /* ── CROCHET: wall cubby + mid-height display table (two-plane zone) ── */
   const shelf=mesh(new THREE.BoxGeometry(3.6,2.4,0.5),"#a5703d",{floor:0,maxY:2.6,ao:.16,band:"#8a5c31"});
   shelf.position.set(-5.1,1.4,-5.5); scene.add(shelf);
   const yarnColors=["#c34c7c","#3e6fb0","#c9a227","#7da05a","#e1835b","#5f8f7c"];
@@ -535,9 +584,19 @@ function buildShop(){
       {floor:.3,maxY:2.4,win:.5,ao:.12});
     y.position.set(-6.35+c*0.62,0.75+r*0.68,-5.15); scene.add(y);
   }
+  const dtbl=mesh(new THREE.BoxGeometry(1.7,1.4,0.9),"#a5703d",{floor:0,maxY:1.6,ao:.16,band:"#6b4423"});
+  dtbl.position.set(-5.2,0.7,-2.8); scene.add(dtbl);
+  const bowl=mesh(new THREE.CylinderGeometry(0.32,0.22,0.3,16),"#c9a227",{floor:1.4,maxY:2,win:.6,ao:.1});
+  bowl.position.set(-5.55,1.55,-2.8); scene.add(bowl);
+  const amo=mesh(new THREE.SphereGeometry(0.26,14,12),"#c34c7c",{floor:1.4,maxY:2,win:.6,ao:.1});
+  amo.position.set(-4.9,1.6,-2.7); amo.scale.y=0.85; scene.add(amo);
+  [["#3e6fb0",0.06],["#e1835b",0.2]].forEach(([c,y])=>{
+    const st=mesh(new THREE.BoxGeometry(0.5,0.14,0.38),c,{floor:1.4,maxY:2,win:.5});
+    st.position.set(-5.3,y+1.36,-2.5); scene.add(st);
+  });
   scene.add(sign(["CROCHET","patterns & finished pieces"],2.4,1.0,[-5.1,2.85,-5.55]));
 
-  /* drying rack + cards — studio */
+  /* ── STUDIO: L-rack (second bay perpendicular breaks the top-down silhouette) ── */
   [5.0,7.4].forEach(x=>{
     const post=mesh(new THREE.BoxGeometry(0.12,2.6,0.12),"#6b4423",{floor:0,maxY:2.6,win:.4});
     post.position.set(x,1.3,-5.4); scene.add(post);
@@ -551,32 +610,45 @@ function buildShop(){
       card.position.set(5.7+i*0.9,0.9+i*0.55-0.42,-5.38); scene.add(card);
     }
   }
+  /* perpendicular bay */
+  [[-3.4],[ -5.4]].forEach(([z])=>{
+    const post=mesh(new THREE.BoxGeometry(0.12,2.4,0.12),"#6b4423",{floor:0,maxY:2.4,win:.35});
+    post.position.set(4.6,1.2,z); scene.add(post);
+  });
+  for(let i=0;i<3;i++){
+    const wire=mesh(new THREE.BoxGeometry(0.04,0.04,2.0),"#8a5c31",{floor:0,maxY:2.4,win:.45});
+    wire.position.set(4.6,0.9+i*0.55,-4.4); scene.add(wire);
+  }
   scene.add(sign(["STUDIO","blender renders"],2.2,0.95,[6.2,2.8,-5.55]));
 
-  /* back office: desk + ledger + drawer wall 3×4 varied (fix #6: was 4×6 identical) */
-  const desk=mesh(new THREE.BoxGeometry(3.4,0.9,1.2),"#a5703d",{floor:0,maxY:1.2,ao:.16,band:"#6b4423"});
-  desk.position.set(0,0.45,-4.4); scene.add(desk);
-  const ledger=mesh(new THREE.BoxGeometry(0.8,0.06,0.6),"#f2dec0",{floor:.8,maxY:1.4,win:.7});
-  ledger.position.set(-0.4,0.93,-4.3); scene.add(ledger);
-  const tones=["#6b4423","#8a5c31","#a5703d","#5a4a2a"];
-  for(let r=0;r<4;r++) for(let c=0;c<4;c++){
-    const w=0.46+((r*4+c)%3)*0.05, hgt=0.28+((r+c)%2)*0.05;
-    const dr=mesh(new THREE.BoxGeometry(w,hgt,0.3),tones[(r*4+c)%4],
-      {floor:0,maxY:3,ao:.16,win:.25});
-    dr.position.set(-0.95+c*0.63,1.45+r*0.4,-5.72); scene.add(dr);
-  }
-  scene.add(sign(["BACK OFFICE","the records live here"],2.6,1.05,[0,3.15,-5.85]));
+  /* ── entrance: angled door + A-frame + OPEN sign ── */
+  const door=mesh(new THREE.BoxGeometry(1.6,2.6,0.12),"#5a4a2a",{floor:0,maxY:2.8,win:.35});
+  door.position.set(-4.5,1.3,5.85); door.rotation.y=-0.25; scene.add(door);
+  const doorSign=sign(["calvin.makes","open to interesting work"],1.5,0.75,[-4.48,2.7,5.74],-0.25);
+  scene.add(doorSign);
+  const aframe=sign(["TODAY","open · step right up"],0.95,0.75,[-3.4,0.62,3.35],0.35);
+  aframe.rotation.x=-0.18; scene.add(aframe);
+  scene.add(sign(["OPEN","to interesting work"],1.3,0.65,[-6.8,2.15,3.4],Math.PI/2));
 
-  /* frames (swap slots for real WebPs) + crates + plants + OPEN sign */
-  [[2.7,2.1,-5.9,0.6,0.8],[3.8,1.85,-5.9,0.5,0.65]].forEach(([x,y,z,w,h])=>{
-    const fr=mesh(new THREE.BoxGeometry(w,h,0.06),"#6b4423",{floor:0,maxY:H,win:.45,ao:.1});
-    fr.position.set(x,y,z); scene.add(fr);
-    const face=mesh(new THREE.BoxGeometry(w-0.12,h-0.12,0.02),"#f2dec0",{floor:0,maxY:H,win:.7});
-    face.position.set(x,y,z+0.045); scene.add(face);
+  /* ── TEMPLATES rack: free things live by the exit (Leo's rule) ── */
+  const pr=mesh(new THREE.BoxGeometry(1.4,2.0,0.14),"#6b4423",{floor:0,maxY:2.2,win:.3});
+  pr.position.set(-2.6,1.0,4.8); pr.rotation.y=0.55; scene.add(pr);
+  for(let i=0;i<3;i++){
+    const pam=mesh(new THREE.BoxGeometry(0.4,0.55,0.03),["#57b85a","#b98cff","#ff6459"][i],
+      {floor:.2,maxY:2,win:.6});
+    pam.position.set(-2.35+i*0.12,0.7+(i%2)*0.7,4.92+i*0.05);
+    pam.rotation.y=0.55; scene.add(pam);
+  }
+  scene.add(sign(["TEMPLATES","free — take one"],1.9,0.85,[-2.6,2.4,4.6],0.55));
+
+  /* ── foreground: table + mugs (right), crates — off the door path ── */
+  const table=mesh(new THREE.BoxGeometry(1.5,0.85,0.85),"#6b4423",{floor:0,maxY:1.2,win:.35});
+  table.position.set(4.4,0.43,5.1); scene.add(table);
+  [["#fff6e3",4.1],["#e1835b",4.7]].forEach(([c,x])=>{
+    const mug=mesh(new THREE.CylinderGeometry(0.09,0.11,0.24,12),c,{floor:.85,maxY:1.4,win:.6,ao:.1});
+    mug.position.set(x,1.0,5.1); scene.add(mug);
   });
-  const fr3=mesh(new THREE.BoxGeometry(0.6,0.8,0.06),"#6b4423",{floor:0,maxY:H,win:.35,ao:.1});
-  fr3.position.set(-6.87,2.0,0.6); fr3.rotation.y=Math.PI/2; scene.add(fr3);
-  [[5.7,0.32,5.0,0.08,"#a5703d"],[5.7,0.94,5.0,-0.12,"#8a5c31"],[4.95,0.32,5.3,0.2,"#6b4423"]].forEach(([x,y,z,r,c])=>{
+  [[5.9,0.32,5.2,0.08,"#a5703d"],[5.9,0.94,5.2,-0.12,"#8a5c31"],[6.5,0.32,4.6,0.2,"#6b4423"]].forEach(([x,y,z,r,c])=>{
     const cr=mesh(new THREE.BoxGeometry(0.62,0.6,0.62),c,{floor:0,maxY:1.4,win:.35,ao:.16});
     cr.position.set(x,y,z); cr.rotation.y=r; scene.add(cr);
   });
@@ -587,71 +659,40 @@ function buildShop(){
     leaf.position.set(-6.3+(i-1)*0.18,y,4.9+(i%2?0.12:-0.1));
     leaf.scale.y=0.55; scene.add(leaf);
   });
-  scene.add(sign(["OPEN","to interesting work"],1.3,0.65,[-6.8,2.15,3.4],Math.PI/2));
 
-  /* pennant banner — fills the empty upper third (prop #2) */
+  /* ── pennant: behind the counter now (was slicing the customer floor) ── */
   const string=mesh(new THREE.BoxGeometry(11.4,0.03,0.03),"#3e2c1d",{floor:0,maxY:H,win:.3});
-  string.position.set(0,2.95,-2.2); scene.add(string);
+  string.position.set(0,2.95,-3.2); scene.add(string);
   const penn=["#ff6459","#ffb02e","#5aa9ff","#57b85a","#b98cff","#ff6459","#ffb02e","#57b85a"];
   penn.forEach((c,i)=>{
     const pc=mesh(new THREE.ConeGeometry(0.14,0.3,3),c,{floor:0,maxY:H,win:.5,ao:.08});
-    pc.position.set(-5+i*1.43,2.78,-2.2); pc.rotation.z=Math.PI; pc.rotation.y=(i%2?0.4:-0.4);
+    pc.position.set(-5+i*1.43,2.78,-3.2); pc.rotation.z=Math.PI; pc.rotation.y=(i%2?0.4:-0.4);
     scene.add(pc);
   });
 
-  /* templates rack + pamphlets + door */
-  const pr=mesh(new THREE.BoxGeometry(1.4,2.0,0.14),"#6b4423",{floor:0,maxY:2.2,win:.3});
-  pr.position.set(4.9,1.0,3.1); pr.rotation.y=-0.5; scene.add(pr);
-  for(let i=0;i<3;i++){
-    const pam=mesh(new THREE.BoxGeometry(0.4,0.55,0.03),["#57b85a","#b98cff","#ff6459"][i],
-      {floor:.2,maxY:2,win:.6});
-    pam.position.set(4.65-i*0.02,0.7+(i%2)*0.7,3.22+i*0.05);
-    pam.rotation.y=-0.5; scene.add(pam);
-  }
-  scene.add(sign(["TEMPLATES","free — take one"],1.9,0.85,[5.15,2.4,2.3],-0.5));
-  const door=mesh(new THREE.BoxGeometry(1.6,2.6,0.12),"#5a4a2a",{floor:0,maxY:2.8,win:.35});
-  door.position.set(-4.5,1.3,5.85); scene.add(door);
-  scene.add(sign(["calvin.makes","open to interesting work"],1.5,0.75,[-4.5,2.7,5.78]));
+  /* frames (swap slots for real WebPs) */
+  [[2.7,2.1,-5.9,0.6,0.8],[3.8,1.85,-5.9,0.5,0.65]].forEach(([x,y,z,w,h])=>{
+    const fr=mesh(new THREE.BoxGeometry(w,h,0.06),"#6b4423",{floor:0,maxY:H,win:.45,ao:.1});
+    fr.position.set(x,y,z); scene.add(fr);
+    const face=mesh(new THREE.BoxGeometry(w-0.12,h-0.12,0.02),"#f2dec0",{floor:0,maxY:H,win:.7});
+    face.position.set(x,y,z+0.045); scene.add(face);
+  });
+  const fr3=mesh(new THREE.BoxGeometry(0.6,0.8,0.06),"#6b4423",{floor:0,maxY:H,win:.35,ao:.1});
+  fr3.position.set(-6.87,2.0,0.6); fr3.rotation.y=Math.PI/2; scene.add(fr3);
 
-  /* arrival light-pool: floor-tinted, never lime (fix #5) */
+  /* arrival light-pools per zone (burst-triggered, floor-tinted) */
   const pools={};
   ["craft","studio","developer","templates"].forEach(z=>{
     const q=new THREE.Mesh(new THREE.CircleGeometry(1.4,24),
       new THREE.MeshBasicMaterial({color:"#ffe3a8",transparent:true,opacity:0,
         blending:THREE.AdditiveBlending,depthWrite:false}));
     const pos={craft:[-5.1,0.02,-4.4],studio:[6.2,0.02,-4.6],
-      developer:[0,0.02,-4.2],templates:[4.6,0.02,3.4]}[z];
+      developer:[0,0.18,-4.3],templates:[-2.6,0.02,4.6]}[z];
     q.rotation.x=-Math.PI/2; q.position.set(...pos); scene.add(q); pools[z]=q;
   });
-  /* slice 0: merge every static vertex-baked mesh into ONE draw call.
-     Signs keep their atlas materials; pools keep additive; customers are
-     created later and never join the batch. (Yuki gate: ≤12 calls/frame.) */
-  scene.updateMatrixWorld(true);
-  const batch=[];
-  scene.traverse(o=>{ if(o.isMesh && o.material===SHARED) batch.push(o); });
-  if(batch.length>1){
-    const geos=batch.map(m=>{
-      let g=m.geometry.clone();
-      if(g.index) g=g.toNonIndexed();          // uniform attrs across primitives
-      g.applyMatrix4(m.matrixWorld);
-      return g;
-    });
-    const merged=mergeGeometries(geos,false);
-    if(merged){
-      batch.forEach(m=>{ m.parent.remove(m); m.geometry.dispose(); });
-      geos.forEach(g=>g.dispose());
-      scene.add(new THREE.Mesh(merged,SHARED));
-    } else geos.forEach(g=>g.dispose());        // attribute mismatch: keep originals
-  }
   return {scene,pools};
 }
 
-/* ═════════ CAMERA RIG v2 — overview + pan/zoom + authored focus (Leo board §4) ═════════
-   pose state {pos, look, fov}; pan shifts target on the floor (clamped to room+0.5,
-   center-locked when the view is wider than the room); zoom = distance to target,
-   hard clamps [4.5, maxD], NO inertia — release = 0 frames. Focus frames are
-   authored: reset pan/zoom, shift the lookAt so the subject lands left of the
-   right-hand panel (35% screen-x; above the bottom sheet on portrait). */
 function startGL(canvas){
   const renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:"default"});
   const dpr=Math.min(devicePixelRatio||1,1.5); renderer.setPixelRatio(dpr);
@@ -823,8 +864,8 @@ function startGL(canvas){
 /* ═════════ HOTSPOTS + FOCUS + ROUTING (Elena R2 rulings) ═════════ */
 const zoneHotAnchors={
   craft:new THREE.Vector3(-5.1,1.7,-5.1), studio:new THREE.Vector3(6.2,1.8,-5.1),
-  developer:new THREE.Vector3(0,1.8,-5.5), templates:new THREE.Vector3(4.9,1.25,3.1),
-  counter:new THREE.Vector3(0.2,1.25,1.9),
+  developer:new THREE.Vector3(0,1.9,-5.5), templates:new THREE.Vector3(-2.6,1.6,4.8),
+  counter:new THREE.Vector3(2.3,1.3,0.9),
 };
 const hotsEl=document.getElementById("hots");
 const hotEls={};
@@ -883,7 +924,7 @@ const GOODS={
   invite:{stall:"templates",prep:0,icon:"✉️",label:"invite kit",verb:"Grab kit"},
 };
 const STALL_GOODS={craft:["yarn"],studio:["printcard"],developer:["ledger"],templates:["invite"]};
-const COUNTER_SPOTS=[[-1.1,0,3.3],[0.4,0,3.5],[1.9,0,3.3]];
+const COUNTER_SPOTS=[[-0.9,0,2.75],[0.5,0,2.95],[1.9,0,2.75]];
 const DOOR=[-4.4,0,5.2];
 const CUST_COLORS=["#ff6459","#5aa9ff","#b98cff","#57b85a","#ffb02e"];
 const MAXTRAY=3;
